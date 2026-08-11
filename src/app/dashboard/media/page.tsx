@@ -112,11 +112,10 @@ export default async function MediaPage({ searchParams }: MediaPageProps) {
                 ) : (
                     <div className="media-grid">
                         {assets.map((asset) => {
-                            const thumb = buildImageUrl(asset.public_id, { width: 400, height: 300, crop: "fill", format: "webp", quality: "60" });
                             return (
                                 <article className="media-card clay-card" key={asset.id}>
                                     <div className="media-thumb">
-                                        <Image src={thumb} alt={asset.alt_text || asset.title || asset.public_id} width={400} height={300} loading="lazy" />
+                                        <Image src={asset.secure_url} alt={asset.alt_text || asset.title || asset.public_id} width={400} height={300} loading="lazy" unoptimized />
                                     </div>
                                     <div className="media-info">
                                         <strong>{asset.title || asset.public_id}</strong>
