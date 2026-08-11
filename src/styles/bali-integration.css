@@ -1,0 +1,207 @@
+.bali-feed {
+    position: relative;
+    margin-bottom: 0 !important;
+    padding: 28px !important;
+    border-radius: 30px 30px 0 0 !important;
+    background: radial-gradient(circle at 8% 0, rgba(255, 199, 112, .15), transparent 28%), linear-gradient(145deg, #182d25, #0e1e1a 62%, #25150d) !important;
+    color: #fff !important
+}
+
+.bali-feed header>span {
+    color: #ffc36e !important
+}
+
+.bali-feed header h2 {
+    color: #fff !important
+}
+
+.bali-feed header p {
+    color: #a9c0b7 !important
+}
+
+.bali-feed+.bali-live-hub {
+    margin-top: -1px;
+    border-top: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 0 0 30px 30px
+}
+
+.bali-mosaic {
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-auto-columns: minmax(280px, 34%) !important;
+    grid-template-columns: none !important;
+    grid-template-rows: 370px !important;
+    gap: 14px;
+    overflow-x: auto !important;
+    padding: 5px 58px 14px !important;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none
+}
+
+.bali-mosaic::-webkit-scrollbar {
+    display: none
+}
+
+.bali-card,
+.bali-card.bali-1,
+.bali-card.bali-2,
+.bali-card.bali-3,
+.bali-card.bali-4,
+.bali-card:nth-child(n+5) {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    min-height: 0 !important;
+    border: 1px solid rgba(255, 255, 255, .13) !important;
+    border-radius: 24px !important;
+    scroll-snap-align: center;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, .22);
+    transition: transform .35s cubic-bezier(.2, .8, .2, 1), filter .35s !important
+}
+
+.bali-card:hover {
+    transform: translateY(-7px) scale(1.01);
+    filter: saturate(1.12)
+}
+
+.bali-card:first-child {
+    grid-column: auto !important
+}
+
+.bali-card h3 {
+    font-size: clamp(16px, 1.6vw, 24px) !important
+}
+
+.bali-feed:before,
+.bali-feed:after {
+    position: absolute;
+    top: 52%;
+    z-index: 4;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 62px;
+    border: 1px solid rgba(255, 255, 255, .22);
+    border-radius: 16px;
+    background: rgba(8, 24, 19, .72);
+    color: #ffad5c;
+    font: 900 24px Outfit;
+    backdrop-filter: blur(14px);
+    pointer-events: none
+}
+
+.bali-feed:before {
+    content: "‹";
+    left: 35px
+}
+
+.bali-feed:after {
+    content: "›";
+    right: 35px
+}
+
+.currency-live {
+    grid-template-columns: auto minmax(0, 1fr) auto !important
+}
+
+.currency-live>button {
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 16px;
+    border: 0;
+    background: linear-gradient(135deg, #e96025, #ff8d3c);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .1em;
+    white-space: nowrap
+}
+
+.currency-live>button svg {
+    width: 13px
+}
+
+.currency-live>button:disabled {
+    opacity: .7
+}
+
+.currency-live>time {
+    padding: 0 13px;
+    color: #90a79e;
+    font-size: 7px;
+    white-space: nowrap
+}
+
+.currency-status {
+    padding: 13px 18px;
+    color: #a9bdb5;
+    font-size: 8px
+}
+
+.is-spinning {
+    animation: currency-spin .8s linear infinite
+}
+
+@keyframes currency-spin {
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+@media(max-width:900px) {
+    .bali-mosaic {
+        grid-auto-columns: minmax(270px, 72%) !important;
+        grid-template-rows: 320px !important;
+        padding-inline: 42px !important
+    }
+
+    .bali-feed:before {
+        left: 20px
+    }
+
+    .bali-feed:after {
+        right: 20px
+    }
+}
+
+@media(max-width:600px) {
+    .bali-feed {
+        margin-inline: 14px !important;
+        padding: 20px 0 !important;
+        border-radius: 24px 24px 0 0 !important
+    }
+
+    .bali-feed>header {
+        padding-inline: 16px
+    }
+
+    .bali-feed+.bali-live-hub {
+        border-radius: 0 0 24px 24px !important
+    }
+
+    .bali-mosaic {
+        grid-auto-columns: 84% !important;
+        grid-template-rows: 280px !important;
+        padding: 3px 20px 12px !important
+    }
+
+    .bali-feed:before,
+    .bali-feed:after {
+        display: none
+    }
+
+    .currency-live {
+        grid-template-columns: 1fr !important
+    }
+
+    .currency-live>button {
+        justify-content: center;
+        padding: 11px
+    }
+
+    .currency-live>time {
+        display: none
+    }
+}

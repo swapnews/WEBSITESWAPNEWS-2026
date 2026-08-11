@@ -1,0 +1,7 @@
+"use client";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import { ArrowLeft, Menu, X } from "lucide-react";
+const links = [["Tentang", "about-us"], ["Karir", "karir"], ["Iklan", "pasang-iklan"], ["Bantuan", "bantuan"], ["Privasi", "kebijakan-privasi"], ["Ketentuan", "syarat-dan-ketentuan"], ["Siber", "pedoman-siber"], ["Komunitas", "panduan-komunitas"], ["Disclaimer", "disclaimer"]];
+export function PublicPageHeader({ slug }: { slug: string }) { const [open, setOpen] = useState(false); return <header className="pp-header"><div className="pp-header-shell"><Link href="/" className="pp-back"><ArrowLeft /> Beranda</Link><Link href="/" className="pp-brand" aria-label="SwapNews Beranda"><Image src="/swapnews-logo.png" alt="SwapNews" width={104} height={38} /><span><b>SWAPNEWS</b><small>INFORMATION CENTER</small></span></Link><nav aria-label="Navigasi halaman resmi">{links.map(([label, href]) => <Link className={slug === href ? "active" : ""} href={`/page/${href}`} key={href}>{label}</Link>)}</nav><button className="pp-menu-button" aria-expanded={open} aria-controls="pp-mobile-menu" onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}<span>Menu</span></button></div>{open && <nav id="pp-mobile-menu" className="pp-mobile-nav" aria-label="Navigasi halaman mobile">{links.map(([label, href]) => <Link className={slug === href ? "active" : ""} href={`/page/${href}`} onClick={() => setOpen(false)} key={href}>{label}</Link>)}</nav>}</header> }

@@ -1,0 +1,119 @@
+.reels-showcase {
+    margin-bottom: clamp(48px, 7vw, 100px) !important
+}
+
+.reel-frame.cover {
+    background: linear-gradient(150deg, #173f39, #0b2723 60%, #472016) !important
+}
+
+.reel-poster {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 28px 22px;
+    border: 0;
+    background: radial-gradient(circle at 80% 10%, rgba(255, 113, 48, .42), transparent 34%), linear-gradient(160deg, rgba(23, 121, 107, .36), rgba(8, 29, 26, .94));
+    color: #fff;
+    text-align: left;
+    cursor: pointer
+}
+
+.reel-poster:before {
+    content: "REEL";
+    position: absolute;
+    top: 14%;
+    left: -13%;
+    transform: rotate(-90deg);
+    color: rgba(255, 255, 255, .045);
+    font: 900 80px Outfit
+}
+
+.reel-poster-orbit {
+    position: absolute;
+    top: 15%;
+    right: -15%;
+    width: 190px;
+    height: 190px;
+    border: 1px solid rgba(255, 140, 84, .35);
+    border-radius: 50%;
+    box-shadow: 0 0 0 28px rgba(255, 140, 84, .06), 0 0 0 55px rgba(255, 140, 84, .035)
+}
+
+.reel-poster>svg {
+    position: absolute;
+    top: 24px;
+    left: 22px;
+    width: 18px;
+    color: #ff7a3d
+}
+
+.reel-poster>b {
+    position: relative;
+    color: #ff7940;
+    font-size: 9px;
+    letter-spacing: .15em
+}
+
+.reel-poster>strong {
+    position: relative;
+    margin-top: 10px;
+    font: 900 22px/1.1 Outfit;
+    display: -webkit-box;
+    overflow: hidden;
+    line-clamp: 4;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical
+}
+
+.reel-poster>i {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 18px;
+    padding: 10px 14px;
+    border: 1px solid rgba(255, 255, 255, .25);
+    border-radius: 99px;
+    background: rgba(255, 255, 255, .1);
+    font-size: 8px;
+    font-style: normal;
+    font-weight: 900;
+    backdrop-filter: blur(10px);
+    transition: .25s
+}
+
+.reel-poster:hover>i {
+    transform: scale(1.05);
+    background: #f2672d
+}
+
+.reel-poster>i svg {
+    width: 14px
+}
+
+.reel-frame.playing iframe {
+    z-index: 3;
+    background: #fff
+}
+
+.reel-frame.playing .reel-number {
+    z-index: 4
+}
+
+@media(max-width:600px) {
+    .reels-showcase {
+        margin-bottom: 54px !important
+    }
+
+    .reel-poster {
+        padding: 22px 17px
+    }
+
+    .reel-poster>strong {
+        font-size: 19px
+    }
+}

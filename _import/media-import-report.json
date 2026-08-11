@@ -1,0 +1,15 @@
+{
+  "mode": "upload",
+  "total_files": 1899,
+  "originals": 110,
+  "derived_skipped": 1789,
+  "articles_with_thumbnail_ref": 645,
+  "featured_matches": 39,
+  "featured_missing": 606,
+  "unique_files_to_upload": 39,
+  "uploaded": 39,
+  "skipped": 0,
+  "reconciled": 0,
+  "linked": 39,
+  "errors": []
+}

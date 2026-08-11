@@ -1,0 +1,776 @@
+{
+  "generated_at": "2026-08-10T20:27:13.342Z",
+  "sql_file": "C:\\Users\\user\\Desktop\\swapnews\\_import\\u320663706_swp.sql",
+  "total_rows_parsed": 27968,
+  "skipped_rows": {
+    "notPost": 1895,
+    "notPublished": 7,
+    "emptyTitle": 0,
+    "emptyContent": 0
+  },
+  "attachments_found": 1735,
+  "articles": {
+    "total": 694,
+    "published": 648,
+    "draft": 46,
+    "with_thumbnail": 645,
+    "with_seo_title": 4,
+    "with_meta_description": 230,
+    "with_focus_keyword": 241,
+    "with_tags": 508,
+    "with_categories": 694,
+    "empty_content_warning": 6,
+    "duplicate_slugs": [],
+    "reserved_slugs": []
+  },
+  "categories": [
+    {
+      "id": 330,
+      "name": "BALI",
+      "slug": "bali",
+      "count": 156
+    },
+    {
+      "id": 15,
+      "name": "News",
+      "slug": "news",
+      "count": 131
+    },
+    {
+      "id": 218,
+      "name": "PORLI",
+      "slug": "porli",
+      "count": 76
+    },
+    {
+      "id": 238,
+      "name": "Nasional",
+      "slug": "nasional",
+      "count": 65
+    },
+    {
+      "id": 1026,
+      "name": "Hot News",
+      "slug": "hotnews",
+      "count": 58
+    },
+    {
+      "id": 492,
+      "name": "Polri",
+      "slug": "polri",
+      "count": 54
+    },
+    {
+      "id": 217,
+      "name": "INTERNASIONAL",
+      "slug": "internasional",
+      "count": 46
+    },
+    {
+      "id": 225,
+      "name": "Hukum &amp; Kriminal",
+      "slug": "hukum-kriminal",
+      "count": 44
+    },
+    {
+      "id": 249,
+      "name": "HUKUM &amp; KEAMANAN",
+      "slug": "hukum-keamanan",
+      "count": 43
+    },
+    {
+      "id": 7,
+      "name": "Entertainment",
+      "slug": "entertainment",
+      "count": 39
+    },
+    {
+      "id": 226,
+      "name": "TNI &amp; POLRI",
+      "slug": "tni-polri",
+      "count": 35
+    },
+    {
+      "id": 254,
+      "name": "Investigasi",
+      "slug": "investigasi",
+      "count": 34
+    },
+    {
+      "id": 244,
+      "name": "KAMTIBMAS",
+      "slug": "kamtibmas",
+      "count": 31
+    },
+    {
+      "id": 221,
+      "name": "TNI",
+      "slug": "tni",
+      "count": 30
+    },
+    {
+      "id": 14,
+      "name": "Music",
+      "slug": "music",
+      "count": 27
+    },
+    {
+      "id": 310,
+      "name": "Lingkungan",
+      "slug": "lingkungan",
+      "count": 26
+    },
+    {
+      "id": 1178,
+      "name": "Musik",
+      "slug": "musik",
+      "count": 25
+    },
+    {
+      "id": 984,
+      "name": "Psikologi",
+      "slug": "psikologi",
+      "count": 24
+    },
+    {
+      "id": 285,
+      "name": "PERISTIWA",
+      "slug": "peristiwa",
+      "count": 22
+    },
+    {
+      "id": 566,
+      "name": "Politik",
+      "slug": "politik",
+      "count": 20
+    },
+    {
+      "id": 1,
+      "name": "Uncategorized",
+      "slug": "uncategorized",
+      "count": 18
+    },
+    {
+      "id": 246,
+      "name": "HUKUM &amp;LALU LINTAS",
+      "slug": "hukum-lalu-lintas",
+      "count": 16
+    },
+    {
+      "id": 482,
+      "name": "Teknologi",
+      "slug": "teknologi",
+      "count": 16
+    },
+    {
+      "id": 319,
+      "name": "Musik &amp; Hiburan",
+      "slug": "musik-hiburan",
+      "count": 13
+    },
+    {
+      "id": 275,
+      "name": "Sosial &amp; masyarakat",
+      "slug": "sosial-masyarakat",
+      "count": 12
+    },
+    {
+      "id": 328,
+      "name": "EKONOMI",
+      "slug": "ekonomi",
+      "count": 12
+    },
+    {
+      "id": 386,
+      "name": "Kontroversi",
+      "slug": "kontroversi",
+      "count": 11
+    },
+    {
+      "id": 227,
+      "name": "IMIGRASI",
+      "slug": "imigrasi",
+      "count": 11
+    },
+    {
+      "id": 335,
+      "name": "Selebriti",
+      "slug": "selebriti",
+      "count": 10
+    },
+    {
+      "id": 3,
+      "name": "Bola &amp; Sports",
+      "slug": "bola-sports",
+      "count": 10
+    },
+    {
+      "id": 364,
+      "name": "Olahraga",
+      "slug": "olahraga",
+      "count": 10
+    },
+    {
+      "id": 524,
+      "name": "INOVASI",
+      "slug": "inovasi",
+      "count": 10
+    },
+    {
+      "id": 659,
+      "name": "Bencana Alam",
+      "slug": "bencana-alam",
+      "count": 10
+    },
+    {
+      "id": 660,
+      "name": "Banjir",
+      "slug": "banjir",
+      "count": 10
+    },
+    {
+      "id": 1057,
+      "name": "Pariwisata",
+      "slug": "pariwisata",
+      "count": 10
+    },
+    {
+      "id": 1288,
+      "name": "Fakta Unik",
+      "slug": "fakta-unik",
+      "count": 10
+    },
+    {
+      "id": 240,
+      "name": "Hukum",
+      "slug": "hukum",
+      "count": 9
+    },
+    {
+      "id": 242,
+      "name": "HUKUM &amp; Korupsi",
+      "slug": "hukum-korupsi",
+      "count": 9
+    },
+    {
+      "id": 298,
+      "name": "Pendidikan",
+      "slug": "pendidikan",
+      "count": 9
+    },
+    {
+      "id": 365,
+      "name": "Komunitas",
+      "slug": "komunitas",
+      "count": 9
+    },
+    {
+      "id": 544,
+      "name": "Pemerintahan",
+      "slug": "pemerintahan",
+      "count": 9
+    },
+    {
+      "id": 1208,
+      "name": "Hiburan",
+      "slug": "hiburan",
+      "count": 9
+    },
+    {
+      "id": 281,
+      "name": "Ekonomi &amp; Bisnis",
+      "slug": "ekonomi-bisnis",
+      "count": 8
+    },
+    {
+      "id": 2,
+      "name": "Bisnis",
+      "slug": "bisnis",
+      "count": 8
+    },
+    {
+      "id": 5,
+      "name": "Collection",
+      "slug": "collection",
+      "count": 8
+    },
+    {
+      "id": 1235,
+      "name": "Rock - Metal",
+      "slug": "rock-metal",
+      "count": 8
+    },
+    {
+      "id": 291,
+      "name": "Keamanan &amp; Lalu Lintas",
+      "slug": "keamanan-lalu-lintas",
+      "count": 7
+    },
+    {
+      "id": 377,
+      "name": "Event Nasional",
+      "slug": "event-nasional",
+      "count": 7
+    },
+    {
+      "id": 9,
+      "name": "Health",
+      "slug": "health",
+      "count": 7
+    },
+    {
+      "id": 297,
+      "name": "Kegiatan Daerah",
+      "slug": "kegiatan-daerah",
+      "count": 7
+    },
+    {
+      "id": 1175,
+      "name": "Budaya Lokal",
+      "slug": "budaya-lokal",
+      "count": 7
+    },
+    {
+      "id": 266,
+      "name": "Kementerian",
+      "slug": "kementerian",
+      "count": 6
+    },
+    {
+      "id": 366,
+      "name": "Airsoftgun",
+      "slug": "airsoftgun",
+      "count": 6
+    },
+    {
+      "id": 423,
+      "name": "Budaya",
+      "slug": "budaya",
+      "count": 6
+    },
+    {
+      "id": 6,
+      "name": "Editor's Pick",
+      "slug": "editors-pick",
+      "count": 6
+    },
+    {
+      "id": 1034,
+      "name": "Jakarta",
+      "slug": "jakarta",
+      "count": 6
+    },
+    {
+      "id": 1540,
+      "name": "KESEHATAN",
+      "slug": "kesehatan",
+      "count": 6
+    },
+    {
+      "id": 253,
+      "name": "Ekonomi Digital",
+      "slug": "ekonomi-digital",
+      "count": 5
+    },
+    {
+      "id": 445,
+      "name": "Finance",
+      "slug": "finance",
+      "count": 5
+    },
+    {
+      "id": 555,
+      "name": "Partai Politik",
+      "slug": "partai-politik",
+      "count": 5
+    },
+    {
+      "id": 4,
+      "name": "Buzz",
+      "slug": "buzz",
+      "count": 5
+    },
+    {
+      "id": 1267,
+      "name": "Gadget",
+      "slug": "gadget",
+      "count": 5
+    },
+    {
+      "id": 1905,
+      "name": "SAINS",
+      "slug": "sains",
+      "count": 5
+    },
+    {
+      "id": 17,
+      "name": "Tekno &amp; Sains",
+      "slug": "tekno-sains",
+      "count": 4
+    },
+    {
+      "id": 400,
+      "name": "Geopolitik",
+      "slug": "geopolitik",
+      "count": 4
+    },
+    {
+      "id": 413,
+      "name": "Sosial",
+      "slug": "sosial",
+      "count": 4
+    },
+    {
+      "id": 667,
+      "name": "Skandal",
+      "slug": "skandal",
+      "count": 4
+    },
+    {
+      "id": 296,
+      "name": "Humaniora",
+      "slug": "humaniora",
+      "count": 4
+    },
+    {
+      "id": 1955,
+      "name": "TOKOH INSPIRASI",
+      "slug": "tokoh-inspirasi",
+      "count": 4
+    },
+    {
+      "id": 243,
+      "name": "HUKUM&amp; KORUPSI",
+      "slug": "hukum-korupsi-2",
+      "count": 3
+    },
+    {
+      "id": 444,
+      "name": "Crypto",
+      "slug": "crypto",
+      "count": 3
+    },
+    {
+      "id": 473,
+      "name": "WNA",
+      "slug": "wna",
+      "count": 3
+    },
+    {
+      "id": 800,
+      "name": "Aksi Mahasiswa",
+      "slug": "aksi-mahasiswa",
+      "count": 3
+    },
+    {
+      "id": 841,
+      "name": "Demonstrasi",
+      "slug": "demonstrasi",
+      "count": 3
+    },
+    {
+      "id": 1857,
+      "name": "Viral",
+      "slug": "viral",
+      "count": 3
+    },
+    {
+      "id": 2505,
+      "name": "Edukasi",
+      "slug": "edukasi",
+      "count": 3
+    },
+    {
+      "id": 13,
+      "name": "Movie",
+      "slug": "movie",
+      "count": 2
+    },
+    {
+      "id": 666,
+      "name": "Penipuan",
+      "slug": "penipuan",
+      "count": 2
+    },
+    {
+      "id": 673,
+      "name": "Data Bocor",
+      "slug": "data-bocor",
+      "count": 2
+    },
+    {
+      "id": 728,
+      "name": "Korupsi",
+      "slug": "korupsi",
+      "count": 2
+    },
+    {
+      "id": 18,
+      "name": "Video",
+      "slug": "video",
+      "count": 2
+    },
+    {
+      "id": 543,
+      "name": "Hukum &amp; Keamana",
+      "slug": "hukum-keamana",
+      "count": 2
+    },
+    {
+      "id": 1236,
+      "name": "Berita Musik Internasional",
+      "slug": "berita-musik-internasional",
+      "count": 2
+    },
+    {
+      "id": 1415,
+      "name": "Digital Marketing",
+      "slug": "digital-marketing",
+      "count": 2
+    },
+    {
+      "id": 1692,
+      "name": "Reggae",
+      "slug": "reggae",
+      "count": 2
+    },
+    {
+      "id": 1177,
+      "name": "Musik Lokal",
+      "slug": "musik-lokal",
+      "count": 2
+    },
+    {
+      "id": 2075,
+      "name": "Bola",
+      "slug": "bola",
+      "count": 2
+    },
+    {
+      "id": 8,
+      "name": "Food &amp; Travel",
+      "slug": "food-travel",
+      "count": 2
+    },
+    {
+      "id": 290,
+      "name": "Sepak Bola Nasional",
+      "slug": "sepak-bola-nasional",
+      "count": 1
+    },
+    {
+      "id": 19,
+      "name": "Woman",
+      "slug": "woman",
+      "count": 1
+    },
+    {
+      "id": 1179,
+      "name": "Musik Sunda",
+      "slug": "musik-sunda",
+      "count": 1
+    },
+    {
+      "id": 1180,
+      "name": "Band Indie",
+      "slug": "band-indie",
+      "count": 1
+    },
+    {
+      "id": 1234,
+      "name": "Album Baru",
+      "slug": "album-baru",
+      "count": 1
+    },
+    {
+      "id": 16,
+      "name": "Otomotif",
+      "slug": "otomotif",
+      "count": 1
+    },
+    {
+      "id": 1263,
+      "name": "Bedah Lirik",
+      "slug": "bedah-lirik",
+      "count": 1
+    },
+    {
+      "id": 228,
+      "name": "AI",
+      "slug": "ai",
+      "count": 1
+    },
+    {
+      "id": 1680,
+      "name": "K-Pop",
+      "slug": "k-pop",
+      "count": 1
+    },
+    {
+      "id": 1693,
+      "name": "Reggae",
+      "slug": "reggae-2",
+      "count": 1
+    },
+    {
+      "id": 1732,
+      "name": "Blues",
+      "slug": "blues",
+      "count": 1
+    },
+    {
+      "id": 1740,
+      "name": "POP",
+      "slug": "pop",
+      "count": 1
+    },
+    {
+      "id": 1765,
+      "name": "Punk",
+      "slug": "punk",
+      "count": 1
+    },
+    {
+      "id": 1797,
+      "name": "Keroncong",
+      "slug": "keroncong",
+      "count": 1
+    },
+    {
+      "id": 1997,
+      "name": "Media &amp; Jurnalisme",
+      "slug": "media-jurnalisme",
+      "count": 1
+    },
+    {
+      "id": 2062,
+      "name": "Kalimantan",
+      "slug": "kalimantan",
+      "count": 1
+    },
+    {
+      "id": 2125,
+      "name": "Film &amp; Series",
+      "slug": "film-series",
+      "count": 1
+    },
+    {
+      "id": 2143,
+      "name": "Infrastruktur &amp; Transportasi",
+      "slug": "infrastruktur-transportasi",
+      "count": 1
+    },
+    {
+      "id": 2151,
+      "name": "Palembang",
+      "slug": "palembang",
+      "count": 1
+    },
+    {
+      "id": 2177,
+      "name": "Papua",
+      "slug": "papua",
+      "count": 1
+    },
+    {
+      "id": 2183,
+      "name": "Hak Asasi Manusia",
+      "slug": "hak-asasi-manusia",
+      "count": 1
+    },
+    {
+      "id": 2184,
+      "name": "Nigeria",
+      "slug": "nigeria",
+      "count": 1
+    },
+    {
+      "id": 2486,
+      "name": "Polair",
+      "slug": "polair",
+      "count": 1
+    },
+    {
+      "id": 2514,
+      "name": "Telekomunikasi Indonesia",
+      "slug": "telekomunikasi-indonesia",
+      "count": 1
+    },
+    {
+      "id": 2639,
+      "name": "Transportasi",
+      "slug": "transportasi",
+      "count": 1
+    }
+  ],
+  "sample_articles": [
+    {
+      "wp_id": 1551,
+      "slug": "polri-dan-ticac-thailand-bersatu-tangkal-kejahatan-seksual-anak-di-dunia-digital",
+      "title": "Polri dan TICAC Thailand Bersatu Tangkal Kejahatan Seksual Anak di Dunia Digital",
+      "status": "published",
+      "author": "Antonius Sianipar",
+      "categories": [
+        "INTERNASIONAL",
+        "PORLI"
+      ],
+      "has_thumbnail": true,
+      "has_seo": false,
+      "word_count": 515
+    },
+    {
+      "wp_id": 1557,
+      "slug": "kapolri-resmikan-lapangan-tembak-dan-buka-kapolri-cup-2025-sinergi-lintas-instansi-dalam-s",
+      "title": "Kapolri Resmikan Lapangan Tembak dan Buka Kapolri Cup 2025: Sinergi Lintas Instansi dalam Semangat Prestasi",
+      "status": "published",
+      "author": "Antonius Sianipar",
+      "categories": [
+        "PORLI"
+      ],
+      "has_thumbnail": true,
+      "has_seo": false,
+      "word_count": 305
+    },
+    {
+      "wp_id": 1567,
+      "slug": "dandim-badung-kunjungi-lapas-kerobokan-perkuat-sinergi-pengamanan",
+      "title": "Dandim Badung Kunjungi Lapas Kerobokan, Perkuat Sinergi Pengamanan",
+      "status": "published",
+      "author": "Antonius Sianipar",
+      "categories": [
+        "TNI",
+        "TNI &amp; POLRI"
+      ],
+      "has_thumbnail": true,
+      "has_seo": false,
+      "word_count": 297
+    },
+    {
+      "wp_id": 1586,
+      "slug": "pernyataan-prof-sofian-soal-jokowi-viral-dan-ditarik-ada-apa",
+      "title": "Pernyataan Prof. Sofian Soal Jokowi Viral dan Ditarik, Ada Apa?",
+      "status": "published",
+      "author": "Antonius Sianipar",
+      "categories": [
+        "Nasional"
+      ],
+      "has_thumbnail": true,
+      "has_seo": false,
+      "word_count": 420
+    },
+    {
+      "wp_id": 1594,
+      "slug": "guru-madin-dituntut-rp-25-juta-gaji-hanya-rp-450-ribu",
+      "title": "Guru Madin Dituntut Rp 25 Juta, Gaji Hanya Rp 450 Ribu",
+      "status": "published",
+      "author": "Antonius Sianipar",
+      "categories": [
+        "Hukum &amp; Kriminal",
+        "Hukum"
+      ],
+      "has_thumbnail": true,
+      "has_seo": false,
+      "word_count": 202
+    }
+  ]
+}

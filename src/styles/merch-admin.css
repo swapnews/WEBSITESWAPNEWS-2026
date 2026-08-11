@@ -1,0 +1,105 @@
+/* Merchandise admin */
+.merch-product-form {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin: 18px 0 28px
+}
+
+.merch-product-form label,
+.merch-admin-card label {
+    display: grid;
+    gap: 6px;
+    color: var(--teal-muted);
+    font-size: 11px;
+    font-weight: 800
+}
+
+.merch-product-form input,
+.merch-product-form textarea,
+.merch-admin-card input,
+.merch-admin-card textarea,
+.order-status-form select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(79, 124, 108, .18);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .64);
+    font: inherit
+}
+
+.merch-product-form .wide {
+    grid-column: 1/-1
+}
+
+.merch-admin-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px
+}
+
+.merch-admin-card {
+    position: relative;
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, .72);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, .32);
+    box-shadow: inset 0 1px #fff, 0 12px 28px rgba(37, 87, 70, .09)
+}
+
+.merch-admin-card>img {
+    width: 100%;
+    height: 140px;
+    border-radius: 14px;
+    object-fit: cover
+}
+
+.merch-admin-card>form:first-of-type {
+    display: grid;
+    gap: 10px;
+    margin-top: 10px
+}
+
+.merch-admin-card>form:first-of-type>div {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px
+}
+
+.merch-admin-card>form:last-child {
+    position: absolute;
+    top: 20px;
+    right: 20px
+}
+
+.order-status-form {
+    display: flex;
+    gap: 7px
+}
+
+.order-status-form button {
+    padding: 7px 9px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--teal-primary);
+    color: #fff;
+    font-weight: 800
+}
+
+@media(max-width:1000px) {
+    .merch-admin-grid {
+        grid-template-columns: repeat(2, 1fr)
+    }
+}
+
+@media(max-width:700px) {
+
+    .merch-product-form,
+    .merch-admin-grid {
+        grid-template-columns: 1fr
+    }
+
+    .merch-product-form .wide {
+        grid-column: auto
+    }
+}
