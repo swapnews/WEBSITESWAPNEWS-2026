@@ -252,7 +252,7 @@ function buildSections(articles: PublicArticle[]) {
     return sections.slice(0, 5);
 }
 
-async function queryPublishedArticles(limit = 24) {
+async function queryPublishedArticles(limit = 200) {
     try {
         const supabase = await createClient();
         const { data, error } = await supabase
@@ -295,7 +295,7 @@ export function getFallbackArticles() {
 }
 
 export const getPublicHomeData = cache(async (): Promise<PublicHomeData> => {
-    const articles = await queryPublishedArticles(40);
+    const articles = await queryPublishedArticles(200);
     const usable = articles.length ? articles : fallbackArticles;
     const trending = [...usable].sort((a, b) => b.view_count - a.view_count).slice(0, 10);
     const hero = trending[0] ?? usable[0];
