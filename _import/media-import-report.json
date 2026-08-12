@@ -1,15 +1,417 @@
 {
   "mode": "upload",
-  "total_files": 1899,
-  "originals": 110,
-  "derived_skipped": 1789,
-  "articles_with_thumbnail_ref": 645,
-  "featured_matches": 39,
-  "featured_missing": 606,
-  "unique_files_to_upload": 39,
-  "uploaded": 39,
+  "limit": null,
+  "staging_articles": 694,
+  "local_originals": 110,
+  "unlinked_with_source": 595,
+  "selected": 595,
+  "local_sources": 0,
+  "remote_sources": 595,
+  "uploaded": 496,
   "skipped": 0,
   "reconciled": 0,
-  "linked": 39,
-  "errors": []
+  "linked": 496,
+  "errors": [
+    {
+      "slug": "satgas-keimigrasian-bali-patroli-wna-keamanan-wisata",
+      "url": "http://swapnews.co.id/wp-content/uploads/2025/08/Satgas-Patroli-Keimigrasian-Bali-perkuat-pengawasan-WNA-dan-jaga-pariwisata-aman.jpg",
+      "error": "File size too large. Got 16069206. Maximum is 10485760."
+    },
+    {
+      "slug": "f0-9f-9a-a8-terbongkar-wanita-27-tahun-dijadikan-psk-lewat-aplikasi-chat-polres-bangli-rin",
+      "url": "http://swapnews.co.id/wp-content/uploads/2025/08/IMG20250815133609-768x432-1.jpg",
+      "error": "Context Invalid encoding in context"
+    },
+    {
+      "slug": "wakapolres-bangli-tegaskan-tak-under-estimate-terhadap-perkembangan-situasi",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/09/IMG-20250903-WA0062.jpg",
+      "error": "TypeError: fetch failed"
+    },
+    {
+      "slug": "airbnb-unesco-ubah-wajah-bali-pariwisata-budaya-atau-komersialisasi-warisan",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/09/Airbnb-dan-UNESCO-Luncurkan-Bali-Cultural-Guidebook.jpg",
+      "error": "File size too large. Got 18525102. Maximum is 10485760."
+    },
+    {
+      "slug": "kkb-kembali-berulah-di-intan-jaya-pekerja-jalan-tewas-ditembak-saat-bertugas-satgas-damai",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/KKB-Intan-Jaya-Papua.png",
+      "error": "File size too large. Got 11634266. Maximum is 10485760."
+    },
+    {
+      "slug": "kapolsek-mewakili-bapak-kapolres-hadiri-undangan-upesaksi-karya-rsi-gana-jalan-usaha-tan-2",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251022-WA0055-1.jpg"
+    },
+    {
+      "slug": "wujud-kepedulian-pimpinan-kapolsek-jenguk-anggota-dan-istri-anggota-yang-sedang-sakit",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251022-WA0061.jpg"
+    },
+    {
+      "slug": "polres-bangli-lakukan-penanganan-profesional-terhadap-kasus-gantung-diri-di-desa-songan",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251022-WA0068-1.jpg"
+    },
+    {
+      "slug": "bunuh-diri",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/20180524022057.jpg"
+    },
+    {
+      "slug": "manfaat-tahu",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/tahu-cina.jpg"
+    },
+    {
+      "slug": "gawat-whatsapp-mau-bikin-fitur-anti-dicuekin",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/c7644008f58970f3d495d2d68958652a_fgraphic.png"
+    },
+    {
+      "slug": "asal-usul-sushi-ternyata-makanan-jepang-ini-dulunya-adalah-ikan-busuk-buangan",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/csm_sushi-kakkoii_2c56fe3133.webp"
+    },
+    {
+      "slug": "wakapolres-badung-hadiri-pemusnahan-barang-bukti-lawan-penyalahgunaan-dan-jaga-integritas",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251023-WA0049.jpg"
+    },
+    {
+      "slug": "ayam-sebright-atau-ayam-batik",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/Sebright_Gold_Dore.jpg"
+    },
+    {
+      "slug": "prediksi-peningkatan-potensi-hujan",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/PDCHT_latest.jpg"
+    },
+    {
+      "slug": "lucid-dream-gerbang-menuju-pencerahan-atau-ancaman-nyata-kelelahan-otak-kolektif",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/SF-23-076_LucidDreams_Graphic-1024x717-1.png"
+    },
+    {
+      "slug": "timor-leste-resmi-jadi-anggota-asean",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/Logu-ASEAN-1-1.jpg"
+    },
+    {
+      "slug": "tim-forward-kunjungi-bidhumas-polda-bali-ucapkan-selamat-hut-ke-74",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/20251028_174509_0000.png"
+    },
+    {
+      "slug": "ular-berbisa-papua",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/542521820_767915375945059_3300474659456074599_n.jpg"
+    },
+    {
+      "slug": "imigrasi-ngurah-rai-deportasi-4-wn-vietnam-yang-bekerja-sebagai-terapis-spa-di-kuta",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251030-WA0081.jpg"
+    },
+    {
+      "slug": "imigrasi-ngurah-rai-hadirkan-mayaswari-bawa-informasi-layanan-langsung-ke-masyarakat",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251030-WA0086-1.jpg"
+    },
+    {
+      "slug": "polres-bangli-laksanakan-pengaturan-arus-lalu-lintas-untuk-ciptakan-situasi-aman-dan-terti",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251031-WA0001.jpg"
+    },
+    {
+      "slug": "bhabinkamtibmas-lembean-hadiri-penerimaan-mahasiswa-unud-di-desa-lembean",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251031-WA0008.jpg"
+    },
+    {
+      "slug": "bullying-bukan-hanya-luka-fisik-tekanan-mental-bisa-dirasakan-sampai-dewasa",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/bulling2.jpg"
+    },
+    {
+      "slug": "blue-java-banana",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/large-blue-java-banana-2e5c921cf5b508c97caa5873567ebe4f.webp"
+    },
+    {
+      "slug": "ketika-pasukan-tentara-perang-australia-harus-menyerah-kalah-melawan-pasukan-burung-emu",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/emu-war-3.jpg"
+    },
+    {
+      "slug": "berhenti-berusaha-sembuh-kenapa-luka-batin-cukup-dipahami-bukan-dihapus-total",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/luka-batin-1.jpg"
+    },
+    {
+      "slug": "yang-chil-seong-pejuang-kemerdekaan-yang-berasal-dari-korea",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/579010537_122301569774166592_7489992433708679100_n.jpg"
+    },
+    {
+      "slug": "pawas-dan-anggota-polsek-bangli-sambangi-tempat-ibadah-ppi-sembung-beri-rasa-aman-kepada-2",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0036.jpg"
+    },
+    {
+      "slug": "antisipasi-lonjakan-kunjungan-wisatawan-polres-bangli-lakukan-pengamanan-di-penelokan-kint",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0039.jpg"
+    },
+    {
+      "slug": "anggota-polsek-bangli-pantau-kunjungan-wisatawan-di-desa-wisata-penglipuran",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0043.jpg"
+    },
+    {
+      "slug": "personil-sat-samapta-polres-bangli-amankan-ibadah-minggu-di-gereja-marga-rahayu-bangli",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0046.jpg"
+    },
+    {
+      "slug": "pangdam-ix-udayana-bersama-forkopimda-bali-peringati-hari-pahlawan-di-lapangan-niti-mandal",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0054.jpg"
+    },
+    {
+      "slug": "mediasi-warga-graha-shanti-berhasil-masalah-suara-bising-proyek-poltekkes-teratasi",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0103.jpg"
+    },
+    {
+      "slug": "whatsapp-resmi-hadir-di-apple-watch-baca-dan-balas-pesan-langsung-dari-pergelangan-tangan",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/WhatsApp-resmi-tersedia-di-Apple-Watch-memungkinkan-pengguna-membaca-membalas-pesan-hingga-mengirim-voice-note-langsung-dari-jam-tangan-pintar-tanpa-membuka-iPhone.png"
+    },
+    {
+      "slug": "11-11-bukan-soal-belanja-tapi-perlawanan-kaum-jomblo-pada-stigma-wajib-punya-pasangan",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/11-nove.jpg"
+    },
+    {
+      "slug": "terima-kunjungan-sekjen-ituc-kapolri-kolaborasi-beri-perlindungan-tingkatkan-kesejahteraan",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0003.jpg"
+    },
+    {
+      "slug": "polsek-kuta-utara-perkuat-keamanan-fokus-patroli-sambangi-kawasan-wisata",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0006.jpg"
+    },
+    {
+      "slug": "kapolda-bali-bersama-organisasi-dan-komunitas-media-bali-bersinergi-ciptakan-keamanan-dan",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/Screenshot_20251112_061908.jpg"
+    },
+    {
+      "slug": "polsek-kintamani-evakuasi-pohon-tumbang-akibat-angin-kencang-di-desa-bayung-gede",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0016.jpg"
+    },
+    {
+      "slug": "pastikan-tidak-ada-balapan-liar-polsek-kuta-utara-patroli-di-jalan-gatsu-barat",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0017.jpg"
+    },
+    {
+      "slug": "ciptakan-situasi-aman-di-jalur-wisata-polsek-kuta-utara-intensifkan-patroli",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0020.jpg"
+    },
+    {
+      "slug": "bangun-polri-presisi-serdik-sespimen-polri-gali-pandangan-tokoh-agama-dan-adat-soal-kepemi",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0024.jpg"
+    },
+    {
+      "slug": "program-polantas-menyapa-jadi-wujud-komitmen-polisi-hadir-melayani-masyarakat-2",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0025.jpg"
+    },
+    {
+      "slug": "pastikan-keamanan-transaksi-malam-hari-samapta-polsek-abiansemal-sambangi-gerai-atm",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0027.jpg"
+    },
+    {
+      "slug": "patroli-subuh-polsek-abiansemal-langkah-preventif-cegah-gangguan-kamtibmas-di-jalur-rawan",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0031.jpg"
+    },
+    {
+      "slug": "polsek-kintamani-kawal-pemulihan-fungsi-kawasan-di-twa-penelokan",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0004.jpg"
+    },
+    {
+      "slug": "personil-polres-bangli-hadir-di-pagi-hari-guna-ciptakan-kamseltibcarlantas-yang-kondusif",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0008.jpg"
+    },
+    {
+      "slug": "polres-bangli-siagakan-ratusan-personel-amankan-jalannya-sidang-putusan-jro-luwes",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0009.jpg"
+    },
+    {
+      "slug": "anjangsana-satpolairud-polres-bangli-dalam-rangka-hut-polairud-ke-75-tahun-2025",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0013.jpg"
+    },
+    {
+      "slug": "setetes-darah-untuk-kemanusiaan-satpolairud-polres-bangli-gelar-donor-darah-sambut-hut-pol",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0018.jpg"
+    },
+    {
+      "slug": "wakapolri-resmikan-masjid-an-nahdah-suhanda-di-sma-kemala-taruna-bhayangkara-bogor",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0022.jpg"
+    },
+    {
+      "slug": "polri-dan-pemerintah-inggris-gelar-workshop-peningkatan-kemampuan-tptkp",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0024.jpg"
+    },
+    {
+      "slug": "polda-bali-bersinergi-dengan-pecalang-amankan-21st-ipoc-and-2026-price-outlook",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0027.jpg"
+    },
+    {
+      "slug": "satgas-pangan-polda-bali-cek-harga-beras-harga-masih-stabil",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0033.jpg"
+    },
+    {
+      "slug": "polres-badung-hadirkan-pelayanan-sim-transparan-dan-bebas-pungli",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0040.jpg"
+    },
+    {
+      "slug": "belajar-seru-bareng-polisi-siswa-smpn-3-abiansemal-diajari-tertib-berlalu-lintas-sejak-din",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0043.jpg"
+    },
+    {
+      "slug": "tutup-kegiatan-kkp-serdik-sespimmen-polri-apresiasi-polres-badung-atas-inovasi-digital-dan",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0049.jpg"
+    },
+    {
+      "slug": "unit-binmas-polsek-mengwi-sosialisasi-kenakalan-anak-anak-dan-bullying-di-tk-kumara-sari-p",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0057.jpg"
+    },
+    {
+      "slug": "buffalo-mindset-ketika-hidup-mengajarkan-kita-untuk-tidak-lari-dari-badai",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/download-1-1.jpg"
+    },
+    {
+      "slug": "wifi-dan-orex-sai-resmikan-internet-5g-rp100-ribu-per-bulan-siap-revolusi-koneksi-murah-di",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/Internet-5G-murah-WIFI-Orex-Sai-Indonesia-1.png"
+    },
+    {
+      "slug": "6161-2sambang-pertokoan-modern-samapta-polsek-abiansemal-gelar-patroli-dialogis",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0009.jpg"
+    },
+    {
+      "slug": "polri-kerahkan-155-personel-4-anjing-pelacak-dan-perkuat-operasi-sar-longsor-cibeunying-21",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0014.jpg"
+    },
+    {
+      "slug": "zebra-agung-2025-polda-bali-perkuat-penegakan-hukum-lalu-lintas",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0031.jpg"
+    },
+    {
+      "slug": "terkait-dugaan-pemalsuan-dokumen-akademik-wakil-gubernur-babel-jalani-pemeriksaan-di-bares",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0041.jpg"
+    },
+    {
+      "slug": "tingkatkan-kedisiplinan-berlalu-lintas-wakapolres-badung-resmi-buka-pelatihan-pra-ops-zebr",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0042.jpg"
+    },
+    {
+      "slug": "satlantas-polres-badung-hadirkan-pelayanan-modern-dan-ramah-di-era-presisi",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0047-1.jpg"
+    },
+    {
+      "slug": "kolaborasi-untuk-kenyamanan-desa-jumat-curhat-sat-lantas-bersama-pecalang-bongkasa",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0048.jpg"
+    },
+    {
+      "slug": "hangatnya-silaturahmi-sat-polairud-polres-badung-bersama-purnawirawan-di-hari-jadi-ke-75-p",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0051.jpg"
+    },
+    {
+      "slug": "polda-bali-gelar-syukuran-hut-ke-80-korps-brimob-polri-dengan-wujud-brimob-presisi-untuk-m",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0055.jpg"
+    },
+    {
+      "slug": "personel-polres-bangli-antusias-ikuti-latpraops-zebra-agung-2025",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0063.jpg"
+    },
+    {
+      "slug": "pelayanan-kesehatan-anak-cerah-di-tk-bhayangkari-06-bangli",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0065.jpg"
+    },
+    {
+      "slug": "melalui-jumat-curhat-polsek-kuta-utara-ajak-para-driver-gojek-grab-dan-taksi-bluebird-jaga",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0052.jpg"
+    },
+    {
+      "slug": "minimalkan-kemacetan-polsek-abiansemal-fokuskan-pengaturan-lalin-pada-jalur-rawan-padat",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0071.jpg"
+    },
+    {
+      "slug": "samapta-polsek-abiansemal-sasar-objek-vital-dalam-patroli-harkamtibmas-terpadu",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0078.jpg"
+    },
+    {
+      "slug": "bhabinkamtibmas-kelurahan-kubu-monitor-pelaksanaan-pemeriksaan-kesehatan-gratis-oleh-ikata",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0007.jpg"
+    },
+    {
+      "slug": "polres-bangli-gelar-pengaturan-arus-lalu-lintas-di-obyek-wisata-penelokan-kintamani-di-akh",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0012.jpg"
+    },
+    {
+      "slug": "kapolres-bangli-hadiri-upacara-serah-terima-petaka-panji-panji-dan-surat-sakti-gusti-ngu-2",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0018.jpg"
+    },
+    {
+      "slug": "bhabinkamtibmas-desa-binyan-melakukan-pendampingan-penyerahan-16-ekor-bibit-sapi-kepada-wa",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0019.jpg"
+    },
+    {
+      "slug": "antisipasi-gangguan-kamtibmas-dan-wujudkan-kenyamanan-wisatawan-sat-samapta-polres-bangli",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0020.jpg"
+    },
+    {
+      "slug": "minggu-kasih-langkah-polres-badung-dengarkan-suara-warga-desa-mengwi",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0032.jpg"
+    },
+    {
+      "slug": "patroli-malam-minggu-polsek-mengwi-atensi-balapan-liar",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0037.jpg"
+    },
+    {
+      "slug": "pangdam-ix-udayana-tekankan-disiplin-dan-pembinaan-teritorial-di-upacara-17-an",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251117-WA0031.jpg"
+    },
+    {
+      "slug": "gempa-bumi-berkekuatan-magnitudo-60-mengguncang-wilayah-ambon-maluku",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/intensity_logo.jpg"
+    },
+    {
+      "slug": "gempa-m-60-guncang-ambon-getaran-terasa-di-banyak-wilayah-bmkg-ungkap-fakta-teknis",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG_20251120_190026.jpg"
+    },
+    {
+      "slug": "ponsel-tanpa-kartu-sim-dan-koneksi-internet",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/smon-1.jpeg"
+    },
+    {
+      "slug": "edarkan-sabu-dan-ekstasi-dua-pria-diamankan-sat-narkoba-polresta-denpasar",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/IMG-20251202-WA0036.jpg"
+    },
+    {
+      "slug": "universitas-udayana-dan-imigrasi-teken-kerja-sama-pendirian-impact-respons-dinamika-keimig",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/IMG-20251202-WA0089.jpg"
+    },
+    {
+      "slug": "satya-wacana-tactical-shooting-2025-airsoft-bali-tantang-janji-bongkar-ambisi-menuju-forna",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Event-Satya-Wacana-Tactical-Shooting-2025-di-Bali-menjadi-simbol-konsistensi-Airsoft-Brotherhood-Unity-menuju-FORDA-2026-dan-FORNAS-2027.jpg"
+    },
+    {
+      "slug": "laga-hidup-mati-indonesia-u-22-wajib-menang-3-gol-atas-myanmar-demi-selamatkan-muka-merah",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Indonesia-vs-Myanmar-U-22-SEA-Games-2025.jpg"
+    },
+    {
+      "slug": "pegawai-wiego-swalayan-dipecat-usai-insiden-dengan-pembeli-manajemen-berikan-penjelasan",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Pemecatan-Pegawai-Wiego-Swalayan-Medan.jpg"
+    },
+    {
+      "slug": "bonnie-blue-dideportasi-imigrasi-tegaskan-penegakan-aturan-wisata",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/bonnieblue_dideportasi_daribali_swapnews.jpg"
+    },
+    {
+      "slug": "dua-perahu-karet-diserahkan-bali-perkuat-kesiapsiagaan-bencana",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Kementerian-LH-Sumbang-Dua-Perahu-Karett.jpeg"
+    },
+    {
+      "slug": "video-asusila-wna-di-kelingking-diselidiki-aparat",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Video-asusila-WNA-Pantai-Kelingking.png"
+    },
+    {
+      "slug": "denpasar-optimalkan-tps3r-jelang-penutupan-tpa-suwung",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Pemkot-Denpasar-mengoptimalkan-TPS3R-Teba-Modern-dan-PDU-menjelang-penutupan-TPA-Suwung-demi-pengelolaan-sampah-berkelanjutan.jpeg"
+    },
+    {
+      "slug": "ksop-cabut-sertifikat-speedboat-meledak-di-labuan-bajo",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/KSOP-Labuan-Bajo-mencabut-sertifikat-keselamatan-speedboat-Lacoco-usai-insiden-ledakan-yang-melukai-awak-kapal-dan-mengangkut-wisatawan-China.jpeg"
+    },
+    {
+      "slug": "gpt-5-2-diluncurkan-openai-klaim-tingkatkan-keandalan-ai-korporasi",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/OpenAI-meluncurkan-model-AI-terbaru-GPT-5.2-untuk-kebutuhan-korporasi.webp"
+    },
+    {
+      "slug": "sengketa-hak-sewa-restorantanpa-konfirmasi-pihak-pertama-menyewakan-lahan-ke-pihak-ketiga",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/IMG_20251221_231508.jpg"
+    },
+    {
+      "slug": "tim-amegelu-bali-menebar-kebaikan-dengan-aksi-peduli-kemanusiaan-di-akhir-tahun-2025",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/IMG-20251223-WA0083.jpg"
+    }
+  ]
 }
