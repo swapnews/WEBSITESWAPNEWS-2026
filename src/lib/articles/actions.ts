@@ -236,3 +236,27 @@ export async function deleteArticleAction(formData: FormData) {
     revalidatePath("/dashboard/articles");
     redirect("/dashboard/articles");
 }
+
+export async function deleteBulkArticlesAction(formData: FormData) {
+    const profile = await getCurrentProfile();
+    if (!profile || !isAdminRole(profile.role as AppRole)) {
+        redirect("/panelswap");
+    }
+
+    const idsRaw = formData.get("ids") as string;
+    if (!idsRaw) redirect("/dashboard/articles?error=Tidak%20ada%20artikel%20terpilih");
+
+    const ids = idsRaw.split(",").map((id) => id.trim()).filter(Boolean);
+    if (ids.length === 0) redirect("/dashboard/articles?error=Tidak%20ada%20artikel%20terpilih");
+
+    const supabase = await createClient();
+    const { error } = await supabase.from("articles").delete().in("id", ids);
+
+    if (error) {
+        redirect(`/dashboard/articles?error=${encodeURIComponent(error.message)}`);
+    }
+
+    revalidatePath("/dashboard/articles");
+    redirect(`/dashboard/articles?success=${encodeURIComponent(`${ids.length} artikel berhasil dihapus`)}`);
+}
+

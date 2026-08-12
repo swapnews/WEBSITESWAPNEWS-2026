@@ -1,17 +1,18 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FileEdit, FilePlus2, Search } from "lucide-react";
+import { FilePlus2, Search } from "lucide-react";
 
 import { getCurrentProfile } from "@/lib/auth/get-profile";
-import { isEditorialRole } from "@/lib/auth/roles";
+import { isEditorialRole, isAdminRole } from "@/lib/auth/roles";
 import { getArticlesForDashboard, getCategories, type ArticleStatus } from "@/lib/articles";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { ArticlesTableClient } from "./articles-table-client";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-    title: "Artikel",
-    description: "Kelola artikel SwapNews.",
+    title: "Artikel — SwapNews Dashboard",
+    description: "Kelola artikel dan hapus masal SwapNews.",
 };
 
 const STATUS_LABELS: Record<ArticleStatus, string> = {
@@ -51,6 +52,8 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
     const params = await searchParams;
     const statusFilter = getParam(params, "status") as ArticleStatus | null;
     const search = getParam(params, "search") ?? "";
+    const error = getParam(params, "error");
+    const success = getParam(params, "success");
 
     const [articles] = await Promise.all([getArticlesForDashboard(profile), getCategories()]);
 
@@ -63,13 +66,15 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
         return true;
     });
 
+    const canDelete = isAdminRole(profile.role);
+
     return (
         <DashboardLayout profile={profile}>
             <section className="dashboard-hero clay-card">
                 <div>
                     <span className="eyebrow">Daftar Konten</span>
                     <h1>Manajemen Artikel Redaksi</h1>
-                    <p>Filter status, cari artikel, dan kontrol workflow editorial SwapNews.</p>
+                    <p>Filter status, cari artikel, hapus masal dengan checklist, dan kontrol workflow editorial.</p>
                 </div>
 
                 <Link href="/dashboard/articles/new" className="primary-button">
@@ -77,6 +82,9 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
                     Tulis Artikel Baru
                 </Link>
             </section>
+
+            {error ? <div className="auth-alert error" style={{ margin: "0 0 16px" }}>{error}</div> : null}
+            {success ? <div className="auth-alert success" style={{ margin: "0 0 16px" }}>{success}</div> : null}
 
             <section className="dashboard-panel clay-card">
                 <form method="get" className="cms-filter">
@@ -105,51 +113,12 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
                     </div>
                 </form>
 
-                <div className="cms-table-wrap">
-                    <table className="cms-table">
-                        <thead>
-                            <tr>
-                                <th>Judul & Slug</th>
-                                <th>Status</th>
-                                <th>Penulis</th>
-                                <th>Kategori</th>
-                                <th>Update</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filtered.length === 0 ? (
-                                <tr>
-                                    <td colSpan={6} className="cms-empty">
-                                        Tidak ada artikel yang sesuai dengan kriteria pencarian.
-                                    </td>
-                                </tr>
-                            ) : (
-                                filtered.map((article) => (
-                                    <tr key={article.id}>
-                                        <td>
-                                            <div className="cms-title">
-                                                <strong>{article.title}</strong>
-                                                <small>/{article.slug}</small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span className={`status-badge ${STATUS_COLORS[article.status]}`}>{STATUS_LABELS[article.status]}</span>
-                                        </td>
-                                        <td>{article.author_name ?? "—"}</td>
-                                        <td>{article.category_name ?? "—"}</td>
-                                        <td>{new Date(article.updated_at).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}</td>
-                                        <td>
-                                            <Link href={`/dashboard/articles/${article.id}`} className="icon-link" aria-label="Edit artikel">
-                                                <FileEdit size={15} />
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                <ArticlesTableClient
+                    articles={filtered}
+                    canDelete={canDelete}
+                    statusLabels={STATUS_LABELS}
+                    statusColors={STATUS_COLORS}
+                />
             </section>
         </DashboardLayout>
     );
