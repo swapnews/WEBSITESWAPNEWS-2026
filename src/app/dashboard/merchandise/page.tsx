@@ -12,7 +12,7 @@ const param = (p: Record<string, string | string[] | undefined>, k: string) => A
 
 export default async function MerchandiseDashboard({ searchParams }: Props) {
     const profile = await getCurrentProfile();
-    if (!profile) redirect("/login?next=/dashboard/merchandise");
+    if (!profile) redirect("/panelswap?next=/dashboard/merchandise");
     if (profile.role !== "super_admin") redirect("/dashboard");
     const supabase = await createClient();
     const [{ data: products }, { data: orders }] = await Promise.all([

@@ -16,7 +16,8 @@ type Body = {
 export async function POST(request: Request) {
     const profile = await getCurrentProfile();
     if (!profile) return NextResponse.json({ error: "Login diperlukan." }, { status: 401 });
-    if (!profile.is_member) return NextResponse.json({ error: "Membership aktif diperlukan." }, { status: 403 });
+    const isWartawan = profile.role === "wartawan" || profile.role === "admin" || profile.role === "super_admin";
+    if (!profile.is_member && !isWartawan) return NextResponse.json({ error: "Membership aktif atau status Wartawan diperlukan." }, { status: 403 });
 
     let body: Body;
     try { body = await request.json() as Body; }
@@ -36,6 +37,19 @@ export async function POST(request: Request) {
     }
 
     const supabase = await createClient();
+
+    // Check daily article limit (Max 20 articles/day)
+    const today = new Date().toISOString().split("T")[0];
+    const { count: dailyCount } = await supabase
+        .from("articles")
+        .select("id", { count: "exact", head: true })
+        .eq("author_id", profile.id)
+        .gte("created_at", `${today}T00:00:00.000Z`);
+
+    if ((dailyCount ?? 0) >= 20) {
+        return NextResponse.json({ error: "Batas menulis artikel perhari adalah 20 Artikel." }, { status: 400 });
+    }
+
     const slug = await generateUniqueSlug(title);
     const { data: article, error } = await supabase.from("articles").insert({
         slug, title, content, excerpt: content.replace(/\s+/g, " ").slice(0, 157),

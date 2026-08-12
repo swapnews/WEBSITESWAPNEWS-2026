@@ -12,7 +12,7 @@ const param = (params: Record<string, string | string[] | undefined>, key: strin
 
 export default async function ReelsPage({ searchParams }: Props) {
     const profile = await getCurrentProfile();
-    if (!profile) redirect("/login?next=/dashboard/reels");
+    if (!profile) redirect("/panelswap?next=/dashboard/reels");
     if (profile.role !== "super_admin") redirect("/dashboard");
     const params = await searchParams;
     const supabase = await createClient();

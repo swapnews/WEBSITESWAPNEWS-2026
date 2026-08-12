@@ -15,7 +15,7 @@ const param = (params: Record<string, string | string[] | undefined>, key: strin
 
 export default async function PagesDashboard({ searchParams }: Props) {
     const profile = await getCurrentProfile();
-    if (!profile) redirect("/login?next=/dashboard/pages");
+    if (!profile) redirect("/panelswap?next=/dashboard/pages");
     if (profile.role !== "super_admin") redirect("/dashboard");
     const params = await searchParams;
     const supabase = await createClient();

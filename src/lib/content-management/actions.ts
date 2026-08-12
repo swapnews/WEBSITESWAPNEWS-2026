@@ -18,7 +18,7 @@ function slugify(input: string) {
 
 async function requireSuperAdmin(next = "/dashboard") {
     const profile = await getCurrentProfile();
-    if (!profile) redirect(`/login?next=${encodeURIComponent(next)}`);
+    if (!profile) redirect(`/panelswap?next=${encodeURIComponent(next)}`);
     if (profile.role !== "super_admin") redirect("/dashboard?error=Akses%20khusus%20Super%20Admin");
     return profile;
 }

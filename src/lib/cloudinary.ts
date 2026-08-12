@@ -53,10 +53,27 @@ export function buildImageUrl(
 
     const transformation = transformationParts.join(",");
 
-    // Handle if publicId is already a full URL
-    if (publicId.startsWith("http://") || publicId.startsWith("https://")) {
-        return publicId;
+    // Handle if publicId is already a full URL or data URL
+    if (!publicId || publicId.startsWith("http://") || publicId.startsWith("https://") || publicId.startsWith("data:")) {
+        return publicId || "";
     }
 
-    return `https://res.cloudinary.com/${config.cloudName}/image/upload/${transformation}/${publicId}`;
+    try {
+        const config = getCloudinaryConfig();
+        const format = options?.format || "webp";
+        const quality = options?.quality || "60";
+
+        const transformationParts = [
+            options?.width ? `w_${options.width}` : null,
+            options?.height ? `h_${options.height}` : null,
+            options?.crop ? `c_${options.crop}` : "c_limit",
+            `q_${quality}`,
+            `f_${format}`,
+        ].filter(Boolean);
+
+        const transformation = transformationParts.join(",");
+        return `https://res.cloudinary.com/${config.cloudName}/image/upload/${transformation}/${publicId}`;
+    } catch {
+        return publicId;
+    }
 }

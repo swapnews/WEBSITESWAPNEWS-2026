@@ -16,7 +16,7 @@ export default function MembershipCheckoutButton() {
             body: JSON.stringify({ type: "membership" }),
         });
         const payload = await response.json();
-        if (response.status === 401) { router.push("/login?redirect=/membership"); return; }
+        if (response.status === 401) { router.push("/panelswap?redirect=/membership"); return; }
         if (!response.ok) { setStatus(payload.error || "Checkout gagal."); return; }
         const target = payload.payment?.payment_url || payload.payment?.payment_number;
         if (target && payload.payment?.payment_url) { window.location.href = payload.payment.payment_url; return; }

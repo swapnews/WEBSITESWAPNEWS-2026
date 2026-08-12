@@ -37,7 +37,7 @@ function getParam(params: Record<string, string | string[] | undefined>, key: st
 
 export default async function EditArticlePage({ params, searchParams }: EditArticlePageProps) {
     const profile = await getCurrentProfile();
-    if (!profile) redirect("/login");
+    if (!profile) redirect("/panelswap");
     if (!isEditorialRole(profile.role)) redirect("/dashboard");
 
     const { id } = await params;

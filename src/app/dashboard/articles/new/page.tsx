@@ -26,7 +26,7 @@ function getParam(params: Record<string, string | string[] | undefined>, key: st
 
 export default async function NewArticlePage({ searchParams }: NewArticlePageProps) {
     const profile = await getCurrentProfile();
-    if (!profile) redirect("/login?next=/dashboard/articles/new");
+    if (!profile) redirect("/panelswap?next=/dashboard/articles/new");
     if (!isEditorialRole(profile.role)) redirect("/dashboard");
 
     const categories = await getCategories();

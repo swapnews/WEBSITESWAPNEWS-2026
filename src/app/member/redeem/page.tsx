@@ -11,7 +11,10 @@ export const metadata: Metadata = { title: "Redeem Poin — SwapNews" };
 
 export default async function RedeemPage() {
     const profile = await getCurrentProfile();
-    if (!profile) redirect("/login");
+    if (!profile) redirect("/panelswap");
+
+    const isWartawan = profile.role === "wartawan" || profile.role === "admin" || profile.role === "super_admin";
+    const canRedeem = profile.is_member || isWartawan;
 
     const supabase = await createClient();
     const [{ data: balance }, { data: products }] = await Promise.all([
@@ -24,11 +27,11 @@ export default async function RedeemPage() {
             <header className="member-head">
                 <span>REDEEM POIN</span>
                 <h1>Tukar poin</h1>
-                <p>Cash cair ≤ 7 hari kerja setelah disetujui Admin. Produk langsung diproses.</p>
+                <p>5.000 Poin = Cash Rp 500.000. Cash cair ≤ 7 hari kerja setelah disetujui Admin.</p>
             </header>
-            {profile.is_member
+            {canRedeem
                 ? <RedeemForm products={products ?? []} balance={balance ?? 0} />
-                : <section className="member-cta"><h2>Membership diperlukan</h2><p>Aktifkan membership untuk mengumpulkan dan menukar poin.</p><Link href="/membership">Aktifkan membership</Link></section>}
+                : <section className="member-cta"><h2>Akses Ditutup</h2><p>Aktifkan membership atau kumpulkan poin sebagai Wartawan untuk menukar poin.</p><Link href="/membership">Aktifkan membership</Link></section>}
         </main>
     );
 }

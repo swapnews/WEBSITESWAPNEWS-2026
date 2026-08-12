@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 export default async function EditPage({ params }: { params: Promise<{ id: string }> }) {
     const profile = await getCurrentProfile();
-    if (!profile) redirect("/login?next=/dashboard/pages");
+    if (!profile) redirect("/panelswap?next=/dashboard/pages");
     if (profile.role !== "super_admin") redirect("/dashboard");
     const { id } = await params;
     const supabase = await createClient();

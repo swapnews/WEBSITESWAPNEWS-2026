@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function MemberDashboardPage() {
     const profile = await getCurrentProfile();
-    if (!profile) redirect("/login");
+    if (!profile) redirect("/panelswap");
 
     const supabase = await createClient();
     const [{ data: membership }, { data: balance }, { data: monthly }, { data: submissions }, { data: redemptions }] = await Promise.all([

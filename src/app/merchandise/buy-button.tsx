@@ -16,7 +16,7 @@ export default function BuyButton({ productId, points, isMember }: { productId: 
             body: JSON.stringify({ type: "product", product_id: productId, quantity: 1 }),
         });
         const payload = await response.json();
-        if (response.status === 401) { router.push("/login?redirect=/merchandise"); return; }
+        if (response.status === 401) { router.push("/panelswap?redirect=/merchandise"); return; }
         if (!response.ok) { setStatus(payload.error || "Checkout gagal."); return; }
         if (payload.payment?.payment_url) { window.location.href = payload.payment.payment_url; return; }
         setStatus("Transaksi dibuat. Selesaikan pembayaran sesuai instruksi Pakasir.");

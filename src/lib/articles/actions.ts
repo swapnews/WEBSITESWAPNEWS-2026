@@ -23,7 +23,7 @@ function getBool(formData: FormData, key: string) {
     return formData.get(key) === "on" || formData.get(key) === "true";
 }
 
-const RESERVED_SLUGS = new Set(["dashboard", "member", "membership", "merchandise", "login", "cari", "api", "artikel", "auth", "robots.txt", "sitemap.xml", "manifest.webmanifest", "news", "_next"]);
+const RESERVED_SLUGS = new Set(["dashboard", "member", "membership", "merchandise", "login", "panelswap", "cari", "api", "artikel", "auth", "robots.txt", "sitemap.xml", "manifest.webmanifest", "news", "_next"]);
 
 function normalizeSlug(value: string) {
     return value.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -50,7 +50,7 @@ async function slugExists(slug: string, excludeId?: string) {
 export async function createArticleAction(formData: FormData) {
     const profile = await getCurrentProfile();
     if (!profile || !isEditorialRole(profile.role as AppRole)) {
-        redirect("/login?next=/dashboard/articles/new");
+        redirect("/panelswap?next=/dashboard/articles/new");
     }
 
     const title = getString(formData, "title");
@@ -105,7 +105,7 @@ export async function createArticleAction(formData: FormData) {
 export async function updateArticleAction(formData: FormData) {
     const profile = await getCurrentProfile();
     if (!profile || !isEditorialRole(profile.role as AppRole)) {
-        redirect("/login");
+        redirect("/panelswap");
     }
 
     const id = getString(formData, "id");
@@ -143,12 +143,21 @@ export async function updateArticleAction(formData: FormData) {
     let status = existing.status;
     let publishedAt: string | null | undefined;
     let scheduledAt: string | null | undefined;
+    let pointsToAward: number | undefined;
 
     if (action === "submit_review" && ["draft", "revision", "rejected"].includes(status)) status = "in_review";
     if (action === "publish" && isAdmin) {
-        status = "published";
-        publishedAt = new Date().toISOString();
-        scheduledAt = null;
+        const awardPoints = Math.floor(Number(getString(formData, "award_points")) || 0);
+        if (awardPoints < 5) {
+            // Points < 5 means article is not good enough → rejected
+            status = "rejected";
+        } else {
+            // Points 5-10 → publish and award points to author
+            pointsToAward = Math.min(awardPoints, 10);
+            status = "published";
+            publishedAt = new Date().toISOString();
+            scheduledAt = null;
+        }
     }
     if (action === "revision" && isAdmin) status = "revision";
     if (action === "archive" && isAdmin) status = "archived";
@@ -188,6 +197,16 @@ export async function updateArticleAction(formData: FormData) {
     if (error) {
         redirect(`/dashboard/articles/${id}?error=${encodeURIComponent(error.message)}`);
     }
+
+    // Award dynamic points to author when article is published with rating >= 5
+    if (pointsToAward && pointsToAward >= 5 && status === "published") {
+        await supabase.rpc("award_article_points", {
+            p_article_id: id,
+            p_points: pointsToAward,
+            p_reviewer_id: profile.id,
+        });
+    }
+
     if (editorialNote) {
         const { error: noteError } = await supabase.from("editorial_notes").insert({ article_id: id, author_id: profile.id, note: editorialNote });
         if (noteError) redirect(`/dashboard/articles/${id}?error=${encodeURIComponent(noteError.message)}`);
@@ -201,7 +220,7 @@ export async function updateArticleAction(formData: FormData) {
 export async function deleteArticleAction(formData: FormData) {
     const profile = await getCurrentProfile();
     if (!profile || !isAdminRole(profile.role as AppRole)) {
-        redirect("/login");
+        redirect("/panelswap");
     }
 
     const id = getString(formData, "id");

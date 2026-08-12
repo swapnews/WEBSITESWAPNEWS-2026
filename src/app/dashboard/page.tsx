@@ -29,7 +29,7 @@ async function getCount(query: Promise<{ count: number | null }>) {
 export default async function DashboardPage() {
     const profile = await getCurrentProfile();
 
-    if (!profile) redirect("/login?next=/dashboard");
+    if (!profile) redirect("/panelswap?next=/dashboard");
 
     const supabase = await createClient();
     const canEdit = isEditorialRole(profile.role);

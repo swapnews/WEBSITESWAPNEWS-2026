@@ -12,7 +12,8 @@ type Body = { type?: unknown; points?: unknown; product_id?: unknown; payout_acc
 export async function POST(request: Request) {
     const profile = await getCurrentProfile();
     if (!profile) return NextResponse.json({ error: "Login diperlukan." }, { status: 401 });
-    if (!profile.is_member) return NextResponse.json({ error: "Membership aktif diperlukan." }, { status: 403 });
+    const isWartawan = profile.role === "wartawan" || profile.role === "admin" || profile.role === "super_admin";
+    if (!profile.is_member && !isWartawan) return NextResponse.json({ error: "Membership aktif atau status Wartawan diperlukan." }, { status: 403 });
 
     let body: Body;
     try { body = await request.json() as Body; }
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
     const type = body.type === "cash" ? "cash" : body.type === "product" ? "product" : null;
     const points = Math.floor(Number(body.points));
     if (!type || !Number.isFinite(points) || points <= 0) return NextResponse.json({ error: "Tipe atau jumlah poin tidak valid." }, { status: 400 });
-    if (type === "cash" && points < 100) return NextResponse.json({ error: "Redeem cash minimal 100 poin." }, { status: 400 });
+    if (type === "cash" && points < 5000) return NextResponse.json({ error: "Redeem cash minimal 5.000 poin." }, { status: 400 });
 
     const supabase = await createClient();
     const { data: balance } = await supabase.rpc("point_balance", { target_user: profile.id });

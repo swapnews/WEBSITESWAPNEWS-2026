@@ -52,7 +52,7 @@ function escapeSearchTerm(value: string) {
 
 export default async function MediaPage({ searchParams }: MediaPageProps) {
     const profile = await getCurrentProfile();
-    if (!profile) redirect("/login?next=/dashboard/media");
+    if (!profile) redirect("/panelswap?next=/dashboard/media");
     if (!isEditorialRole(profile.role)) redirect("/dashboard");
 
     const params = await searchParams;

@@ -13,7 +13,7 @@ const localDate = (value?: string | null) => value ? new Date(value).toISOString
 
 export default async function HomepageDashboard({ searchParams }: Props) {
     const profile = await getCurrentProfile();
-    if (!profile) redirect("/login?next=/dashboard/homepage");
+    if (!profile) redirect("/panelswap?next=/dashboard/homepage");
     if (profile.role !== "super_admin") redirect("/dashboard");
     const params = await searchParams;
     const supabase = await createClient();

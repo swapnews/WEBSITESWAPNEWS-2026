@@ -11,7 +11,7 @@ const discovery = [["Beranda", "/"], ["Trending", "/?feed=trending"], ["Berita V
 
 export function SiteFooter() {
     const pathname = usePathname();
-    if (pathname.startsWith("/dashboard") || pathname.startsWith("/login")) return null;
+    if (pathname.startsWith("/dashboard") || pathname.startsWith("/panelswap") || pathname.startsWith("/login")) return null;
     return <footer className="site-footer">
         <div className="footer-orbit" aria-hidden="true" />
         <div className="footer-shell">

@@ -17,6 +17,7 @@ import {
     User,
     BookOpenCheck,
     ShoppingBag,
+    UserCheck,
 } from "lucide-react";
 
 import { signOutAction } from "@/lib/auth/actions";
@@ -34,6 +35,9 @@ export function DashboardSidebar({ profile }: DashboardSidebarProps) {
         { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
         { label: "Artikel", href: "/dashboard/articles", icon: FileText },
         { label: "Media Library", href: "/dashboard/media", icon: ImageIcon },
+        ...(profile.role === "super_admin" || profile.role === "admin" ? [
+            { label: "Verifikasi Wartawan", href: "/dashboard/wartawan", icon: UserCheck },
+        ] : []),
         ...(profile.role === "super_admin" ? [
             { label: "Homepage", href: "/dashboard/homepage", icon: PanelsTopLeft },
             { label: "Kategori", href: "/dashboard/categories", icon: FolderTree },
