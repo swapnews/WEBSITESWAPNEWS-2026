@@ -33,27 +33,45 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
     const article = await resolveArticle(slug);
     if (!article) return { title: "Artikel tidak ditemukan" };
-    const image = articleImage(article);
+    const imageRaw = articleImage(article);
+    const imageUrl = imageRaw.startsWith("http://") || imageRaw.startsWith("https://")
+        ? imageRaw
+        : `https://swapnews.co.id${imageRaw.startsWith("/") ? "" : "/"}${imageRaw}`;
+
     const seoTitle = article.seo_title || article.title;
     const seoDescription = article.meta_description || article.excerpt;
     return {
         title: seoTitle,
         description: seoDescription,
         keywords: article.tags,
-        alternates: { canonical: `/${article.slug}` },
+        alternates: { canonical: `https://swapnews.co.id/${article.slug}` },
         openGraph: {
             type: "article",
+            siteName: "SwapNews",
+            locale: "id_ID",
             title: seoTitle,
             description: seoDescription,
-            url: `/${article.slug}`,
+            url: `https://swapnews.co.id/${article.slug}`,
             publishedTime: article.published_at,
             modifiedTime: article.updated_at,
             authors: [article.author_name],
             section: article.category_name,
             tags: article.tags,
-            images: [{ url: image, alt: article.featured_media?.alt_text || article.title }],
+            images: [
+                {
+                    url: imageUrl,
+                    width: 1200,
+                    height: 630,
+                    alt: article.featured_media?.alt_text || article.title,
+                },
+            ],
         },
-        twitter: { card: "summary_large_image", title: seoTitle, description: seoDescription, images: [image] },
+        twitter: {
+            card: "summary_large_image",
+            title: seoTitle,
+            description: seoDescription,
+            images: [imageUrl],
+        },
     };
 }
 

@@ -39,6 +39,14 @@ export const metadata: Metadata = {
     locale: "id_ID",
     title: "SwapNews — Bukan Berita Biasa",
     description: "Kabar terbaru, trending, dan perspektif baru setiap hari.",
+    images: [{ url: "https://swapnews.co.id/swapnews-logo.png", width: 800, height: 600, alt: "SwapNews Logo" }],
+  },
+  icons: {
+    icon: [
+      { url: "/swapnews-logo.png", type: "image/png" },
+    ],
+    shortcut: "/swapnews-logo.png",
+    apple: "/swapnews-logo.png",
   },
 };
 
