@@ -3,19 +3,19 @@
   "limit": null,
   "staging_articles": 694,
   "local_originals": 110,
-  "unlinked_with_source": 595,
-  "selected": 595,
+  "unlinked_with_source": 98,
+  "selected": 98,
   "local_sources": 0,
-  "remote_sources": 595,
-  "uploaded": 496,
+  "remote_sources": 98,
+  "uploaded": 0,
   "skipped": 0,
-  "reconciled": 0,
-  "linked": 496,
+  "reconciled": 1,
+  "linked": 1,
   "errors": [
     {
       "slug": "satgas-keimigrasian-bali-patroli-wna-keamanan-wisata",
       "url": "http://swapnews.co.id/wp-content/uploads/2025/08/Satgas-Patroli-Keimigrasian-Bali-perkuat-pengawasan-WNA-dan-jaga-pariwisata-aman.jpg",
-      "error": "File size too large. Got 16069206. Maximum is 10485760."
+      "error": "Error in loading http://swapnews.co.id/wp-content/uploads/2025/08/Satgas-Patroli-Keimigrasian-Bali-perkuat-pengawasan-WNA-dan-jaga-pariwisata-aman.jpg - 403 Forbidden"
     },
     {
       "slug": "f0-9f-9a-a8-terbongkar-wanita-27-tahun-dijadikan-psk-lewat-aplikasi-chat-polres-bangli-rin",
@@ -23,395 +23,479 @@
       "error": "Context Invalid encoding in context"
     },
     {
-      "slug": "wakapolres-bangli-tegaskan-tak-under-estimate-terhadap-perkembangan-situasi",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/09/IMG-20250903-WA0062.jpg",
-      "error": "TypeError: fetch failed"
-    },
-    {
       "slug": "airbnb-unesco-ubah-wajah-bali-pariwisata-budaya-atau-komersialisasi-warisan",
       "url": "https://swapnews.co.id/wp-content/uploads/2025/09/Airbnb-dan-UNESCO-Luncurkan-Bali-Cultural-Guidebook.jpg",
-      "error": "File size too large. Got 18525102. Maximum is 10485760."
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/09/Airbnb-dan-UNESCO-Luncurkan-Bali-Cultural-Guidebook.jpg - 403 Forbidden"
     },
     {
       "slug": "kkb-kembali-berulah-di-intan-jaya-pekerja-jalan-tewas-ditembak-saat-bertugas-satgas-damai",
       "url": "https://swapnews.co.id/wp-content/uploads/2025/10/KKB-Intan-Jaya-Papua.png",
-      "error": "File size too large. Got 11634266. Maximum is 10485760."
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/KKB-Intan-Jaya-Papua.png - 403 Forbidden"
     },
     {
       "slug": "kapolsek-mewakili-bapak-kapolres-hadiri-undangan-upesaksi-karya-rsi-gana-jalan-usaha-tan-2",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251022-WA0055-1.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251022-WA0055-1.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251022-WA0055-1.jpg - 403 Forbidden"
     },
     {
       "slug": "wujud-kepedulian-pimpinan-kapolsek-jenguk-anggota-dan-istri-anggota-yang-sedang-sakit",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251022-WA0061.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251022-WA0061.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251022-WA0061.jpg - 403 Forbidden"
     },
     {
       "slug": "polres-bangli-lakukan-penanganan-profesional-terhadap-kasus-gantung-diri-di-desa-songan",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251022-WA0068-1.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251022-WA0068-1.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251022-WA0068-1.jpg - 403 Forbidden"
     },
     {
       "slug": "bunuh-diri",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/20180524022057.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/20180524022057.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/20180524022057.jpg - 403 Forbidden"
     },
     {
       "slug": "manfaat-tahu",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/tahu-cina.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/tahu-cina.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/tahu-cina.jpg - 403 Forbidden"
     },
     {
       "slug": "gawat-whatsapp-mau-bikin-fitur-anti-dicuekin",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/c7644008f58970f3d495d2d68958652a_fgraphic.png"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/c7644008f58970f3d495d2d68958652a_fgraphic.png",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/c7644008f58970f3d495d2d68958652a_fgraphic.png - 403 Forbidden"
     },
     {
       "slug": "asal-usul-sushi-ternyata-makanan-jepang-ini-dulunya-adalah-ikan-busuk-buangan",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/csm_sushi-kakkoii_2c56fe3133.webp"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/csm_sushi-kakkoii_2c56fe3133.webp",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/csm_sushi-kakkoii_2c56fe3133.webp - 403 Forbidden"
     },
     {
       "slug": "wakapolres-badung-hadiri-pemusnahan-barang-bukti-lawan-penyalahgunaan-dan-jaga-integritas",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251023-WA0049.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251023-WA0049.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251023-WA0049.jpg - 403 Forbidden"
     },
     {
       "slug": "ayam-sebright-atau-ayam-batik",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/Sebright_Gold_Dore.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/Sebright_Gold_Dore.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/Sebright_Gold_Dore.jpg - 403 Forbidden"
     },
     {
       "slug": "prediksi-peningkatan-potensi-hujan",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/PDCHT_latest.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/PDCHT_latest.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/PDCHT_latest.jpg - 403 Forbidden"
     },
     {
       "slug": "lucid-dream-gerbang-menuju-pencerahan-atau-ancaman-nyata-kelelahan-otak-kolektif",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/SF-23-076_LucidDreams_Graphic-1024x717-1.png"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/SF-23-076_LucidDreams_Graphic-1024x717-1.png",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/SF-23-076_LucidDreams_Graphic-1024x717-1.png - 403 Forbidden"
     },
     {
       "slug": "timor-leste-resmi-jadi-anggota-asean",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/Logu-ASEAN-1-1.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/Logu-ASEAN-1-1.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/Logu-ASEAN-1-1.jpg - 403 Forbidden"
     },
     {
       "slug": "tim-forward-kunjungi-bidhumas-polda-bali-ucapkan-selamat-hut-ke-74",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/20251028_174509_0000.png"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/20251028_174509_0000.png",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/20251028_174509_0000.png - 403 Forbidden"
     },
     {
       "slug": "ular-berbisa-papua",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/542521820_767915375945059_3300474659456074599_n.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/542521820_767915375945059_3300474659456074599_n.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/542521820_767915375945059_3300474659456074599_n.jpg - 403 Forbidden"
     },
     {
       "slug": "imigrasi-ngurah-rai-deportasi-4-wn-vietnam-yang-bekerja-sebagai-terapis-spa-di-kuta",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251030-WA0081.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251030-WA0081.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251030-WA0081.jpg - 403 Forbidden"
     },
     {
       "slug": "imigrasi-ngurah-rai-hadirkan-mayaswari-bawa-informasi-layanan-langsung-ke-masyarakat",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251030-WA0086-1.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251030-WA0086-1.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251030-WA0086-1.jpg - 403 Forbidden"
     },
     {
       "slug": "polres-bangli-laksanakan-pengaturan-arus-lalu-lintas-untuk-ciptakan-situasi-aman-dan-terti",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251031-WA0001.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251031-WA0001.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251031-WA0001.jpg - 403 Forbidden"
     },
     {
       "slug": "bhabinkamtibmas-lembean-hadiri-penerimaan-mahasiswa-unud-di-desa-lembean",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251031-WA0008.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251031-WA0008.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/10/IMG-20251031-WA0008.jpg - 403 Forbidden"
     },
     {
       "slug": "bullying-bukan-hanya-luka-fisik-tekanan-mental-bisa-dirasakan-sampai-dewasa",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/bulling2.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/bulling2.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/bulling2.jpg - 403 Forbidden"
     },
     {
       "slug": "blue-java-banana",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/large-blue-java-banana-2e5c921cf5b508c97caa5873567ebe4f.webp"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/large-blue-java-banana-2e5c921cf5b508c97caa5873567ebe4f.webp",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/large-blue-java-banana-2e5c921cf5b508c97caa5873567ebe4f.webp - 403 Forbidden"
     },
     {
       "slug": "ketika-pasukan-tentara-perang-australia-harus-menyerah-kalah-melawan-pasukan-burung-emu",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/emu-war-3.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/emu-war-3.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/emu-war-3.jpg - 403 Forbidden"
     },
     {
       "slug": "berhenti-berusaha-sembuh-kenapa-luka-batin-cukup-dipahami-bukan-dihapus-total",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/luka-batin-1.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/luka-batin-1.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/luka-batin-1.jpg - 403 Forbidden"
     },
     {
       "slug": "yang-chil-seong-pejuang-kemerdekaan-yang-berasal-dari-korea",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/579010537_122301569774166592_7489992433708679100_n.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/579010537_122301569774166592_7489992433708679100_n.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/579010537_122301569774166592_7489992433708679100_n.jpg - 403 Forbidden"
     },
     {
       "slug": "pawas-dan-anggota-polsek-bangli-sambangi-tempat-ibadah-ppi-sembung-beri-rasa-aman-kepada-2",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0036.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0036.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0036.jpg - 403 Forbidden"
     },
     {
       "slug": "antisipasi-lonjakan-kunjungan-wisatawan-polres-bangli-lakukan-pengamanan-di-penelokan-kint",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0039.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0039.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0039.jpg - 403 Forbidden"
     },
     {
       "slug": "anggota-polsek-bangli-pantau-kunjungan-wisatawan-di-desa-wisata-penglipuran",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0043.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0043.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0043.jpg - 403 Forbidden"
     },
     {
       "slug": "personil-sat-samapta-polres-bangli-amankan-ibadah-minggu-di-gereja-marga-rahayu-bangli",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0046.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0046.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0046.jpg - 403 Forbidden"
     },
     {
       "slug": "pangdam-ix-udayana-bersama-forkopimda-bali-peringati-hari-pahlawan-di-lapangan-niti-mandal",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0054.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0054.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0054.jpg - 403 Forbidden"
     },
     {
       "slug": "mediasi-warga-graha-shanti-berhasil-masalah-suara-bising-proyek-poltekkes-teratasi",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0103.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0103.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251110-WA0103.jpg - 403 Forbidden"
     },
     {
       "slug": "whatsapp-resmi-hadir-di-apple-watch-baca-dan-balas-pesan-langsung-dari-pergelangan-tangan",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/WhatsApp-resmi-tersedia-di-Apple-Watch-memungkinkan-pengguna-membaca-membalas-pesan-hingga-mengirim-voice-note-langsung-dari-jam-tangan-pintar-tanpa-membuka-iPhone.png"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/WhatsApp-resmi-tersedia-di-Apple-Watch-memungkinkan-pengguna-membaca-membalas-pesan-hingga-mengirim-voice-note-langsung-dari-jam-tangan-pintar-tanpa-membuka-iPhone.png",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/WhatsApp-resmi-tersedia-di-Apple-Watch-memungkinkan-pengguna-membaca-membalas-pesan-hingga-mengirim-voice-note-langsung-dari-jam-tangan-pintar-tanpa-membuka-iPhone.png - 403 Forbidden"
     },
     {
       "slug": "11-11-bukan-soal-belanja-tapi-perlawanan-kaum-jomblo-pada-stigma-wajib-punya-pasangan",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/11-nove.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/11-nove.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/11-nove.jpg - 403 Forbidden"
     },
     {
       "slug": "terima-kunjungan-sekjen-ituc-kapolri-kolaborasi-beri-perlindungan-tingkatkan-kesejahteraan",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0003.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0003.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0003.jpg - 403 Forbidden"
     },
     {
       "slug": "polsek-kuta-utara-perkuat-keamanan-fokus-patroli-sambangi-kawasan-wisata",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0006.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0006.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0006.jpg - 403 Forbidden"
     },
     {
       "slug": "kapolda-bali-bersama-organisasi-dan-komunitas-media-bali-bersinergi-ciptakan-keamanan-dan",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/Screenshot_20251112_061908.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/Screenshot_20251112_061908.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/Screenshot_20251112_061908.jpg - 403 Forbidden"
     },
     {
       "slug": "polsek-kintamani-evakuasi-pohon-tumbang-akibat-angin-kencang-di-desa-bayung-gede",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0016.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0016.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0016.jpg - 403 Forbidden"
     },
     {
       "slug": "pastikan-tidak-ada-balapan-liar-polsek-kuta-utara-patroli-di-jalan-gatsu-barat",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0017.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0017.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0017.jpg - 403 Forbidden"
     },
     {
       "slug": "ciptakan-situasi-aman-di-jalur-wisata-polsek-kuta-utara-intensifkan-patroli",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0020.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0020.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0020.jpg - 403 Forbidden"
     },
     {
       "slug": "bangun-polri-presisi-serdik-sespimen-polri-gali-pandangan-tokoh-agama-dan-adat-soal-kepemi",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0024.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0024.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0024.jpg - 403 Forbidden"
     },
     {
       "slug": "program-polantas-menyapa-jadi-wujud-komitmen-polisi-hadir-melayani-masyarakat-2",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0025.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0025.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0025.jpg - 403 Forbidden"
     },
     {
       "slug": "pastikan-keamanan-transaksi-malam-hari-samapta-polsek-abiansemal-sambangi-gerai-atm",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0027.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0027.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0027.jpg - 403 Forbidden"
     },
     {
       "slug": "patroli-subuh-polsek-abiansemal-langkah-preventif-cegah-gangguan-kamtibmas-di-jalur-rawan",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0031.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0031.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251112-WA0031.jpg - 403 Forbidden"
     },
     {
       "slug": "polsek-kintamani-kawal-pemulihan-fungsi-kawasan-di-twa-penelokan",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0004.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0004.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0004.jpg - 403 Forbidden"
     },
     {
       "slug": "personil-polres-bangli-hadir-di-pagi-hari-guna-ciptakan-kamseltibcarlantas-yang-kondusif",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0008.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0008.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0008.jpg - 403 Forbidden"
     },
     {
       "slug": "polres-bangli-siagakan-ratusan-personel-amankan-jalannya-sidang-putusan-jro-luwes",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0009.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0009.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0009.jpg - 403 Forbidden"
     },
     {
       "slug": "anjangsana-satpolairud-polres-bangli-dalam-rangka-hut-polairud-ke-75-tahun-2025",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0013.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0013.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0013.jpg - 403 Forbidden"
     },
     {
       "slug": "setetes-darah-untuk-kemanusiaan-satpolairud-polres-bangli-gelar-donor-darah-sambut-hut-pol",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0018.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0018.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0018.jpg - 403 Forbidden"
     },
     {
       "slug": "wakapolri-resmikan-masjid-an-nahdah-suhanda-di-sma-kemala-taruna-bhayangkara-bogor",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0022.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0022.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0022.jpg - 403 Forbidden"
     },
     {
       "slug": "polri-dan-pemerintah-inggris-gelar-workshop-peningkatan-kemampuan-tptkp",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0024.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0024.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0024.jpg - 403 Forbidden"
     },
     {
       "slug": "polda-bali-bersinergi-dengan-pecalang-amankan-21st-ipoc-and-2026-price-outlook",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0027.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0027.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0027.jpg - 403 Forbidden"
     },
     {
       "slug": "satgas-pangan-polda-bali-cek-harga-beras-harga-masih-stabil",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0033.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0033.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0033.jpg - 403 Forbidden"
     },
     {
       "slug": "polres-badung-hadirkan-pelayanan-sim-transparan-dan-bebas-pungli",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0040.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0040.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0040.jpg - 403 Forbidden"
     },
     {
       "slug": "belajar-seru-bareng-polisi-siswa-smpn-3-abiansemal-diajari-tertib-berlalu-lintas-sejak-din",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0043.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0043.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0043.jpg - 403 Forbidden"
     },
     {
       "slug": "tutup-kegiatan-kkp-serdik-sespimmen-polri-apresiasi-polres-badung-atas-inovasi-digital-dan",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0049.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0049.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0049.jpg - 403 Forbidden"
     },
     {
       "slug": "unit-binmas-polsek-mengwi-sosialisasi-kenakalan-anak-anak-dan-bullying-di-tk-kumara-sari-p",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0057.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0057.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251114-WA0057.jpg - 403 Forbidden"
     },
     {
       "slug": "buffalo-mindset-ketika-hidup-mengajarkan-kita-untuk-tidak-lari-dari-badai",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/download-1-1.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/download-1-1.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/download-1-1.jpg - 403 Forbidden"
     },
     {
       "slug": "wifi-dan-orex-sai-resmikan-internet-5g-rp100-ribu-per-bulan-siap-revolusi-koneksi-murah-di",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/Internet-5G-murah-WIFI-Orex-Sai-Indonesia-1.png"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/Internet-5G-murah-WIFI-Orex-Sai-Indonesia-1.png",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/Internet-5G-murah-WIFI-Orex-Sai-Indonesia-1.png - 403 Forbidden"
     },
     {
       "slug": "6161-2sambang-pertokoan-modern-samapta-polsek-abiansemal-gelar-patroli-dialogis",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0009.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0009.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0009.jpg - 403 Forbidden"
     },
     {
       "slug": "polri-kerahkan-155-personel-4-anjing-pelacak-dan-perkuat-operasi-sar-longsor-cibeunying-21",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0014.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0014.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0014.jpg - 403 Forbidden"
     },
     {
       "slug": "zebra-agung-2025-polda-bali-perkuat-penegakan-hukum-lalu-lintas",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0031.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0031.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0031.jpg - 403 Forbidden"
     },
     {
       "slug": "terkait-dugaan-pemalsuan-dokumen-akademik-wakil-gubernur-babel-jalani-pemeriksaan-di-bares",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0041.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0041.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0041.jpg - 403 Forbidden"
     },
     {
       "slug": "tingkatkan-kedisiplinan-berlalu-lintas-wakapolres-badung-resmi-buka-pelatihan-pra-ops-zebr",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0042.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0042.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0042.jpg - 403 Forbidden"
     },
     {
       "slug": "satlantas-polres-badung-hadirkan-pelayanan-modern-dan-ramah-di-era-presisi",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0047-1.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0047-1.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0047-1.jpg - 403 Forbidden"
     },
     {
       "slug": "kolaborasi-untuk-kenyamanan-desa-jumat-curhat-sat-lantas-bersama-pecalang-bongkasa",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0048.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0048.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0048.jpg - 403 Forbidden"
     },
     {
       "slug": "hangatnya-silaturahmi-sat-polairud-polres-badung-bersama-purnawirawan-di-hari-jadi-ke-75-p",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0051.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0051.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0051.jpg - 403 Forbidden"
     },
     {
       "slug": "polda-bali-gelar-syukuran-hut-ke-80-korps-brimob-polri-dengan-wujud-brimob-presisi-untuk-m",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0055.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0055.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0055.jpg - 403 Forbidden"
     },
     {
       "slug": "personel-polres-bangli-antusias-ikuti-latpraops-zebra-agung-2025",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0063.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0063.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0063.jpg - 403 Forbidden"
     },
     {
       "slug": "pelayanan-kesehatan-anak-cerah-di-tk-bhayangkari-06-bangli",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0065.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0065.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0065.jpg - 403 Forbidden"
     },
     {
       "slug": "melalui-jumat-curhat-polsek-kuta-utara-ajak-para-driver-gojek-grab-dan-taksi-bluebird-jaga",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0052.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0052.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0052.jpg - 403 Forbidden"
     },
     {
       "slug": "minimalkan-kemacetan-polsek-abiansemal-fokuskan-pengaturan-lalin-pada-jalur-rawan-padat",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0071.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0071.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0071.jpg - 403 Forbidden"
     },
     {
       "slug": "samapta-polsek-abiansemal-sasar-objek-vital-dalam-patroli-harkamtibmas-terpadu",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0078.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0078.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251115-WA0078.jpg - 403 Forbidden"
     },
     {
       "slug": "bhabinkamtibmas-kelurahan-kubu-monitor-pelaksanaan-pemeriksaan-kesehatan-gratis-oleh-ikata",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0007.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0007.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0007.jpg - 403 Forbidden"
     },
     {
       "slug": "polres-bangli-gelar-pengaturan-arus-lalu-lintas-di-obyek-wisata-penelokan-kintamani-di-akh",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0012.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0012.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0012.jpg - 403 Forbidden"
     },
     {
       "slug": "kapolres-bangli-hadiri-upacara-serah-terima-petaka-panji-panji-dan-surat-sakti-gusti-ngu-2",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0018.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0018.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0018.jpg - 403 Forbidden"
     },
     {
       "slug": "bhabinkamtibmas-desa-binyan-melakukan-pendampingan-penyerahan-16-ekor-bibit-sapi-kepada-wa",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0019.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0019.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0019.jpg - 403 Forbidden"
     },
     {
       "slug": "antisipasi-gangguan-kamtibmas-dan-wujudkan-kenyamanan-wisatawan-sat-samapta-polres-bangli",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0020.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0020.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0020.jpg - 403 Forbidden"
     },
     {
       "slug": "minggu-kasih-langkah-polres-badung-dengarkan-suara-warga-desa-mengwi",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0032.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0032.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0032.jpg - 403 Forbidden"
     },
     {
       "slug": "patroli-malam-minggu-polsek-mengwi-atensi-balapan-liar",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0037.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0037.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251116-WA0037.jpg - 403 Forbidden"
     },
     {
       "slug": "pangdam-ix-udayana-tekankan-disiplin-dan-pembinaan-teritorial-di-upacara-17-an",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251117-WA0031.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251117-WA0031.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG-20251117-WA0031.jpg - 403 Forbidden"
     },
     {
       "slug": "gempa-bumi-berkekuatan-magnitudo-60-mengguncang-wilayah-ambon-maluku",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/intensity_logo.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/intensity_logo.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/intensity_logo.jpg - 403 Forbidden"
     },
     {
       "slug": "gempa-m-60-guncang-ambon-getaran-terasa-di-banyak-wilayah-bmkg-ungkap-fakta-teknis",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG_20251120_190026.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/IMG_20251120_190026.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/IMG_20251120_190026.jpg - 403 Forbidden"
     },
     {
       "slug": "ponsel-tanpa-kartu-sim-dan-koneksi-internet",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/smon-1.jpeg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/11/smon-1.jpeg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/11/smon-1.jpeg - 403 Forbidden"
     },
     {
       "slug": "edarkan-sabu-dan-ekstasi-dua-pria-diamankan-sat-narkoba-polresta-denpasar",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/IMG-20251202-WA0036.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/IMG-20251202-WA0036.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/IMG-20251202-WA0036.jpg - 403 Forbidden"
     },
     {
       "slug": "universitas-udayana-dan-imigrasi-teken-kerja-sama-pendirian-impact-respons-dinamika-keimig",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/IMG-20251202-WA0089.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/IMG-20251202-WA0089.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/IMG-20251202-WA0089.jpg - 403 Forbidden"
     },
     {
       "slug": "satya-wacana-tactical-shooting-2025-airsoft-bali-tantang-janji-bongkar-ambisi-menuju-forna",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Event-Satya-Wacana-Tactical-Shooting-2025-di-Bali-menjadi-simbol-konsistensi-Airsoft-Brotherhood-Unity-menuju-FORDA-2026-dan-FORNAS-2027.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Event-Satya-Wacana-Tactical-Shooting-2025-di-Bali-menjadi-simbol-konsistensi-Airsoft-Brotherhood-Unity-menuju-FORDA-2026-dan-FORNAS-2027.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/Event-Satya-Wacana-Tactical-Shooting-2025-di-Bali-menjadi-simbol-konsistensi-Airsoft-Brotherhood-Unity-menuju-FORDA-2026-dan-FORNAS-2027.jpg - 403 Forbidden"
     },
     {
       "slug": "laga-hidup-mati-indonesia-u-22-wajib-menang-3-gol-atas-myanmar-demi-selamatkan-muka-merah",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Indonesia-vs-Myanmar-U-22-SEA-Games-2025.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Indonesia-vs-Myanmar-U-22-SEA-Games-2025.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/Indonesia-vs-Myanmar-U-22-SEA-Games-2025.jpg - 403 Forbidden"
     },
     {
       "slug": "pegawai-wiego-swalayan-dipecat-usai-insiden-dengan-pembeli-manajemen-berikan-penjelasan",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Pemecatan-Pegawai-Wiego-Swalayan-Medan.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Pemecatan-Pegawai-Wiego-Swalayan-Medan.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/Pemecatan-Pegawai-Wiego-Swalayan-Medan.jpg - 403 Forbidden"
     },
     {
       "slug": "bonnie-blue-dideportasi-imigrasi-tegaskan-penegakan-aturan-wisata",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/bonnieblue_dideportasi_daribali_swapnews.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/bonnieblue_dideportasi_daribali_swapnews.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/bonnieblue_dideportasi_daribali_swapnews.jpg - 403 Forbidden"
     },
     {
       "slug": "dua-perahu-karet-diserahkan-bali-perkuat-kesiapsiagaan-bencana",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Kementerian-LH-Sumbang-Dua-Perahu-Karett.jpeg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Kementerian-LH-Sumbang-Dua-Perahu-Karett.jpeg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/Kementerian-LH-Sumbang-Dua-Perahu-Karett.jpeg - 403 Forbidden"
     },
     {
       "slug": "video-asusila-wna-di-kelingking-diselidiki-aparat",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Video-asusila-WNA-Pantai-Kelingking.png"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Video-asusila-WNA-Pantai-Kelingking.png",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/Video-asusila-WNA-Pantai-Kelingking.png - 403 Forbidden"
     },
     {
       "slug": "denpasar-optimalkan-tps3r-jelang-penutupan-tpa-suwung",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Pemkot-Denpasar-mengoptimalkan-TPS3R-Teba-Modern-dan-PDU-menjelang-penutupan-TPA-Suwung-demi-pengelolaan-sampah-berkelanjutan.jpeg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/Pemkot-Denpasar-mengoptimalkan-TPS3R-Teba-Modern-dan-PDU-menjelang-penutupan-TPA-Suwung-demi-pengelolaan-sampah-berkelanjutan.jpeg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/Pemkot-Denpasar-mengoptimalkan-TPS3R-Teba-Modern-dan-PDU-menjelang-penutupan-TPA-Suwung-demi-pengelolaan-sampah-berkelanjutan.jpeg - 403 Forbidden"
     },
     {
       "slug": "ksop-cabut-sertifikat-speedboat-meledak-di-labuan-bajo",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/KSOP-Labuan-Bajo-mencabut-sertifikat-keselamatan-speedboat-Lacoco-usai-insiden-ledakan-yang-melukai-awak-kapal-dan-mengangkut-wisatawan-China.jpeg"
-    },
-    {
-      "slug": "gpt-5-2-diluncurkan-openai-klaim-tingkatkan-keandalan-ai-korporasi",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/OpenAI-meluncurkan-model-AI-terbaru-GPT-5.2-untuk-kebutuhan-korporasi.webp"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/KSOP-Labuan-Bajo-mencabut-sertifikat-keselamatan-speedboat-Lacoco-usai-insiden-ledakan-yang-melukai-awak-kapal-dan-mengangkut-wisatawan-China.jpeg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/KSOP-Labuan-Bajo-mencabut-sertifikat-keselamatan-speedboat-Lacoco-usai-insiden-ledakan-yang-melukai-awak-kapal-dan-mengangkut-wisatawan-China.jpeg - 403 Forbidden"
     },
     {
       "slug": "sengketa-hak-sewa-restorantanpa-konfirmasi-pihak-pertama-menyewakan-lahan-ke-pihak-ketiga",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/IMG_20251221_231508.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/IMG_20251221_231508.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/IMG_20251221_231508.jpg - 403 Forbidden"
     },
     {
       "slug": "tim-amegelu-bali-menebar-kebaikan-dengan-aksi-peduli-kemanusiaan-di-akhir-tahun-2025",
-      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/IMG-20251223-WA0083.jpg"
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/IMG-20251223-WA0083.jpg",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/IMG-20251223-WA0083.jpg - 403 Forbidden"
     }
   ]
 }
