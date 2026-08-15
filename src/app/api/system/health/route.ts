@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { isAdminRole } from "@/lib/auth/roles";
-import { getCloudinaryClient } from "@/lib/cloudinary";
 
 export const dynamic = "force-dynamic";
 
@@ -36,17 +35,28 @@ export async function GET() {
     }
 
     try {
-        const hasCredentials = Boolean(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
-        if (!hasCredentials) {
+        const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+        const apiKey = process.env.CLOUDINARY_API_KEY;
+        const apiSecret = process.env.CLOUDINARY_API_SECRET;
+        if (!cloudName || !apiKey || !apiSecret) {
             services.cloudinary = { status: "yellow", message: "Cloudinary credentials missing" };
         } else {
-            const cloudinary = getCloudinaryClient();
             const cloudStarted = Date.now();
-            await new Promise((resolve, reject) => cloudinary.api.ping((error: Error | null, result: unknown) => error ? reject(error) : resolve(result)));
-            services.cloudinary = { status: "green", message: "Cloudinary connected", latency_ms: Date.now() - cloudStarted };
+            const auth = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/resources/image?max_results=1`, {
+                headers: { Authorization: `Basic ${auth}` },
+                signal: AbortSignal.timeout(10000),
+            });
+            if (!response.ok) {
+                services.cloudinary = { status: "red", message: `Cloudinary HTTP ${response.status}` };
+            } else {
+                const json = await response.json() as { resources?: unknown[] };
+                services.cloudinary = { status: "green", message: `Cloudinary connected (${json.resources?.length ?? 0} sample)`, latency_ms: Date.now() - cloudStarted };
+            }
         }
     } catch (error) {
-        services.cloudinary = { status: "red", message: error instanceof Error ? error.message : "Cloudinary check failed" };
+        const message = error instanceof Error && error.name === "TimeoutError" ? "Cloudinary timeout" : error instanceof Error ? error.message : "Cloudinary check failed";
+        services.cloudinary = { status: "red", message };
     }
 
     const gmailConfigured = Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
