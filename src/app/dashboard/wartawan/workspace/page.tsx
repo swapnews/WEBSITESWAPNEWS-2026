@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
-import { CheckCircle2, Clock3, FileCheck2, UserRound, XCircle } from "lucide-react";
+import { CheckCircle2, Clock3, FileCheck2, XCircle } from "lucide-react";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { createClient } from "@/lib/supabase/server";
 import { reviewMemberArticleAction } from "@/lib/wartawan/review-actions";
+import { AvatarUpload } from "@/components/wartawan/avatar-upload";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Dashboard Wartawan — SwapNews", description: "Ruang kerja wartawan SwapNews." };
@@ -23,7 +24,7 @@ export default async function WartawanWorkspacePage({ searchParams }: { searchPa
     const revision = (mine ?? []).filter((x) => x.status === "revision").length;
     return <main className="wartawan-workspace">
         <section className="wartawan-hero">
-            <div className="wartawan-avatar"><UserRound size={30} /></div>
+            <AvatarUpload avatarUrl={profile.avatar_url} />
             <div><span className="eyebrow">RUANG KERJA WARTAWAN</span><h1>Halo, {profile.full_name || "Wartawan SwapNews"}</h1><p>Review berita member dengan teliti, cepat, dan berintegritas.</p></div>
             <div className="wartawan-points"><small>POIN ANDA</small><strong>{balance ?? 0}</strong><span>1 poin = Rp1.000</span></div>
         </section>

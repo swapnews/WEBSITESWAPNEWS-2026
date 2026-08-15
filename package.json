@@ -18,10 +18,12 @@
     "@tiptap/pm": "^3.30.0",
     "@tiptap/react": "^3.30.0",
     "@tiptap/starter-kit": "^3.30.0",
+    "@types/nodemailer": "^8.0.1",
     "cloudinary": "^2.10.0",
     "framer-motion": "^13.0.0",
     "lucide-react": "^1.31.0",
     "next": "16.3.0",
+    "nodemailer": "^9.0.5",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
