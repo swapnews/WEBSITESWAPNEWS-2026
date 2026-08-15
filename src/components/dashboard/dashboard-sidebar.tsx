@@ -18,6 +18,7 @@ import {
     BookOpenCheck,
     ShoppingBag,
     UserCheck,
+    Activity,
 } from "lucide-react";
 
 import { signOutAction } from "@/lib/auth/actions";
@@ -48,6 +49,7 @@ export function DashboardSidebar({ profile }: DashboardSidebarProps) {
             { label: "Instagram Reels", href: "/dashboard/reels", icon: Clapperboard },
             { label: "Sisipan Artikel", href: "/dashboard/article-insertions", icon: BookOpenCheck },
             { label: "Merchandise", href: "/dashboard/merchandise", icon: ShoppingBag },
+            { label: "System Monitoring", href: "/dashboard/monitoring", icon: Activity },
         ] : []),
     ];
 
