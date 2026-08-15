@@ -35,6 +35,9 @@ export function DashboardSidebar({ profile }: DashboardSidebarProps) {
         { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
         { label: "Artikel", href: "/dashboard/articles", icon: FileText },
         { label: "Media Library", href: "/dashboard/media", icon: ImageIcon },
+        ...(profile.role === "wartawan" ? [
+            { label: "Ruang Kerja Review", href: "/dashboard/wartawan/workspace", icon: UserCheck },
+        ] : []),
         ...(profile.role === "super_admin" || profile.role === "admin" ? [
             { label: "Verifikasi Wartawan", href: "/dashboard/wartawan", icon: UserCheck },
         ] : []),
