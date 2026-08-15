@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/server";
 
@@ -206,6 +207,44 @@ function publishedDate(value: string | null) {
     return date && !Number.isNaN(date.getTime()) ? date.toISOString() : new Date().toISOString();
 }
 
+function createMediaServiceClient() {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !key) return null;
+    return createSupabaseClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+}
+
+async function fetchMediaMap(supabase: Awaited<ReturnType<typeof createClient>>, mediaIds: string[]) {
+    if (!mediaIds.length) return new Map<string, PublicMedia>();
+
+    const selectMedia = async (client: typeof supabase) => {
+        const result = await client.from("media_assets").select("id,secure_url,alt_text,title").in("id", mediaIds);
+        if (result.error) throw result.error;
+        return result.data ?? [];
+    };
+
+    let media = await selectMedia(supabase);
+    if (media.length < mediaIds.length) {
+        const serviceClient = createMediaServiceClient();
+        if (serviceClient) {
+            try {
+                const serviceMedia = await selectMedia(serviceClient as typeof supabase);
+                if (serviceMedia.length > media.length) media = serviceMedia;
+            } catch (error) {
+                console.error("Failed to load Cloudinary media with service client", error);
+            }
+        }
+    }
+
+    return new Map(
+        media.map((item) => [item.id, {
+            secure_url: item.secure_url,
+            alt_text: item.alt_text || item.title || "Gambar artikel",
+            title: item.title,
+        }]),
+    );
+}
+
 function normalizeArticle(
     row: ArticleRow,
     authorMap: Map<string, string>,
@@ -269,19 +308,16 @@ async function queryPublishedArticles(limit = 200) {
         const categoryIds = [...new Set(rows.map((row) => row.category_id).filter(Boolean))] as number[];
         const mediaIds = [...new Set(rows.map((row) => row.featured_media_id).filter(Boolean))] as string[];
 
-        const [authors, categories, media] = await Promise.all([
+        const [authors, categories] = await Promise.all([
             authorIds.length ? supabase.from("profiles").select("id,full_name,email").in("id", authorIds) : Promise.resolve({ data: [], error: null }),
             categoryIds.length ? supabase.from("categories").select("id,name,slug").in("id", categoryIds) : Promise.resolve({ data: [], error: null }),
-            mediaIds.length ? supabase.from("media_assets").select("id,secure_url,alt_text,title").in("id", mediaIds) : Promise.resolve({ data: [], error: null }),
         ]);
+        const mediaMap = await fetchMediaMap(supabase, mediaIds);
 
-        if (authors.error || categories.error || media.error) throw authors.error ?? categories.error ?? media.error;
+        if (authors.error || categories.error) throw authors.error ?? categories.error;
 
         const authorMap = new Map((authors.data ?? []).map((author) => [author.id, author.full_name ?? author.email ?? "Redaksi SwapNews"]));
         const categoryMap = new Map((categories.data ?? []).map((category) => [category.id, { name: category.name, slug: category.slug }]));
-        const mediaMap = new Map(
-            (media.data ?? []).map((item) => [item.id, { secure_url: item.secure_url, alt_text: item.alt_text || item.title || "Gambar artikel", title: item.title }]),
-        );
 
         return rows.map((row) => normalizeArticle(row, authorMap, categoryMap, mediaMap));
     } catch (error) {
@@ -380,14 +416,13 @@ export const getPublicChannelData = cache(async (slug: string): Promise<PublicCh
         const articleRows = (rows ?? []) as ArticleRow[];
         const authorIds = [...new Set(articleRows.map((row) => row.author_id))];
         const mediaIds = [...new Set(articleRows.map((row) => row.featured_media_id).filter(Boolean))] as string[];
-        const [authors, media] = await Promise.all([
+        const [authors] = await Promise.all([
             authorIds.length ? supabase.from("profiles").select("id,full_name,email").in("id", authorIds) : Promise.resolve({ data: [], error: null }),
-            mediaIds.length ? supabase.from("media_assets").select("id,secure_url,alt_text,title").in("id", mediaIds) : Promise.resolve({ data: [], error: null }),
         ]);
+        const mediaMap = await fetchMediaMap(supabase, mediaIds);
         const allCategories = [category, ...(children ?? [])];
         const categoryMap = new Map(allCategories.map((item) => [item.id, { name: item.name, slug: item.slug }]));
         const authorMap = new Map((authors.data ?? []).map((item) => [item.id, item.full_name ?? item.email ?? "Redaksi SwapNews"]));
-        const mediaMap = new Map((media.data ?? []).map((item) => [item.id, { secure_url: item.secure_url, alt_text: item.alt_text || item.title || "Gambar artikel", title: item.title }]));
         const articles = articleRows.map((row) => normalizeArticle(row, authorMap, categoryMap, mediaMap));
         return { category, children: children ?? [], articles, trending: [...articles].sort((a, b) => b.view_count - a.view_count).slice(0, 6) };
     } catch (error) {
