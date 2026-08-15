@@ -36,10 +36,15 @@ export async function GET() {
     }
 
     try {
-        const cloudinary = getCloudinaryClient();
-        const cloudStarted = Date.now();
-        await new Promise((resolve, reject) => cloudinary.api.ping((error: Error | null, result: unknown) => error ? reject(error) : resolve(result)));
-        services.cloudinary = { status: "green", message: "Cloudinary connected", latency_ms: Date.now() - cloudStarted };
+        const hasCredentials = Boolean(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
+        if (!hasCredentials) {
+            services.cloudinary = { status: "yellow", message: "Cloudinary credentials missing" };
+        } else {
+            const cloudinary = getCloudinaryClient();
+            const cloudStarted = Date.now();
+            await new Promise((resolve, reject) => cloudinary.api.ping((error: Error | null, result: unknown) => error ? reject(error) : resolve(result)));
+            services.cloudinary = { status: "green", message: "Cloudinary connected", latency_ms: Date.now() - cloudStarted };
+        }
     } catch (error) {
         services.cloudinary = { status: "red", message: error instanceof Error ? error.message : "Cloudinary check failed" };
     }

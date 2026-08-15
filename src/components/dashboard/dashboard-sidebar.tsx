@@ -19,6 +19,7 @@ import {
     ShoppingBag,
     UserCheck,
     Activity,
+    Users,
 } from "lucide-react";
 
 import { signOutAction } from "@/lib/auth/actions";
@@ -43,13 +44,14 @@ export function DashboardSidebar({ profile }: DashboardSidebarProps) {
             { label: "Verifikasi Wartawan", href: "/dashboard/wartawan", icon: UserCheck },
         ] : []),
         ...(profile.role === "super_admin" ? [
+            { label: "System Monitoring", href: "/dashboard/monitoring", icon: Activity },
+            { label: "Manajemen Akun", href: "/dashboard/accounts", icon: Users },
             { label: "Homepage", href: "/dashboard/homepage", icon: PanelsTopLeft },
             { label: "Kategori", href: "/dashboard/categories", icon: FolderTree },
             { label: "Pages", href: "/dashboard/pages", icon: Files },
             { label: "Instagram Reels", href: "/dashboard/reels", icon: Clapperboard },
             { label: "Sisipan Artikel", href: "/dashboard/article-insertions", icon: BookOpenCheck },
             { label: "Merchandise", href: "/dashboard/merchandise", icon: ShoppingBag },
-            { label: "System Monitoring", href: "/dashboard/monitoring", icon: Activity },
         ] : []),
     ];
 
