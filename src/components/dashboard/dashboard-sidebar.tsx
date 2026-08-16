@@ -20,6 +20,7 @@ import {
     UserCheck,
     Activity,
     Users,
+    SearchCheck,
 } from "lucide-react";
 
 import { signOutAction } from "@/lib/auth/actions";
@@ -52,6 +53,7 @@ export function DashboardSidebar({ profile }: DashboardSidebarProps) {
             { label: "Instagram Reels", href: "/dashboard/reels", icon: Clapperboard },
             { label: "Sisipan Artikel", href: "/dashboard/article-insertions", icon: BookOpenCheck },
             { label: "Merchandise", href: "/dashboard/merchandise", icon: ShoppingBag },
+            { label: "SEO Panel", href: "/dashboard/seo", icon: SearchCheck },
         ] : []),
     ];
 

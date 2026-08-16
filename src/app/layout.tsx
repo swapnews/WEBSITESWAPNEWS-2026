@@ -26,29 +26,9 @@ import "../styles/public-pages-2026.css";
 import "../styles/reels-fix.css";
 import { SiteFooter } from "@/components/site-footer";
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://swapnews.co.id"),
-  title: {
-    default: "SwapNews — Bukan Berita Biasa",
-    template: "%s | SwapNews",
-  },
-  description: "Portal berita Super PWA: kabar terbaru, trending, dan perspektif baru setiap hari.",
-  openGraph: {
-    type: "website",
-    siteName: "SwapNews",
-    locale: "id_ID",
-    title: "SwapNews — Bukan Berita Biasa",
-    description: "Kabar terbaru, trending, dan perspektif baru setiap hari.",
-    images: [{ url: "https://swapnews.co.id/swapnews-logo.png", width: 800, height: 600, alt: "SwapNews Logo" }],
-  },
-  icons: {
-    icon: [
-      { url: "/swapnews-logo.png", type: "image/png" },
-    ],
-    shortcut: "/swapnews-logo.png",
-    apple: "/swapnews-logo.png",
-  },
-};
+import { buildSiteMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = buildSiteMetadata();
 
 export const viewport: Viewport = {
   themeColor: [
