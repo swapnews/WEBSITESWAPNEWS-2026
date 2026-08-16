@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowUpRight, Clock3, Home, Mail, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PublicPageHeader } from "@/components/public-page-header";
+import { extractFirstImageFromHtml, resolveSeoImage } from "@/lib/seo/metadata";
 export const dynamic = "force-dynamic";
 type RecordPage = { title: string; slug: string; excerpt: string | null; content: string; seo_title: string | null; meta_description: string | null; tags: string[] | null; published_at: string | null; updated_at: string; featured_media: { secure_url: string; alt_text: string } | { secure_url: string; alt_text: string }[] | null };
 const pageLinks = [["About Us", "about-us"], ["Karir", "karir"], ["Pasang Iklan", "pasang-iklan"], ["Bantuan", "bantuan"], ["Kebijakan Privasi", "kebijakan-privasi"], ["Syarat & Ketentuan", "syarat-dan-ketentuan"], ["Pedoman Siber", "pedoman-siber"], ["Panduan Komunitas", "panduan-komunitas"], ["Disclaimer", "disclaimer"]];
@@ -17,9 +18,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const description = page.meta_description || page.excerpt || "Informasi resmi SwapNews.";
     const media = Array.isArray(page.featured_media) ? page.featured_media[0] : page.featured_media;
     const imageRaw = media?.secure_url || "/swapnews-logo.png";
-    const imageUrl = imageRaw.startsWith("http://") || imageRaw.startsWith("https://")
-        ? imageRaw
-        : `https://swapnews.co.id${imageRaw.startsWith("/") ? "" : "/"}${imageRaw}`;
+    const imageUrl = imageRaw.startsWith("data:")
+        ? (extractFirstImageFromHtml(page.content) ?? resolveSeoImage(null))
+        : resolveSeoImage(imageRaw);
     const canonical = `https://swapnews.co.id/page/${page.slug}`;
     return {
         title,

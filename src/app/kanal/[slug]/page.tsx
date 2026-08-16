@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, Clock3, Eye, Flame } from "lucide-react";
 import { articleImage, formatRelativeDate, getPublicChannelData } from "@/lib/public-articles";
-import { buildSocialMetadata, resolveSeoImage } from "@/lib/seo/metadata";
+import { buildSocialMetadata, extractFirstImageFromHtml, resolveSeoImage } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ slug: string }> };
@@ -14,7 +14,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params; const data = await getPublicChannelData(slug);
     if (!data) return { title: "Kanal tidak ditemukan" };
     const description = data.category.description || `Berita terbaru ${data.category.name}, pilihan redaksi dan informasi terpercaya dari SwapNews.`;
-    const leadImage = data.articles[0] ? articleImage(data.articles[0]) : "/swapnews-logo.png";
+    const lead = data.articles[0];
+    const leadImageRaw = lead ? articleImage(lead) : "/swapnews-logo.png";
+    const leadImage = leadImageRaw.startsWith("data:")
+        ? (extractFirstImageFromHtml(lead?.content) ?? resolveSeoImage(null))
+        : resolveSeoImage(leadImageRaw);
     const canonicalPath = `/kanal/${data.category.slug}`;
     return {
         title: `${data.category.name} — SwapNews`,
@@ -24,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title: `${data.category.name} — SwapNews`,
             description,
             canonicalPath,
-            ogImage: resolveSeoImage(leadImage),
+            ogImage: leadImage,
         }),
     };
 }

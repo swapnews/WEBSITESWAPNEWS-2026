@@ -6,6 +6,20 @@ export function absoluteUrl(path = ""): string {
     return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+/** Ambil gambar pertama yang valid (http/https, bukan data URI) dari HTML konten */
+export function extractFirstImageFromHtml(html?: string | null): string | null {
+    if (!html) return null;
+    const srcs = [...html.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)].map((m) => m[1]);
+    for (const src of srcs) {
+        if (src.startsWith("http://") || src.startsWith("https://")) return src;
+    }
+    return null;
+}
+
+function isValidHttpUrl(value: string): boolean {
+    return value.startsWith("http://") || value.startsWith("https://");
+}
+
 /** Resolve OG image dari artikel/media/landing page */
 export function resolveSeoImage(
     imageUrl?: string | null | { secure_url?: string },
@@ -17,7 +31,8 @@ export function resolveSeoImage(
     } else if (imageUrl && typeof imageUrl === "object" && "secure_url" in imageUrl) {
         url = typeof imageUrl.secure_url === "string" ? imageUrl.secure_url : undefined;
     }
-    if (!url || !url.startsWith("http")) {
+    // Tolak data URI dan URL non-http (scraper WhatsApp/FB tidak bisa memuatnya)
+    if (!url || !isValidHttpUrl(url)) {
         url = absoluteUrl(fallback);
     }
     return url;

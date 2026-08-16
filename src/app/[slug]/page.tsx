@@ -19,6 +19,7 @@ import {
     type PublicArticle,
 } from "@/lib/public-articles";
 import ArticleActions from "@/app/artikel/[slug]/article-actions";
+import { extractFirstImageFromHtml, resolveSeoImage } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -34,9 +35,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const article = await resolveArticle(slug);
     if (!article) return { title: "Artikel tidak ditemukan" };
     const imageRaw = articleImage(article);
-    const imageUrl = imageRaw.startsWith("http://") || imageRaw.startsWith("https://")
-        ? imageRaw
-        : `https://swapnews.co.id${imageRaw.startsWith("/") ? "" : "/"}${imageRaw}`;
+    // Featured media bisa berupa data URI (artefak import WP) → ambil gambar valid dari konten
+    const imageUrl = imageRaw.startsWith("data:")
+        ? (extractFirstImageFromHtml(article.content) ?? resolveSeoImage(null))
+        : resolveSeoImage(imageRaw);
 
     const seoTitle = article.seo_title || article.title;
     const seoDescription = article.meta_description || article.excerpt;

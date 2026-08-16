@@ -12,6 +12,7 @@ import { RichArticleEditor } from "@/components/rich-article-editor";
 import { createArticleAction, updateArticleAction, deleteArticleAction } from "@/lib/articles/actions";
 import type { Category, ArticleStatus } from "@/lib/articles";
 import { normalizeArticleParagraphs, safeFixText, scanEditorial, type EditorialScan } from "@/lib/editorial-quality/engine";
+import { generateAutoSeo } from "@/lib/seo/auto-seo";
 
 type ArticleFormProps = {
     article?: {
@@ -79,6 +80,18 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
     const applySafeFix = () => {
         setTitle(safeFixText(title)); setExcerpt(safeFixText(excerpt)); setContent(normalizeArticleParagraphs(content));
         setSeoTitle(safeFixText(seoTitle)); setMetaDesc(safeFixText(metaDesc)); setQualityScan(null);
+    };
+
+    const runAutoSeo = () => {
+        if (!title.trim()) return;
+        const result = generateAutoSeo({ title, content, excerpt });
+        // Hanya isi field yang kosong — jangan timpa yang sudah diedit user
+        if (!focusKeyword.trim()) setFocusKeyword(result.focusKeyword);
+        if (!seoTitle.trim()) setSeoTitle(result.seoTitle);
+        if (!metaDesc.trim()) setMetaDesc(result.metaDescription);
+        if (!tags.trim()) setTags(result.tags);
+        if (!excerpt.trim()) setExcerpt(result.excerpt);
+        if (!slugEdited) setSlug(result.slug);
     };
 
     const insertImage = useCallback(() => setMediaOpen(true), []);
@@ -158,7 +171,12 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
 
                     {/* Panel SEO */}
                     <div className="full seo-panel">
-                        <h3>Optimasi SEO</h3>
+                        <div className="seo-panel-header">
+                            <h3>Optimasi SEO</h3>
+                            <button type="button" className="secondary-button" onClick={runAutoSeo} disabled={!title.trim()}>
+                                <WandSparkles size={15} /> Auto-Fill SEO
+                            </button>
+                        </div>
 
                         <label>
                             Focus Keyword / Phrase
