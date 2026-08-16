@@ -100,6 +100,45 @@ html[data-theme="dark"] .news-app {
     min-width: 0;
 }
 
+.news-back-link {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    border: 1px solid var(--news-line);
+    border-radius: 14px;
+    background: var(--news-surface);
+    color: var(--news-text);
+    transition: transform .18s ease, border-color .18s ease, background-color .25s ease;
+}
+
+.news-back-link:active {
+    transform: scale(.94);
+}
+
+.news-back-link span {
+    font-size: 17px;
+    line-height: 1;
+}
+
+.article-kicker {
+    display: none;
+    width: min(calc(100% - 48px), 1240px);
+    padding: 10px 0 0;
+    color: var(--news-accent);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+@media (min-width: 760px) {
+    .article-kicker {
+        display: block;
+    }
+}
+
 .news-logo img {
     display: block;
     width: 132px;

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Clock3, Eye } from "lucide-react";
+import { Clock3, Eye } from "lucide-react";
 
 import ArticleComments from "@/components/article-comments";
 import ArticleCopyAttribution from "@/components/article-copy-attribution";
@@ -20,6 +20,7 @@ import {
 } from "@/lib/public-articles";
 import ArticleActions from "@/app/artikel/[slug]/article-actions";
 import { extractFirstImageFromHtml, resolveSeoImage } from "@/lib/seo/metadata";
+import { PublicSiteHeader } from "@/components/public-site-header";
 
 export const dynamic = "force-dynamic";
 
@@ -134,16 +135,13 @@ export default async function ArticlePage({ params }: Props) {
     const headingLabels = visibleBlocks.map(block => block.match(/<h[2-4][^>]*>(.*?)<\/h[2-4]>/i)?.[1]?.replace(/<[^>]+>/g, "")).filter((value): value is string => Boolean(value));
     const readingMinutes = Math.max(1, Math.ceil(article.content.replace(/<[^>]+>/g, " ").split(/\s+/).length / 220));
     const finishAt = new Intl.DateTimeFormat("id-ID", { hour: "2-digit", minute: "2-digit" }).format(new Date(new Date(article.published_at).getTime() + readingMinutes * 60000));
+    const tickerText = [article.title, ...related.map((item) => item.title)].join("   •   ");
 
     return (
         <div className="public-article-shell article-2026-shell news-app">
             <ArticleExperience slug={article.slug} headings={headingLabels} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(article)) }} />
-            <header className="public-article-header">
-                <Link id="article-back" href="/" aria-label="Kembali ke beranda"><ArrowLeft /></Link>
-                <Link href="/" className="news-logo" aria-label="SwapNews beranda"><Image src="/swapnews-logo.png" alt="SwapNews" width={164} height={48} priority /></Link>
-                <span>{article.category_name}</span>
-            </header>
+            <PublicSiteHeader backHref="/" categoryName={article.category_name} tickerText={tickerText} />
 
             <main className="public-article-layout">
                 <article className="public-article">
