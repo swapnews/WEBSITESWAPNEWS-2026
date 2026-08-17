@@ -373,8 +373,38 @@ export const getPublicHomeData = cache(async (): Promise<PublicHomeData> => {
 });
 
 export const getPublicArticleBySlug = cache(async (slug: string) => {
-    const articles = await queryPublishedArticles(60);
-    return articles.find((article) => article.slug === slug) ?? null;
+    try {
+        const supabase = await createClient();
+        const { data, error } = await supabase
+            .from("articles")
+            .select("id,slug,title,excerpt,content,category_id,author_id,featured_media_id,is_exclusive,published_at,updated_at,view_count,reading_time_minutes,focus_keyword,seo_title,meta_description,tags")
+            .eq("status", "published")
+            .eq("slug", slug)
+            .maybeSingle();
+
+        if (error || !data) return null;
+
+        const row = data as unknown as ArticleRow;
+        const [authorResult, categoryResult] = await Promise.all([
+            row.author_id
+                ? supabase.from("profiles").select("id,full_name,email").eq("id", row.author_id).maybeSingle()
+                : Promise.resolve({ data: null, error: null }),
+            row.category_id
+                ? supabase.from("categories").select("id,name,slug").eq("id", row.category_id).maybeSingle()
+                : Promise.resolve({ data: null, error: null }),
+        ]);
+        const mediaMap = row.featured_media_id ? await fetchMediaMap(supabase, [row.featured_media_id]) : new Map<string, PublicMedia>();
+
+        if (authorResult.error || categoryResult.error) throw authorResult.error ?? categoryResult.error;
+
+        const authorMap = new Map(authorResult.data ? [[authorResult.data.id, authorResult.data.full_name ?? authorResult.data.email ?? "Redaksi SwapNews"]] : []);
+        const categoryMap = new Map(categoryResult.data ? [[categoryResult.data.id, { name: categoryResult.data.name, slug: categoryResult.data.slug }]] : []);
+
+        return normalizeArticle(row, authorMap, categoryMap, mediaMap);
+    } catch (error) {
+        console.error("Failed to load article by slug", error);
+        return null;
+    }
 });
 
 export async function queryPublishedSitemapArticles() {
