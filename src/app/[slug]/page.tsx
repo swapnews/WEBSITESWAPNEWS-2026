@@ -79,14 +79,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
-function jsonLd(article: PublicArticle) {
+function jsonLd(article: PublicArticle, imageUrl: string) {
     return {
         "@context": "https://schema.org",
         "@type": "NewsArticle",
         headline: article.title,
         description: article.meta_description || article.excerpt,
         keywords: article.tags.join(", "),
-        image: [articleImage(article)],
+        image: [imageUrl],
         datePublished: article.published_at,
         dateModified: article.updated_at,
         author: { "@type": "Person", name: article.author_name },
@@ -137,11 +137,15 @@ export default async function ArticlePage({ params }: Props) {
     const readingMinutes = Math.max(1, Math.ceil(article.content.replace(/<[^>]+>/g, " ").split(/\s+/).length / 220));
     const finishAt = new Intl.DateTimeFormat("id-ID", { hour: "2-digit", minute: "2-digit" }).format(new Date(new Date(article.published_at).getTime() + readingMinutes * 60000));
     const tickerText = [article.title, ...related.map((item) => item.title)].join("   •   ");
+    const articleImageRaw = articleImage(article);
+    const ogImageUrl = articleImageRaw.startsWith("data:")
+        ? (extractFirstImageFromHtml(article.content) ?? resolveSeoImage(null))
+        : resolveSeoImage(articleImageRaw);
 
     return (
         <div className="public-article-shell article-2026-shell news-app">
             <ArticleExperience slug={article.slug} headings={headingLabels} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(article)) }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(article, ogImageUrl)) }} />
             <PublicSiteHeader backHref="/" categoryName={article.category_name} tickerText={tickerText} />
 
             <main className="public-article-layout">

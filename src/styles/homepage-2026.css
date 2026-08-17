@@ -4,9 +4,9 @@
     .news-header {
         width: 100%;
         max-width: none;
-        min-height: 76px;
+        min-height: 56px;
         margin: 0;
-        padding: 8px max(22px, calc((100vw - 1880px)/2 + 22px));
+        padding: 6px max(22px, calc((100vw - 1880px)/2 + 22px));
     }
 
     .news-main {
@@ -51,7 +51,7 @@
 
     .desktop-channel-nav {
         position: sticky;
-        top: 76px;
+        top: 56px;
         z-index: 79;
         overflow-x: auto;
         scrollbar-width: none;

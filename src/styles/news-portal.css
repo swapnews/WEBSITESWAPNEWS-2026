@@ -87,7 +87,7 @@ html[data-theme="dark"] .news-app {
     max-width: 100%;
     box-sizing: border-box;
     margin: 0;
-    padding: max(10px, env(safe-area-inset-top)) 16px 9px;
+    padding: max(6px, env(safe-area-inset-top)) 16px 6px;
     background: color-mix(in srgb, var(--news-bg) 86%, transparent);
     backdrop-filter: blur(18px) saturate(145%);
     border-bottom: 1px solid var(--news-line);
@@ -95,8 +95,8 @@ html[data-theme="dark"] .news-app {
 }
 
 .news-header.is-scrolled {
-    padding-top: max(8px, env(safe-area-inset-top));
-    padding-bottom: 8px;
+    padding-top: max(5px, env(safe-area-inset-top));
+    padding-bottom: 5px;
     background: color-mix(in srgb, var(--news-bg) 94%, transparent);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
 }
@@ -109,7 +109,7 @@ html[data-theme="dark"] .news-app {
 
 .news-logo img {
     display: block;
-    width: 132px;
+    width: 112px;
     height: auto;
     object-fit: contain;
 }
@@ -727,12 +727,12 @@ html[data-theme="dark"] .news-logo .logo-white {
 
     .news-header {
         width: min(calc(100% - 48px), 1240px);
-        padding: 18px 0 14px;
+        padding: 8px 0 6px;
         background: transparent;
     }
 
     .news-logo img {
-        width: 164px;
+        width: 112px;
     }
 
     .news-main {
