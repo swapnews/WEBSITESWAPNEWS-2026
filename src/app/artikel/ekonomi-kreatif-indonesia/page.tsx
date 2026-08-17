@@ -12,13 +12,13 @@ export const metadata: Metadata = {
         description: "Talenta lokal, teknologi, dan akses pasar bertemu dalam gelombang pertumbuhan baru.",
         publishedTime: "2026-08-10T09:30:00+07:00",
         section: "Bisnis",
-        images: [{ url: "https://swapnews.co.id/swapnews-logo.png", width: 1200, height: 630, alt: "SwapNews" }],
+        images: [{ url: "https://swapnews.co.id/og-default.jpg", width: 1200, height: 630, alt: "SwapNews" }],
     },
     twitter: {
         card: "summary_large_image",
         title: "Babak baru ekonomi kreatif Indonesia dimulai dari kota-kota kecil",
         description: "Talenta lokal, teknologi, dan akses pasar bertemu dalam gelombang pertumbuhan baru.",
-        images: ["https://swapnews.co.id/swapnews-logo.png"],
+        images: ["https://swapnews.co.id/og-default.jpg"],
     },
 };
 
@@ -27,7 +27,7 @@ const newsArticleJsonLd = {
     "@type": "NewsArticle",
     headline: "Babak baru ekonomi kreatif Indonesia dimulai dari kota-kota kecil",
     description: "Talenta lokal, teknologi, dan akses pasar bertemu dalam gelombang pertumbuhan baru.",
-    image: ["https://swapnews.co.id/swapnews-logo.png"],
+    image: ["https://swapnews.co.id/og-default.jpg"],
     datePublished: "2026-08-10T09:30:00+07:00",
     dateModified: "2026-08-10T09:30:00+07:00",
     author: { "@type": "Person", name: "Nadia Prameswari" },
