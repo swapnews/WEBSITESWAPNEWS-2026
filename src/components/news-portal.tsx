@@ -53,6 +53,7 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
     const [savedOpen, setSavedOpen] = useState(false);
     const [savedSlugs, setSavedSlugs] = useState<string[]>([]);
     const [lastRead, setLastRead] = useState<string | null>(null);
+    const [scrolled, setScrolled] = useState(false);
     const carouselRef = useRef<HTMLDivElement>(null);
     const trendingSlides = useMemo(() => data.trending.slice(0, 10), [data.trending]);
 
@@ -75,6 +76,13 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
             setLastRead(localStorage.getItem("swapnews-last-read"));
         }, 0);
         return () => window.clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 24);
+        onScroll();
+        addEventListener("scroll", onScroll, { passive: true });
+        return () => removeEventListener("scroll", onScroll);
     }, []);
 
     useEffect(() => {
@@ -121,9 +129,11 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
     return (
         <div className={`news-app ${compact ? "is-compact" : ""}`}>
             <div className="desktop-utility"><span>SwapNews Network</span><p>Berita Terkini Indonesia · Independen · Terpercaya</p><span>{new Intl.DateTimeFormat("id-ID", { dateStyle: "full" }).format(new Date())}</span></div>
-            <header className="news-header">
+            <header className={`news-header${scrolled ? " is-scrolled" : ""}`}>
                 <Link href="/" className="news-logo" aria-label="SwapNews beranda">
-                    <Image src="/swapnews-logo.png" alt="SwapNews" width={164} height={48} priority />
+                    <Image className="logo-black" src="/swapnews-logo-black.png" alt="SwapNews" width={164} height={48} priority />
+                    <Image className="logo-white" src="/swapnews-logo-white.png" alt="SwapNews" width={164} height={48} priority />
+                    <Image className="logo-accent" src="/swapnews-logo-accent.png" alt="SwapNews" width={164} height={48} priority />
                 </Link>
                 <div className="desktop-ad"><small>IKLAN</small><strong>Ruang Brand Premium SwapNews</strong><span>970 × 90</span></div>
                 <form className="desktop-search" action="/cari"><Search /><input name="q" aria-label="Cari berita" placeholder="Cari berita, topik, atau tokoh..." /><kbd>Ctrl K</kbd></form>

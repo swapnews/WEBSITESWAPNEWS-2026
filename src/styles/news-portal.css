@@ -87,17 +87,55 @@ html[data-theme="dark"] .news-app {
     max-width: 100%;
     box-sizing: border-box;
     margin: 0;
-    padding: max(12px, env(safe-area-inset-top)) 16px 11px;
+    padding: max(10px, env(safe-area-inset-top)) 16px 9px;
     background: color-mix(in srgb, var(--news-bg) 86%, transparent);
     backdrop-filter: blur(18px) saturate(145%);
     border-bottom: 1px solid var(--news-line);
-    transition: background-color 0.25s ease;
+    transition: background-color 0.25s ease, box-shadow 0.25s ease, padding 0.25s ease;
+}
+
+.news-header.is-scrolled {
+    padding-top: max(8px, env(safe-area-inset-top));
+    padding-bottom: 8px;
+    background: color-mix(in srgb, var(--news-bg) 94%, transparent);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
 }
 
 .news-logo {
     display: inline-flex;
     align-items: center;
     min-width: 0;
+}
+
+.news-logo img {
+    display: block;
+    width: 132px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Logo adaptif: hitam (light), putih (dark), oranye (scrolled) */
+.news-logo .logo-accent,
+.news-logo .logo-white,
+.news-logo .logo-black {
+    display: none;
+}
+
+html[data-theme="light"] .news-logo .logo-black {
+    display: block;
+}
+
+html[data-theme="dark"] .news-logo .logo-white {
+    display: block;
+}
+
+.news-header.is-scrolled .news-logo .logo-black,
+.news-header.is-scrolled .news-logo .logo-white {
+    display: none;
+}
+
+.news-header.is-scrolled .news-logo .logo-accent {
+    display: block;
 }
 
 .news-back-link {
@@ -137,13 +175,6 @@ html[data-theme="dark"] .news-app {
     .article-kicker {
         display: block;
     }
-}
-
-.news-logo img {
-    display: block;
-    width: 132px;
-    height: auto;
-    object-fit: contain;
 }
 
 .news-actions {
