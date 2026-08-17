@@ -14,11 +14,6 @@ export default function ArticleActions({ articleId, slug, title, excerpt, copyMe
         const timer = window.setTimeout(() => setSaved(savedSlugs.includes(slug)), 0);
 
         if (!articleId.startsWith("demo-")) {
-            const key = `swapnews-viewed:${articleId}`;
-            if (!sessionStorage.getItem(key)) {
-                sessionStorage.setItem(key, "1");
-                void fetch(`/api/articles/${articleId}/view`, { method: "POST" }).catch(() => sessionStorage.removeItem(key));
-            }
             void fetch("/api/member/reading-history", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

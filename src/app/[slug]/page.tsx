@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Clock3, Eye } from "lucide-react";
+import { Clock3 } from "lucide-react";
 
 import ArticleComments from "@/components/article-comments";
 import ArticleCopyAttribution from "@/components/article-copy-attribution";
@@ -21,6 +21,7 @@ import {
 import ArticleActions from "@/app/artikel/[slug]/article-actions";
 import { extractFirstImageFromHtml, resolveSeoImage } from "@/lib/seo/metadata";
 import { PublicSiteHeader } from "@/components/public-site-header";
+import ArticleViewCounter from "@/components/article-view-counter";
 
 export const dynamic = "force-dynamic";
 
@@ -152,14 +153,14 @@ export default async function ArticlePage({ params }: Props) {
                     <div className="public-byline">
                         <span className="public-author-avatar">{article.author_name.slice(0, 2).toUpperCase()}</span>
                         <div><b>{article.author_name}</b><small>{formatPublishedDate(article.published_at)}</small></div>
-                        <p><Clock3 /> {article.reading_time_minutes} menit <i>•</i> <Eye /> {article.view_count.toLocaleString("id-ID")}</p>
+                        <p><Clock3 /> {article.reading_time_minutes} menit <i>•</i> <ArticleViewCounter articleId={article.id} initialCount={article.view_count} /></p>
                     </div>
                     <figure className="public-article-hero">
                         <Image src={articleImage(article)} alt={article.featured_media?.alt_text || article.title} fill sizes="(max-width: 820px) 100vw, 760px" priority />
                         {article.featured_media?.title && <figcaption>{article.featured_media.title}</figcaption>}
                     </figure>
                     <ArticleActions articleId={article.id} slug={article.slug} title={article.title} excerpt={article.excerpt} copyMessage={insertions.copy_message} />
-                    <section className="article-takeaways"><span>INTI BERITA</span><h2>Yang perlu Anda ketahui</h2><p>{article.excerpt}</p><div><b>{readingMinutes} menit baca</b><b>{article.view_count.toLocaleString("id-ID")} pembaca</b><b>{article.category_name}</b></div></section>
+                    <section className="article-takeaways"><span>INTI BERITA</span><h2>Yang perlu Anda ketahui</h2><p>{article.excerpt}</p><div><b>{readingMinutes} menit baca</b><b><ArticleViewCounter articleId={article.id} initialCount={article.view_count} /> pembaca</b><b>{article.category_name}</b></div></section>
                     <ArticleCopyAttribution title={article.title} excerpt={article.excerpt} message={insertions.copy_message} />
                     <div id="article-copy" className={locked ? "public-article-copy is-locked" : "public-article-copy"}>
                         {visibleBlocks.map((block, index) => {
