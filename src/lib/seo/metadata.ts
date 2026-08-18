@@ -20,11 +20,13 @@ function isValidHttpUrl(value: string): boolean {
     return value.startsWith("http://") || value.startsWith("https://");
 }
 
-/** Optimasi URL Cloudinary untuk OG: paksa 1200x630, kualitas auto, format auto */
+/** Optimasi URL Cloudinary untuk OG: paksa 1200x630, kualitas auto, format JPEG.
+ *  Dipaksa JPEG karena `f_auto` dapat menyajikan WebP yang tidak dirender
+ *  oleh scraper WhatsApp/Facebook. */
 export function transformOgImage(url: string): string {
     if (!url.includes("res.cloudinary.com") || !url.includes("/image/upload/")) return url;
-    if (/\/upload\/(w_|c_fill|f_auto|q_auto)/.test(url)) return url; // sudah ada transformasi
-    return url.replace("/image/upload/", "/image/upload/w_1200,h_630,c_fill,q_auto,f_auto/");
+    if (/\/upload\/(w_|c_fill|f_jpg|q_auto)/.test(url)) return url; // sudah ada transformasi
+    return url.replace("/image/upload/", "/image/upload/w_1200,h_630,c_fill,q_auto,f_jpg/");
 }
 
 /** Resolve OG image dari artikel/media/landing page.

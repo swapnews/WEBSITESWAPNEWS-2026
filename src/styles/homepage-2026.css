@@ -75,7 +75,7 @@
 
     .desktop-channel-nav a {
         flex: 0 0 auto;
-        padding: 13px 12px 11px;
+        padding: 9px 12px 8px;
         border-bottom: 2px solid transparent;
         color: var(--news-text-soft);
         font-size: 10px;

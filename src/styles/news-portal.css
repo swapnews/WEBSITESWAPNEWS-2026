@@ -745,7 +745,7 @@ html[data-theme="dark"] .news-logo .logo-white {
         align-items: center;
         justify-content: space-between;
         width: 100%;
-        min-height: 34px;
+        min-height: 26px;
         padding: 0 max(24px, calc((100% - 1240px) / 2));
         border-bottom: 1px solid var(--news-line);
         background: #0d0806;
@@ -769,9 +769,9 @@ html[data-theme="dark"] .news-logo .logo-white {
         align-items: center;
         justify-content: center;
         gap: 18px;
-        height: 58px;
+        height: 40px;
         border: 1px dashed rgba(255, 90, 31, .3);
-        border-radius: 14px;
+        border-radius: 12px;
         background: linear-gradient(135deg, rgba(255, 90, 31, .08), rgba(255, 255, 255, .02));
     }
 
@@ -794,10 +794,10 @@ html[data-theme="dark"] .news-logo .logo-white {
         display: flex;
         align-items: center;
         gap: 9px;
-        height: 44px;
+        height: 34px;
         padding: 0 13px;
         border: 1px solid var(--news-line);
-        border-radius: 14px;
+        border-radius: 12px;
         background: var(--news-surface);
     }
 
@@ -832,7 +832,7 @@ html[data-theme="dark"] .news-logo .logo-white {
 
     .desktop-channel-nav button {
         flex: 1 0 auto;
-        padding: 13px 12px 11px;
+        padding: 9px 12px 8px;
         border-bottom: 2px solid transparent;
         color: var(--news-text-soft);
         font-size: 10px;
@@ -851,7 +851,7 @@ html[data-theme="dark"] .news-logo .logo-white {
         display: flex;
         align-items: center;
         width: min(calc(100% - 48px), 1240px);
-        min-height: 34px;
+        min-height: 28px;
         overflow: hidden;
         border: 1px solid var(--news-line);
         border-top: 0;
