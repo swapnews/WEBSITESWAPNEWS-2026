@@ -24,10 +24,20 @@ function isValidHttpUrl(value: string): boolean {
  *  Dipaksa JPEG karena `f_auto` dapat menyajikan WebP yang tidak dirender
  *  oleh scraper WhatsApp/Facebook. */
 export function transformOgImage(url: string): string {
-    if (!url.includes("res.cloudinary.com") || !url.includes("/image/upload/")) return url;
-    // Hapus transformasi existing sebelum menambahkan yang baru
-    const cleanUrl = url.replace(/\/upload\/[^\/]+\//, "/image/upload/");
-    return cleanUrl.replace("/image/upload/", "/image/upload/w_1200,h_630,c_fill,q_auto,f_jpg/");
+    const marker = "/image/upload/";
+    if (!url.includes("res.cloudinary.com") || !url.includes(marker)) return url;
+    const markerIndex = url.indexOf(marker);
+    const base = url.slice(0, markerIndex + marker.length);
+    const tail = url.slice(markerIndex + marker.length);
+    const ogTransform = "w_1200,h_630,c_fill,q_auto,f_jpg";
+    const segments = tail.split("/").filter(Boolean);
+    // Potong hanya segmen pertama jika ia transformasi Cloudinary eksisting (w_, h_, c_, ...).
+    // Transformasi dikenali dari prefix `huruf_` dan TANPA titik (bukan nama file).
+    // Segmen version (vNNN) dan public_id dibiarkan utuh agar URL tetap valid.
+    const isTransformSegment = (seg: string) => /^[a-z]+_/.test(seg) && !seg.includes(".");
+    const hasExistingTransform = segments.length > 0 && isTransformSegment(segments[0]);
+    const cleanSegments = hasExistingTransform ? segments.slice(1) : segments;
+    return `${base}${ogTransform}/${cleanSegments.join("/")}`;
 }
 
 /** Resolve OG image dari artikel/media/landing page.
