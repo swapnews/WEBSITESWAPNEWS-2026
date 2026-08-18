@@ -9,7 +9,7 @@ export const metadata: Metadata = buildSocialMetadata({
   title: "SwapNews — Suara Wawasan Aktual Publik",
   description: "Portal berita terbaru, trending, dan perspektif baru setiap hari dari SwapNews.",
   canonicalPath: "/",
-  ogImage: "/swapnews-logo.png",
+  ogImage: "/og-default.jpg",
 });
 
 export default async function Home() {

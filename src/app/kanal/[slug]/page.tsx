@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (!data) return { title: "Kanal tidak ditemukan" };
     const description = data.category.description || `Berita terbaru ${data.category.name}, pilihan redaksi dan informasi terpercaya dari SwapNews.`;
     const lead = data.articles[0];
-    const leadImageRaw = lead ? articleImage(lead) : "/swapnews-logo.png";
+    const leadImageRaw = lead ? articleImage(lead) : "/og-default.jpg";
     const leadImage = leadImageRaw.startsWith("data:")
         ? (extractFirstImageFromHtml(lead?.content) ?? resolveSeoImage(null))
         : resolveSeoImage(leadImageRaw);

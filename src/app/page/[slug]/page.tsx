@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const title = page.seo_title || page.title;
     const description = page.meta_description || page.excerpt || "Informasi resmi SwapNews.";
     const media = Array.isArray(page.featured_media) ? page.featured_media[0] : page.featured_media;
-    const imageRaw = media?.secure_url || "/swapnews-logo.png";
+    const imageRaw = media?.secure_url || "/og-default.jpg";
     const imageUrl = imageRaw.startsWith("data:")
         ? (extractFirstImageFromHtml(page.content) ?? resolveSeoImage(null))
         : resolveSeoImage(imageRaw);
