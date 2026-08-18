@@ -25,8 +25,9 @@ function isValidHttpUrl(value: string): boolean {
  *  oleh scraper WhatsApp/Facebook. */
 export function transformOgImage(url: string): string {
     if (!url.includes("res.cloudinary.com") || !url.includes("/image/upload/")) return url;
-    if (/\/upload\/(w_|c_fill|f_jpg|q_auto)/.test(url)) return url; // sudah ada transformasi
-    return url.replace("/image/upload/", "/image/upload/w_1200,h_630,c_fill,q_auto,f_jpg/");
+    // Hapus transformasi existing sebelum menambahkan yang baru
+    const cleanUrl = url.replace(/\/upload\/[^\/]+\//, "/image/upload/");
+    return cleanUrl.replace("/image/upload/", "/image/upload/w_1200,h_630,c_fill,q_auto,f_jpg/");
 }
 
 /** Resolve OG image dari artikel/media/landing page.
@@ -38,15 +39,21 @@ export function resolveSeoImage(
 ): string {
     let url: string | undefined;
     if (typeof imageUrl === "string") {
-        url = imageUrl.startsWith("http") ? imageUrl : `/${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`;
+        // Tolak data URI langsung
+        if (imageUrl.startsWith("data:")) {
+            return absoluteUrl(fallback);
+        }
+        url = imageUrl.startsWith("http") ? imageUrl : absoluteUrl(imageUrl);
     } else if (imageUrl && typeof imageUrl === "object" && "secure_url" in imageUrl) {
         url = typeof imageUrl.secure_url === "string" ? imageUrl.secure_url : undefined;
     }
-    // Tolak data URI dan URL non-http (scraper WhatsApp/FB tidak bisa memuatnya)
+    // Tolak URL non-http (scraper WhatsApp/FB tidak bisa memuatnya)
     if (!url || !isValidHttpUrl(url)) {
         return absoluteUrl(fallback);
     }
-    return transformOgImage(url);
+    // Transformasi gambar Cloudinary ke format OG optimal
+    const optimized = transformOgImage(url);
+    return optimized;
 }
 
 /** Build default social metadata (OG + Twitter) */

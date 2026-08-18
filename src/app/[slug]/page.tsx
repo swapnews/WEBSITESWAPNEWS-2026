@@ -36,14 +36,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
     const article = await resolveArticle(slug);
     if (!article) return { title: "Artikel tidak ditemukan" };
+    
+    // Resolusi gambar OG dengan penanganan data URI dan fallback
     const imageRaw = articleImage(article);
-    // Featured media bisa berupa data URI (artefak import WP) → ambil gambar valid dari konten
-    const imageUrl = imageRaw.startsWith("data:")
-        ? (extractFirstImageFromHtml(article.content) ?? resolveSeoImage(null))
-        : resolveSeoImage(imageRaw);
+    let imageUrl: string;
+    
+    if (imageRaw.startsWith("data:")) {
+        // Featured media berupa data URI (artefak import WP) → ambil gambar valid dari konten
+        const contentImage = extractFirstImageFromHtml(article.content);
+        imageUrl = contentImage ? resolveSeoImage(contentImage) : resolveSeoImage(null);
+    } else {
+        imageUrl = resolveSeoImage(imageRaw);
+    }
 
     const seoTitle = article.seo_title || article.title;
     const seoDescription = article.meta_description || article.excerpt;
+    
     return {
         title: seoTitle,
         description: seoDescription,
