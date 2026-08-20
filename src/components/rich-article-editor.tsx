@@ -9,10 +9,11 @@ import Underline from "@tiptap/extension-underline";
 import { Bold, Code, Eraser, Heading2, Heading3, ImagePlus, Italic, Link2, List, ListOrdered, Pilcrow, Quote, Redo2, Strikethrough, Underline as UnderlineIcon, Undo2, Unlink } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 
-type Props = { value: string; onChange: (html: string) => void; onImage: () => void; imageToInsert?: { url: string; alt: string } | null; disabled?: boolean };
+type Props = { value: string; onChange: (html: string) => void; onImage: () => void; imageToInsert?: { url: string; alt: string } | null; onImageInserted?: () => void; disabled?: boolean };
 
-export function RichArticleEditor({ value, onChange, onImage, imageToInsert, disabled }: Props) {
+export function RichArticleEditor({ value, onChange, onImage, imageToInsert, onImageInserted, disabled }: Props) {
     const imagePositionRef = useRef<number | null>(null);
+    const onImageInsertedRef = useRef(onImageInserted);
     const editor = useEditor({
         immediatelyRender: false,
         editable: !disabled,
@@ -29,12 +30,19 @@ export function RichArticleEditor({ value, onChange, onImage, imageToInsert, dis
     }, [disabled, editor, onImage]);
 
     useEffect(() => { editor?.setEditable(!disabled); }, [disabled, editor]);
+    useEffect(() => { onImageInsertedRef.current = onImageInserted; }, [onImageInserted]);
     useEffect(() => {
         if (!editor || !imageToInsert?.url) return;
         const savedPosition = imagePositionRef.current;
         const position = savedPosition === null ? editor.state.selection.anchor : Math.min(savedPosition, editor.state.doc.content.size);
-        editor.chain().focus().insertContentAt(position, { type: "image", attrs: { src: imageToInsert.url, alt: imageToInsert.alt || "Gambar artikel" } }).run();
+        const inserted = editor.chain()
+            .focus()
+            .setTextSelection(position)
+            .setImage({ src: imageToInsert.url, alt: imageToInsert.alt || "Gambar artikel" })
+            .run();
+        if (!inserted) return;
         imagePositionRef.current = null;
+        onImageInsertedRef.current?.();
     }, [editor, imageToInsert]);
     if (!editor) return <div className="rich-editor-loading">Menyiapkan editor visual…</div>;
     const link = () => { const previous = editor.getAttributes("link").href as string | undefined; const url = window.prompt("Tempel URL tujuan", previous || "https://"); if (url === null) return; if (!url.trim()) editor.chain().focus().unsetLink().run(); else editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run(); };

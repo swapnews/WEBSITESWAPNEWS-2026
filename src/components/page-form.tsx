@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Save, Send, Trash2 } from "lucide-react";
 
 import { MediaPicker } from "@/components/media-picker";
@@ -21,6 +21,11 @@ export function PageForm({ page }: { page?: PageRecord | null }) {
     const [mediaAlt, setMediaAlt] = useState(page?.featured_media?.alt_text ?? "");
     const [editorMediaOpen, setEditorMediaOpen] = useState(false);
     const [editorImage, setEditorImage] = useState<{ url: string; alt: string } | null>(null);
+    const onEditorImageSelect = useCallback((media: { url: string; alt: string }) => {
+        setEditorImage({ url: media.url, alt: media.alt });
+        setEditorMediaOpen(false);
+    }, []);
+    const onEditorImageInserted = useCallback(() => setEditorImage(null), []);
     const effectiveSlug = slugEdited ? slug : slugify(title);
 
     return <div className="article-form-wrapper">
@@ -32,7 +37,7 @@ export function PageForm({ page }: { page?: PageRecord | null }) {
                 <label className="full">Slug URL<div className="slug-row"><span className="slug-prefix">swapnews.co.id/page/</span><input name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={effectiveSlug} onChange={(e) => { setSlug(e.target.value); setSlugEdited(true); }} /></div></label>
                 <label className="full">Ringkasan<textarea name="excerpt" rows={3} defaultValue={page?.excerpt ?? ""} /></label>
                 <div className="full"><label>Gambar Utama</label><MediaPicker selectedId={mediaId} selectedUrl={mediaUrl} selectedAlt={mediaAlt} onSelect={(media) => { setMediaId(media.id); setMediaUrl(media.url); setMediaAlt(media.alt); }} onClear={() => { setMediaId(""); setMediaUrl(""); setMediaAlt(""); }} /></div>
-                <div className="full"><label>Isi Page</label><RichArticleEditor value={content} onChange={setContent} onImage={() => setEditorMediaOpen(true)} imageToInsert={editorImage} /><input type="hidden" name="content" value={content} /></div>
+                <div className="full"><label>Isi Page</label><RichArticleEditor value={content} onChange={setContent} onImage={() => setEditorMediaOpen(true)} imageToInsert={editorImage} onImageInserted={onEditorImageInserted} /><input type="hidden" name="content" value={content} /></div>
                 <div className="full seo-panel"><h3>Optimasi SEO</h3>
                     <label>Focus Keyword<input name="focus_keyword" defaultValue={page?.focus_keyword ?? ""} /></label>
                     <label>SEO Title<input name="seo_title" maxLength={70} defaultValue={page?.seo_title ?? ""} /></label>
@@ -45,6 +50,6 @@ export function PageForm({ page }: { page?: PageRecord | null }) {
             <div className="cms-actions"><button name="status" value="draft" className="secondary-button"><Save size={16} /> Simpan Draft</button><button name="status" value="published" className="primary-button"><Send size={16} /> Terbitkan</button></div>
         </form>
         {page && <form action={deletePageAction} className="cms-delete"><input type="hidden" name="id" value={page.id} /><button className="secondary-button danger"><Trash2 size={16} /> Hapus Page</button></form>}
-        {editorMediaOpen && <div className="editor-media-modal" role="dialog" aria-label="Pilih gambar"><div className="editor-media-inner"><MediaPicker selectedId="" selectedUrl="" selectedAlt="" onSelect={(media) => { setEditorImage({ url: media.url, alt: media.alt }); setEditorMediaOpen(false); window.setTimeout(() => setEditorImage(null), 0) }} onClear={() => setEditorMediaOpen(false)} /><button type="button" className="secondary-button" onClick={() => setEditorMediaOpen(false)}>Tutup</button></div></div>}
+        {editorMediaOpen && <div className="editor-media-modal" role="dialog" aria-label="Pilih gambar"><div className="editor-media-inner"><MediaPicker selectedId="" selectedUrl="" selectedAlt="" onSelect={onEditorImageSelect} onClear={() => setEditorMediaOpen(false)} /><button type="button" className="secondary-button" onClick={() => setEditorMediaOpen(false)}>Tutup</button></div></div>}
     </div>;
 }

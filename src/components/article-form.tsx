@@ -100,8 +100,8 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
     const onEditorImageSelect = useCallback((media: { url: string; alt: string }) => {
         setEditorImage({ url: media.url, alt: media.alt });
         setMediaOpen(false);
-        window.setTimeout(() => setEditorImage(null), 0);
     }, []);
+    const onEditorImageInserted = useCallback(() => setEditorImage(null), []);
 
     const displayTitle = seoTitle || title || "Judul Artikel Anda";
     const displayDesc = metaDesc || excerpt || "Ringkasan artikel akan tampil di sini...";
@@ -165,7 +165,7 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
 
                     <div className="full">
                         <label style={{ marginBottom: 8 }}>Isi Konten Artikel</label>
-                        <RichArticleEditor value={content} onChange={setContent} onImage={insertImage} imageToInsert={editorImage} disabled={!canEdit} />
+                        <RichArticleEditor value={content} onChange={setContent} onImage={insertImage} imageToInsert={editorImage} onImageInserted={onEditorImageInserted} disabled={!canEdit} />
                         <input type="hidden" name="content" value={content} />
                         <small className="field-hint">{content.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length} kata · ~{Math.max(1, Math.ceil(content.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length / 200))} menit baca</small>
                     </div>
