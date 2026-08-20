@@ -52,7 +52,7 @@ export default async function DashboardPage() {
         canEdit
             ? supabase.from("media_assets").select("bytes")
             : Promise.resolve({ data: [] as { bytes: number | null }[], error: null }),
-        canEdit ? getArticlesForDashboard(profile) : Promise.resolve([]),
+        canEdit ? getArticlesForDashboard(profile, 100) : Promise.resolve([]),
     ]);
 
     if (mediaRows.error) {

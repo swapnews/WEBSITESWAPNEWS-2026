@@ -38,6 +38,23 @@ export type Article = {
     } | null;
 };
 
+export type DashboardArticle = Pick<
+    Article,
+    | "id"
+    | "slug"
+    | "title"
+    | "excerpt"
+    | "status"
+    | "category_id"
+    | "author_id"
+    | "featured_media_id"
+    | "published_at"
+    | "scheduled_at"
+    | "view_count"
+    | "created_at"
+    | "updated_at"
+> & Pick<Article, "author_name" | "category_name" | "featured_media">;
+
 export type Category = {
     id: number;
     name: string;
@@ -90,14 +107,14 @@ export const getCategories = cache(async (): Promise<Category[]> => {
     }));
 });
 
-export async function getArticlesForDashboard(profile: Profile) {
+export async function getArticlesForDashboard(profile: Profile, limit?: number): Promise<DashboardArticle[]> {
     const supabase = await createClient();
     const canViewAll = isAdminRole(profile.role as AppRole);
 
     let query = supabase
         .from("articles")
         .select(
-            "id,slug,title,excerpt,content,status,category_id,author_id,featured_media_id,published_at,scheduled_at,view_count,reading_time_minutes,is_exclusive,focus_keyword,seo_title,meta_description,tags,created_at,updated_at",
+            "id,slug,title,excerpt,status,category_id,author_id,featured_media_id,published_at,scheduled_at,view_count,created_at,updated_at",
         )
         .order("updated_at", { ascending: false });
 
@@ -105,14 +122,18 @@ export async function getArticlesForDashboard(profile: Profile) {
         query = query.eq("author_id", profile.id);
     }
 
+    if (limit) {
+        query = query.limit(limit);
+    }
+
     const { data, error } = await query;
     if (error) return [];
 
-    const articles = data as Omit<Article, "author_name" | "category_name" | "featured_media">[];
+    const articles = data as Omit<DashboardArticle, "author_name" | "category_name" | "featured_media">[];
 
-    const authorIds = [...new Set(articles.map((a) => a.author_id))];
-    const categoryIds = [...new Set(articles.map((a) => a.category_id).filter(Boolean))] as number[];
-    const mediaIds = [...new Set(articles.map((a) => a.featured_media_id).filter(Boolean))] as string[];
+    const authorIds = [...new Set(articles.map((article) => article.author_id))];
+    const categoryIds = [...new Set(articles.map((article) => article.category_id).filter(Boolean))] as number[];
+    const mediaIds = [...new Set(articles.map((article) => article.featured_media_id).filter(Boolean))] as string[];
 
     const [authors, categories, media] = await Promise.all([
         authorIds.length
@@ -126,16 +147,16 @@ export async function getArticlesForDashboard(profile: Profile) {
             : Promise.resolve({ data: [], error: null }),
     ]);
 
-    const authorMap = new Map((authors.data ?? []).map((a) => [a.id, a.full_name ?? a.email]));
-    const categoryMap = new Map((categories.data ?? []).map((c) => [c.id, c.name]));
-    const mediaMap = new Map((media.data ?? []).map((m) => [m.id, m]));
+    const authorMap = new Map((authors.data ?? []).map((author) => [author.id, author.full_name ?? author.email]));
+    const categoryMap = new Map((categories.data ?? []).map((category) => [category.id, category.name]));
+    const mediaMap = new Map((media.data ?? []).map((asset) => [asset.id, asset]));
 
     return articles.map((article) => ({
         ...article,
         author_name: authorMap.get(article.author_id) ?? null,
         category_name: article.category_id ? categoryMap.get(article.category_id) ?? null : null,
         featured_media: article.featured_media_id ? mediaMap.get(article.featured_media_id) ?? null : null,
-    })) as Article[];
+    }));
 }
 
 export async function getArticleById(id: string, profile: Profile) {

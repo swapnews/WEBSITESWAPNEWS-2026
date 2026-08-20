@@ -4,7 +4,7 @@ import { FilePlus2, Search } from "lucide-react";
 
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { isEditorialRole, isAdminRole } from "@/lib/auth/roles";
-import { getArticlesForDashboard, getCategories, type ArticleStatus } from "@/lib/articles";
+import { getArticlesForDashboard, type ArticleStatus } from "@/lib/articles";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { ArticlesTableClient } from "./articles-table-client";
 
@@ -55,16 +55,26 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
     const error = getParam(params, "error");
     const success = getParam(params, "success");
 
-    const [articles] = await Promise.all([getArticlesForDashboard(profile), getCategories()]);
+    const articles = await getArticlesForDashboard(profile);
 
-    const filtered = articles.filter((article) => {
-        if (statusFilter && article.status !== statusFilter) return false;
-        if (search) {
-            const haystack = `${article.title} ${article.excerpt ?? ""} ${article.author_name ?? ""}`.toLowerCase();
-            if (!haystack.includes(search.toLowerCase())) return false;
-        }
-        return true;
-    });
+    const filtered = articles
+        .filter((article) => {
+            if (statusFilter && article.status !== statusFilter) return false;
+            if (search) {
+                const haystack = `${article.title} ${article.excerpt ?? ""} ${article.author_name ?? ""}`.toLowerCase();
+                if (!haystack.includes(search.toLowerCase())) return false;
+            }
+            return true;
+        })
+        .map((article) => ({
+            id: article.id,
+            slug: article.slug,
+            title: article.title,
+            status: article.status,
+            updated_at: article.updated_at,
+            author_name: article.author_name,
+            category_name: article.category_name,
+        }));
 
     const canDelete = isAdminRole(profile.role);
 

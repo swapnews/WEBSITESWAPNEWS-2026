@@ -1,23 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import "../styles/news-portal.css";
-import "../styles/editorial-feeds.css";
-import "../styles/homepage-control.css";
-import "../styles/channels.css";
-import "../styles/search-discovery.css";
-import "../styles/homepage-2026.css";
-import "../styles/article-2026.css";
-import "../styles/optimization.css";
-import "../styles/psychology-showcase.css";
-import "../styles/footer-pages.css";
-import "../styles/footer-wide.css";
-import "../styles/topic-feed.css";
-import "../styles/bali-live.css";
-import "../styles/bali-integration.css";
-import "../styles/public-pages-2026.css";
-import "../styles/reels-fix.css";
-import { SiteFooter } from "@/components/site-footer";
 
 import { buildSiteMetadata } from "@/lib/seo/metadata";
 
@@ -59,7 +42,12 @@ const themeScript = `(function(){try{var t=localStorage.getItem("swapnews-theme"
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id" prefix="og: https://ogp.me/ns#" className={`h-full antialiased ${outfit.variable} ${jakarta.variable}`}>
+    <html
+      lang="id"
+      prefix="og: https://ogp.me/ns#"
+      className={`h-full antialiased ${outfit.variable} ${jakarta.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -73,7 +61,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
         {children}
-        <SiteFooter />
       </body>
     </html>
   );
