@@ -3,6 +3,9 @@ import { type Metadata } from "next";
 /** Konversi path relatif menjadi URL absolut HTTPS dengan base site */
 export function absoluteUrl(path = ""): string {
     const base = "https://swapnews.co.id";
+    if (path.startsWith("http://") || path.startsWith("https://")) {
+        return path;
+    }
     return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
@@ -21,8 +24,8 @@ function isValidHttpUrl(value: string): boolean {
 }
 
 /** Optimasi URL Cloudinary untuk OG: paksa 1200x630, kualitas auto, format JPEG.
- *  Dipaksa JPEG karena `f_auto` dapat menyajikan WebP yang tidak dirender
- *  oleh scraper WhatsApp/Facebook. */
+ *  Dipaksa JPEG (.jpg) karena WhatsApp/Facebook scraper menolak format .webp
+ *  dan memerlukan ekstensi file berakhiran .jpg serta ukuran <300KB. */
 export function transformOgImage(url: string): string {
     const marker = "/image/upload/";
     if (!url.includes("res.cloudinary.com") || !url.includes(marker)) return url;
@@ -31,18 +34,19 @@ export function transformOgImage(url: string): string {
     const tail = url.slice(markerIndex + marker.length);
     const ogTransform = "w_1200,h_630,c_fill,q_auto,f_jpg";
     const segments = tail.split("/").filter(Boolean);
-    // Potong hanya segmen pertama jika ia transformasi Cloudinary eksisting (w_, h_, c_, ...).
-    // Transformasi dikenali dari prefix `huruf_` dan TANPA titik (bukan nama file).
-    // Segmen version (vNNN) dan public_id dibiarkan utuh agar URL tetap valid.
+    // Potong segmen transformasi lama jika ada
     const isTransformSegment = (seg: string) => /^[a-z]+_/.test(seg) && !seg.includes(".");
     const hasExistingTransform = segments.length > 0 && isTransformSegment(segments[0]);
     const cleanSegments = hasExistingTransform ? segments.slice(1) : segments;
-    return `${base}${ogTransform}/${cleanSegments.join("/")}`;
+    const joined = cleanSegments.join("/");
+    // Ganti ekstensi file (misal .webp/.png) menjadi .jpg agar WhatsApp parser mengenalinya langsung
+    const withJpgExt = joined.replace(/\.[a-zA-Z0-9]+$/, ".jpg");
+    return `${base}${ogTransform}/${withJpgExt}`;
 }
 
 /** Resolve OG image dari artikel/media/landing page.
  *  Fallback memakai og-default.jpg (1200x630, <100KB) karena WhatsApp
- *  menolak gambar >300KB — swapnews-logo.png (812KB) menyebabkan preview gagal. */
+ *  menolak gambar >300KB atau gambar tanpa URL absolut valid. */
 export function resolveSeoImage(
     imageUrl?: string | null | { secure_url?: string },
     fallback = "/og-default.jpg"
@@ -62,8 +66,7 @@ export function resolveSeoImage(
         return absoluteUrl(fallback);
     }
     // Transformasi gambar Cloudinary ke format OG optimal
-    const optimized = transformOgImage(url);
-    return optimized;
+    return transformOgImage(url);
 }
 
 /** Build default social metadata (OG + Twitter) */
@@ -75,23 +78,39 @@ export function buildSocialMetadata(options: {
     type?: "website" | "article";
     publishedAt?: string | null;
     modifiedAt?: string;
+    authorName?: string;
+    section?: string;
+    tags?: string[];
 }): Metadata {
-    const { title, description, canonicalPath, ogImage, type = "website", publishedAt, modifiedAt } = options;
+    const { title, description, canonicalPath, ogImage, type = "website", publishedAt, modifiedAt, authorName, section, tags } = options;
     const imageUrl = resolveSeoImage(ogImage);
-    const isDefault = imageUrl.endsWith("/og-default.jpg");
+    const absCanonical = absoluteUrl(canonicalPath);
+
     return {
+        metadataBase: new URL("https://swapnews.co.id"),
+        alternates: { canonical: absCanonical },
         openGraph: {
             type: publishedAt ? "article" : type,
             title,
             description,
-            url: absoluteUrl(canonicalPath),
+            url: absCanonical,
             siteName: "SwapNews",
             locale: "id_ID",
             ...(publishedAt && { publishedTime: publishedAt }),
             ...(modifiedAt && { modifiedTime: modifiedAt }),
-            images: isDefault
-                ? [{ url: imageUrl, width: 1200, height: 630, alt: title }]
-                : [{ url: imageUrl, alt: title }],
+            ...(authorName && { authors: [authorName] }),
+            ...(section && { section }),
+            ...(tags && tags.length > 0 && { tags }),
+            images: [
+                {
+                    url: imageUrl,
+                    secureUrl: imageUrl,
+                    width: 1200,
+                    height: 630,
+                    type: "image/jpeg",
+                    alt: title,
+                },
+            ],
         },
         twitter: {
             card: "summary_large_image",
@@ -104,12 +123,16 @@ export function buildSocialMetadata(options: {
 
 /** Build global site metadata (layout level) */
 export function buildSiteMetadata(): Metadata {
+    const defaultImage = "https://swapnews.co.id/og-default.jpg";
     return {
         metadataBase: new URL("https://swapnews.co.id"),
         title: { default: "SwapNews — Suara Wawasan Aktual Publik", template: "%s | SwapNews" },
         description: "Portal berita Super PWA: kabar terbaru, trending, dan perspektif baru setiap hari.",
         icons: {
-            icon: "/favicon.svg",
+            icon: [
+                { url: "/favicon.ico", sizes: "any" },
+                { url: "/favicon.svg", type: "image/svg+xml" },
+            ],
             shortcut: "/favicon.ico",
             apple: "/apple-touch-icon.png",
         },
@@ -120,13 +143,23 @@ export function buildSiteMetadata(): Metadata {
             locale: "id_ID",
             title: "SwapNews — Suara Wawasan Aktual Publik",
             description: "Portal berita Super PWA: kabar terbaru, trending, dan perspektif baru setiap hari.",
-            images: [{ url: "https://swapnews.co.id/og-default.jpg", width: 1200, height: 630, alt: "SwapNews Logo" }],
+            url: "https://swapnews.co.id",
+            images: [
+                {
+                    url: defaultImage,
+                    secureUrl: defaultImage,
+                    width: 1200,
+                    height: 630,
+                    type: "image/jpeg",
+                    alt: "SwapNews Logo",
+                },
+            ],
         },
         twitter: {
             card: "summary_large_image",
             title: "SwapNews — Suara Wawasan Aktual Publik",
             description: "Portal berita Super PWA: kabar terbaru, trending, dan perspektif baru setiap hari.",
-            images: ["https://swapnews.co.id/og-default.jpg"],
+            images: [defaultImage],
         },
     };
 }

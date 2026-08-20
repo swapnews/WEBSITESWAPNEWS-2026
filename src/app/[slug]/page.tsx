@@ -63,19 +63,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const seoTitle = article.seo_title || article.title;
     const seoDescription = article.meta_description || article.excerpt;
+    const canonicalUrl = `https://swapnews.co.id/${article.slug}`;
 
     return {
+        metadataBase: new URL("https://swapnews.co.id"),
         title: seoTitle,
         description: seoDescription,
         keywords: article.tags,
-        alternates: { canonical: `https://swapnews.co.id/${article.slug}` },
+        alternates: { canonical: canonicalUrl },
         openGraph: {
             type: "article",
             siteName: "SwapNews",
             locale: "id_ID",
             title: seoTitle,
             description: seoDescription,
-            url: `https://swapnews.co.id/${article.slug}`,
+            url: canonicalUrl,
             publishedTime: article.published_at,
             modifiedTime: article.updated_at,
             authors: [article.author_name],
@@ -84,8 +86,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             images: [
                 {
                     url: imageUrl,
+                    secureUrl: imageUrl,
                     width: 1200,
                     height: 630,
+                    type: "image/jpeg",
                     alt: article.featured_media?.alt_text || article.title,
                 },
             ],

@@ -59,8 +59,12 @@ const themeScript = `(function(){try{var t=localStorage.getItem("swapnews-theme"
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id" className={`h-full antialiased ${outfit.variable} ${jakarta.variable}`}>
+    <html lang="id" prefix="og: https://ogp.me/ns#" className={`h-full antialiased ${outfit.variable} ${jakarta.variable}`}>
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-full flex flex-col">
