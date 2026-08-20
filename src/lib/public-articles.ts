@@ -278,6 +278,16 @@ function normalizeArticle(
     // excerpt -> meta_description -> judul. Sebelumnya excerpt diturunkan dari
     // isi HTML penuh, yang memaksa kita mengunduh seluruh badan artikel.
     const excerptSource = row.excerpt?.trim() || row.meta_description?.trim() || row.content || row.title;
+    const rawMedia = row.featured_media_id ? mediaMap.get(row.featured_media_id) ?? null : null;
+    const featuredMedia: PublicMedia | null = rawMedia
+        ? {
+            ...rawMedia,
+            secure_url: rawMedia.secure_url?.startsWith("data:")
+                ? `/og-image/${row.slug}.jpg`
+                : rawMedia.secure_url,
+        }
+        : null;
+
     return {
         id: row.id,
         slug: row.slug,
@@ -297,7 +307,7 @@ function normalizeArticle(
         seo_title: row.seo_title,
         meta_description: row.meta_description,
         tags: row.tags ?? [],
-        featured_media: row.featured_media_id ? mediaMap.get(row.featured_media_id) ?? null : null,
+        featured_media: featuredMedia,
     };
 }
 
