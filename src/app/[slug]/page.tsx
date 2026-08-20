@@ -7,14 +7,15 @@ import { Clock3 } from "lucide-react";
 import ArticleComments from "@/components/article-comments";
 import ArticleCopyAttribution from "@/components/article-copy-attribution";
 import ArticleExperience from "@/components/article-experience";
-import { DEFAULT_INSERTION_SETTINGS, sanitizeAdHtml } from "@/lib/article-insertions";
+import { sanitizeAdHtml } from "@/lib/article-insertions";
+import { getArticleInsertions } from "@/lib/article-insertions-data";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
-import { createClient } from "@/lib/supabase/server";
 import {
     articleImage,
     formatPublishedDate,
     getFallbackArticles,
     getPublicArticleBySlug,
+    getPopularArticleSlugs,
     getRelatedPublicArticles,
     type PublicArticle,
 } from "@/lib/public-articles";
@@ -23,7 +24,18 @@ import { extractFirstImageFromHtml, resolveSeoImage } from "@/lib/seo/metadata";
 import { PublicSiteHeader } from "@/components/public-site-header";
 import ArticleViewCounter from "@/components/article-view-counter";
 
-export const dynamic = "force-dynamic";
+// ISR: artikel jarang berubah setelah terbit, jadi jendela cache lebih panjang
+// dari homepage. Pembaruan editorial tetap instan lewat revalidatePath.
+export const revalidate = 300;
+
+// Slug di luar daftar prebuild tetap dilayani (dirender saat diminta, lalu di-cache).
+export const dynamicParams = true;
+
+/** Prebuild artikel terpopuler agar pengunjung dari Google langsung dapat HTML cache. */
+export async function generateStaticParams() {
+    const slugs = await getPopularArticleSlugs(30);
+    return slugs.map((slug) => ({ slug }));
+}
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -36,11 +48,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
     const article = await resolveArticle(slug);
     if (!article) return { title: "Artikel tidak ditemukan" };
-    
+
     // Resolusi gambar OG dengan penanganan data URI dan fallback
     const imageRaw = articleImage(article);
     let imageUrl: string;
-    
+
     if (imageRaw.startsWith("data:")) {
         // Featured media berupa data URI (artefak import WP) → ambil gambar valid dari konten
         const contentImage = extractFirstImageFromHtml(article.content);
@@ -51,7 +63,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const seoTitle = article.seo_title || article.title;
     const seoDescription = article.meta_description || article.excerpt;
-    
+
     return {
         title: seoTitle,
         description: seoDescription,
@@ -125,19 +137,11 @@ export default async function ArticlePage({ params }: Props) {
     const related = article.id.startsWith("demo-")
         ? getFallbackArticles().filter((item) => item.id !== article.id).slice(0, 3)
         : await getRelatedPublicArticles(article, 3);
+    // Paywall hanya untuk artikel eksklusif. Artikel biasa TIDAK boleh menyentuh
+    // cookies() — kalau tersentuh, rute berubah dinamis dan ISR mati.
     const profile = article.is_exclusive ? await getCurrentProfile() : null;
     const locked = article.is_exclusive && !profile?.is_member;
-    const supabase = await createClient();
-    const [{ data: insertionData }, { data: selectedProduct }] = await Promise.all([
-        supabase.from("article_insertion_settings").select("read_also_enabled,read_also_paragraph,read_also_label,product_enabled,product_paragraph,product_id,ad_enabled,ad_paragraph,ad_html,copy_message").eq("id", true).maybeSingle(),
-        supabase.from("products").select("id,slug,name,description,price_idr,price_points,stock,image_url").eq("is_active", true).gt("stock", 0).order("created_at", { ascending: false }).limit(1).maybeSingle(),
-    ]);
-    const insertions = { ...DEFAULT_INSERTION_SETTINGS, ...(insertionData ?? {}) };
-    let product = selectedProduct;
-    if (insertions.product_id) {
-        const { data } = await supabase.from("products").select("id,slug,name,description,price_idr,price_points,stock,image_url").eq("id", insertions.product_id).eq("is_active", true).maybeSingle();
-        product = data ?? product;
-    }
+    const { insertions, product } = await getArticleInsertions();
     const contentBlocks = splitContent(article.content);
     const contentIsHtml = isHtml(article.content);
     const visibleBlocks = locked ? contentBlocks.slice(0, 2) : contentBlocks;

@@ -1,7 +1,12 @@
 import { cache } from "react";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
+
+/** Klien read-only tanpa cookie. Semua fungsi di file ini hanya membaca data
+ *  publik, sehingga tidak boleh menyentuh cookies() — kalau menyentuh, seluruh
+ *  halaman publik terpaksa dirender dinamis dan ISR mati. */
+type ReadClient = ReturnType<typeof createPublicClient>;
 
 export type PublicMedia = {
     secure_url: string;
@@ -61,7 +66,9 @@ type ArticleRow = {
     slug: string;
     title: string;
     excerpt: string | null;
-    content: string;
+    /** Hanya terisi pada query artikel tunggal. Query daftar sengaja tidak
+     *  mengambil kolom ini karena isinya HTML penuh (bisa puluhan KB/artikel). */
+    content?: string | null;
     category_id: number | null;
     author_id: string;
     featured_media_id: string | null;
@@ -75,6 +82,18 @@ type ArticleRow = {
     meta_description: string | null;
     tags: string[] | null;
 };
+
+/** Kolom untuk KARTU/daftar (homepage, kanal, terkait).
+ *  Tanpa `content` — inilah perubahan terbesar untuk ukuran payload. */
+const CARD_COLUMNS =
+    "id,slug,title,excerpt,category_id,author_id,featured_media_id,is_exclusive,published_at,updated_at,view_count,reading_time_minutes,focus_keyword,seo_title,meta_description,tags";
+
+/** Kolom untuk halaman artikel tunggal (butuh isi lengkap). */
+const FULL_COLUMNS = `${CARD_COLUMNS},content`;
+
+/** Jumlah artikel yang diambil homepage. Grid topik memakai paginasi 9/halaman,
+ *  jadi 60 memberi ~7 halaman tanpa mengirim ratusan artikel ke browser. */
+const HOME_ARTICLE_LIMIT = 60;
 
 const DEMO_IMAGES = ["/news/city.png", "/news/bali.png", "/news/sports.png"];
 
@@ -214,10 +233,10 @@ function createMediaServiceClient() {
     return createSupabaseClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
-async function fetchMediaMap(supabase: Awaited<ReturnType<typeof createClient>>, mediaIds: string[]) {
+async function fetchMediaMap(supabase: ReadClient, mediaIds: string[]) {
     if (!mediaIds.length) return new Map<string, PublicMedia>();
 
-    const selectMedia = async (client: typeof supabase) => {
+    const selectMedia = async (client: ReadClient) => {
         const result = await client.from("media_assets").select("id,secure_url,alt_text,title").in("id", mediaIds);
         if (result.error) throw result.error;
         return result.data ?? [];
@@ -228,7 +247,7 @@ async function fetchMediaMap(supabase: Awaited<ReturnType<typeof createClient>>,
         const serviceClient = createMediaServiceClient();
         if (serviceClient) {
             try {
-                const serviceMedia = await selectMedia(serviceClient as typeof supabase);
+                const serviceMedia = await selectMedia(serviceClient as ReadClient);
                 if (serviceMedia.length > media.length) media = serviceMedia;
             } catch (error) {
                 console.error("Failed to load Cloudinary media with service client", error);
@@ -252,12 +271,16 @@ function normalizeArticle(
     mediaMap: Map<string, PublicMedia>,
 ): PublicArticle {
     const category = row.category_id ? categoryMap.get(row.category_id) : undefined;
+    // Query daftar tidak mengambil `content`, jadi excerpt dipilih berjenjang:
+    // excerpt -> meta_description -> judul. Sebelumnya excerpt diturunkan dari
+    // isi HTML penuh, yang memaksa kita mengunduh seluruh badan artikel.
+    const excerptSource = row.excerpt?.trim() || row.meta_description?.trim() || row.content || row.title;
     return {
         id: row.id,
         slug: row.slug,
         title: row.title,
-        excerpt: excerptFrom(row.content, row.excerpt),
-        content: row.content,
+        excerpt: excerptFrom(excerptSource, row.excerpt),
+        content: row.content ?? "",
         category_id: row.category_id,
         category_name: category?.name ?? "Nasional",
         category_slug: category?.slug ?? "nasional",
@@ -291,35 +314,61 @@ function buildSections(articles: PublicArticle[]) {
     return sections.slice(0, 5);
 }
 
-async function queryPublishedArticles(limit = 200) {
+/** Lengkapi baris artikel dengan nama penulis, kategori, dan media.
+ *  Dipakai bersama oleh query homepage dan query artikel terkait. */
+async function hydrateArticleRows(supabase: ReadClient, rows: ArticleRow[]) {
+    if (!rows.length) return [];
+
+    const authorIds = [...new Set(rows.map((row) => row.author_id))];
+    const categoryIds = [...new Set(rows.map((row) => row.category_id).filter(Boolean))] as number[];
+    const mediaIds = [...new Set(rows.map((row) => row.featured_media_id).filter(Boolean))] as string[];
+
+    const [authors, categories] = await Promise.all([
+        authorIds.length ? supabase.from("profiles").select("id,full_name,email").in("id", authorIds) : Promise.resolve({ data: [], error: null }),
+        categoryIds.length ? supabase.from("categories").select("id,name,slug").in("id", categoryIds) : Promise.resolve({ data: [], error: null }),
+    ]);
+    const mediaMap = await fetchMediaMap(supabase, mediaIds);
+
+    if (authors.error || categories.error) throw authors.error ?? categories.error;
+
+    const authorMap = new Map<string, string>((authors.data ?? []).map((author) => [author.id, author.full_name ?? author.email ?? "Redaksi SwapNews"]));
+    const categoryMap = new Map<number, { name: string; slug: string }>((categories.data ?? []).map((category) => [category.id, { name: category.name, slug: category.slug }]));
+
+    return rows.map((row) => normalizeArticle(row, authorMap, categoryMap, mediaMap));
+}
+
+/** Kandidat artikel terkait, dipersempit ke kategori yang sama supaya cukup
+ *  mengambil sedikit baris ringan alih-alih menyapu tabel artikel. */
+const queryRelatedCandidates = cache(async (categoryId: number | null, limit = 24): Promise<PublicArticle[]> => {
     try {
-        const supabase = await createClient();
+        const supabase = createPublicClient();
+        let query = supabase.from("articles").select(CARD_COLUMNS).eq("status", "published");
+        if (categoryId) query = query.eq("category_id", categoryId);
+        const { data, error } = await query.order("published_at", { ascending: false }).limit(limit);
+        if (error) throw error;
+
+        const rows = (data ?? []) as unknown as ArticleRow[];
+        // Kanal yang masih sepi tidak boleh membuat blok "Berita terkait" kosong.
+        if (rows.length < 4) return await queryPublishedArticles(limit);
+        return await hydrateArticleRows(supabase, rows);
+    } catch (error) {
+        console.error("Failed to load related candidates", error);
+        return [];
+    }
+});
+
+async function queryPublishedArticles(limit = HOME_ARTICLE_LIMIT): Promise<PublicArticle[]> {
+    try {
+        const supabase = createPublicClient();
         const { data, error } = await supabase
             .from("articles")
-            .select("id,slug,title,excerpt,content,category_id,author_id,featured_media_id,is_exclusive,published_at,updated_at,view_count,reading_time_minutes,focus_keyword,seo_title,meta_description,tags")
+            .select(CARD_COLUMNS)
             .eq("status", "published")
             .order("published_at", { ascending: false })
             .limit(limit);
 
         if (error) throw error;
-
-        const rows = (data ?? []) as ArticleRow[];
-        const authorIds = [...new Set(rows.map((row) => row.author_id))];
-        const categoryIds = [...new Set(rows.map((row) => row.category_id).filter(Boolean))] as number[];
-        const mediaIds = [...new Set(rows.map((row) => row.featured_media_id).filter(Boolean))] as string[];
-
-        const [authors, categories] = await Promise.all([
-            authorIds.length ? supabase.from("profiles").select("id,full_name,email").in("id", authorIds) : Promise.resolve({ data: [], error: null }),
-            categoryIds.length ? supabase.from("categories").select("id,name,slug").in("id", categoryIds) : Promise.resolve({ data: [], error: null }),
-        ]);
-        const mediaMap = await fetchMediaMap(supabase, mediaIds);
-
-        if (authors.error || categories.error) throw authors.error ?? categories.error;
-
-        const authorMap = new Map((authors.data ?? []).map((author) => [author.id, author.full_name ?? author.email ?? "Redaksi SwapNews"]));
-        const categoryMap = new Map((categories.data ?? []).map((category) => [category.id, { name: category.name, slug: category.slug }]));
-
-        return rows.map((row) => normalizeArticle(row, authorMap, categoryMap, mediaMap));
+        return await hydrateArticleRows(supabase, (data ?? []) as unknown as ArticleRow[]);
     } catch (error) {
         console.error("Failed to load public articles", error);
         return [];
@@ -331,7 +380,7 @@ export function getFallbackArticles() {
 }
 
 export const getPublicHomeData = cache(async (): Promise<PublicHomeData> => {
-    const articles = await queryPublishedArticles(200);
+    const articles = await queryPublishedArticles(HOME_ARTICLE_LIMIT);
     const usable = articles.length ? articles : fallbackArticles;
     const trending = [...usable].sort((a, b) => b.view_count - a.view_count).slice(0, 10);
     const hero = trending[0] ?? usable[0];
@@ -350,7 +399,7 @@ export const getPublicHomeData = cache(async (): Promise<PublicHomeData> => {
     ];
     let breakingNews: BreakingNews[] = [];
     try {
-        const supabase = await createClient();
+        const supabase = createPublicClient();
         const [reelResult, sectionResult, breakingResult] = await Promise.all([
             supabase.from("social_reels").select("id,instagram_url,embed_url,title,caption").eq("is_active", true).order("sort_order").limit(10),
             supabase.from("homepage_sections").select("section_key,title,is_enabled,sort_order,style_variant,category_slug").order("sort_order"),
@@ -374,10 +423,10 @@ export const getPublicHomeData = cache(async (): Promise<PublicHomeData> => {
 
 export const getPublicArticleBySlug = cache(async (slug: string) => {
     try {
-        const supabase = await createClient();
+        const supabase = createPublicClient();
         const { data, error } = await supabase
             .from("articles")
-            .select("id,slug,title,excerpt,content,category_id,author_id,featured_media_id,is_exclusive,published_at,updated_at,view_count,reading_time_minutes,focus_keyword,seo_title,meta_description,tags")
+            .select(FULL_COLUMNS)
             .eq("status", "published")
             .eq("slug", slug)
             .maybeSingle();
@@ -409,7 +458,7 @@ export const getPublicArticleBySlug = cache(async (slug: string) => {
 
 export async function queryPublishedSitemapArticles() {
     try {
-        const supabase = await createClient();
+        const supabase = createPublicClient();
         const { data, error } = await supabase
             .from("articles")
             .select("slug,updated_at")
@@ -424,6 +473,24 @@ export async function queryPublishedSitemapArticles() {
     }
 }
 
+/** Slug artikel terpopuler untuk generateStaticParams — prebuild saat deploy. */
+export async function getPopularArticleSlugs(limit = 30): Promise<string[]> {
+    try {
+        const supabase = createPublicClient();
+        const { data, error } = await supabase
+            .from("articles")
+            .select("slug")
+            .eq("status", "published")
+            .order("view_count", { ascending: false })
+            .limit(limit);
+        if (error) throw error;
+        return (data ?? []).map((row) => row.slug as string);
+    } catch (error) {
+        console.error("Failed to load popular slugs", error);
+        return [];
+    }
+}
+
 export type PublicChannelData = {
     category: { id: number; name: string; slug: string; description: string | null; parent_id: number | null };
     children: { id: number; name: string; slug: string }[];
@@ -434,16 +501,16 @@ export type PublicChannelData = {
 export const getPublicChannelData = cache(async (slug: string): Promise<PublicChannelData | null> => {
     try {
         const safeSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "");
-        const supabase = await createClient();
+        const supabase = createPublicClient();
         const { data: category, error } = await supabase.from("categories").select("id,name,slug,description,parent_id").eq("slug", safeSlug).maybeSingle();
         if (error || !category) return null;
         const { data: children = [] } = await supabase.from("categories").select("id,name,slug").eq("parent_id", category.id).order("sort_order");
         const categoryIds = [category.id, ...(children ?? []).map((item) => item.id)];
         const { data: rows, error: articleError } = await supabase.from("articles")
-            .select("id,slug,title,excerpt,content,category_id,author_id,featured_media_id,is_exclusive,published_at,updated_at,view_count,reading_time_minutes,focus_keyword,seo_title,meta_description,tags")
+            .select(CARD_COLUMNS)
             .eq("status", "published").in("category_id", categoryIds).order("published_at", { ascending: false }).limit(40);
         if (articleError) throw articleError;
-        const articleRows = (rows ?? []) as ArticleRow[];
+        const articleRows = (rows ?? []) as unknown as ArticleRow[];
         const authorIds = [...new Set(articleRows.map((row) => row.author_id))];
         const mediaIds = [...new Set(articleRows.map((row) => row.featured_media_id).filter(Boolean))] as string[];
         const [authors] = await Promise.all([
@@ -462,7 +529,9 @@ export const getPublicChannelData = cache(async (slug: string): Promise<PublicCh
 });
 
 export async function getRelatedPublicArticles(article: PublicArticle, limit = 3) {
-    const articles = await queryPublishedArticles(24);
+    // Sebelumnya menarik 24 artikel LENGKAP (dengan HTML) hanya untuk memilih 3.
+    // Sekarang: kartu ringan, diprioritaskan dari kategori yang sama.
+    const articles = await queryRelatedCandidates(article.category_id, 24);
     const scored = articles.filter((item) => item.id !== article.id).map((item) => {
         const sharedTags = item.tags.filter((tag) => article.tags.includes(tag)).length;
         const sameCategory = item.category_slug === article.category_slug ? 4 : 0;

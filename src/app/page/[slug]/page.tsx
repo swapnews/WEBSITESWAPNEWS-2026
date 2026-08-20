@@ -3,14 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowUpRight, Clock3, Home, Mail, ShieldCheck } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import { PublicPageHeader } from "@/components/public-page-header";
 import { extractFirstImageFromHtml, resolveSeoImage } from "@/lib/seo/metadata";
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 type RecordPage = { title: string; slug: string; excerpt: string | null; content: string; seo_title: string | null; meta_description: string | null; tags: string[] | null; published_at: string | null; updated_at: string; featured_media: { secure_url: string; alt_text: string } | { secure_url: string; alt_text: string }[] | null };
 const pageLinks = [["About Us", "about-us"], ["Karir", "karir"], ["Pasang Iklan", "pasang-iklan"], ["Bantuan", "bantuan"], ["Kebijakan Privasi", "kebijakan-privasi"], ["Syarat & Ketentuan", "syarat-dan-ketentuan"], ["Pedoman Siber", "pedoman-siber"], ["Panduan Komunitas", "panduan-komunitas"], ["Disclaimer", "disclaimer"]];
 const legal = new Set(["kebijakan-privasi", "syarat-dan-ketentuan", "pedoman-siber", "panduan-komunitas", "disclaimer"]);
-async function loadPage(slug: string): Promise<RecordPage | null> { const supabase = await createClient(); const { data } = await supabase.from("pages").select("title,slug,excerpt,content,seo_title,meta_description,tags,published_at,updated_at,featured_media:media_assets(secure_url,alt_text)").eq("slug", slug).eq("status", "published").maybeSingle(); return data as RecordPage | null }
+async function loadPage(slug: string): Promise<RecordPage | null> { const supabase = createPublicClient(); const { data } = await supabase.from("pages").select("title,slug,excerpt,content,seo_title,meta_description,tags,published_at,updated_at,featured_media:media_assets(secure_url,alt_text)").eq("slug", slug).eq("status", "published").maybeSingle(); return data as RecordPage | null }
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const page = await loadPage((await params).slug);
     if (!page) return { title: "Page tidak ditemukan" };

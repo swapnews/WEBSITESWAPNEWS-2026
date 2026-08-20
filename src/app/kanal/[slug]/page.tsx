@@ -7,7 +7,7 @@ import { articleImage, formatRelativeDate, getPublicChannelData } from "@/lib/pu
 import { buildSocialMetadata, extractFirstImageFromHtml, resolveSeoImage } from "@/lib/seo/metadata";
 import { PublicSiteHeader } from "@/components/public-site-header";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 type Props = { params: Promise<{ slug: string }> };
 const variant = (slug: string) => slug.includes("game") ? "games" : slug.includes("sport") || slug.includes("bola") ? "sports" : slug.includes("bali") ? "bali" : slug.includes("musik") ? "music" : slug.includes("psikologi") ? "psychology" : "default";
 
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const lead = data.articles[0];
     const leadImageRaw = lead ? articleImage(lead) : "/og-default.jpg";
     const leadImage = leadImageRaw.startsWith("data:")
-        ? (extractFirstImageFromHtml(lead?.content) ?? resolveSeoImage(null))
+        ? resolveSeoImage(null)
         : resolveSeoImage(leadImageRaw);
     const canonicalPath = `/kanal/${data.category.slug}`;
     return {
