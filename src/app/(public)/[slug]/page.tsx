@@ -20,7 +20,7 @@ import {
     type PublicArticle,
 } from "@/lib/public-articles";
 import ArticleActions from "@/app/artikel/[slug]/article-actions";
-import { extractFirstImageFromHtml, resolveSeoImage } from "@/lib/seo/metadata";
+import { resolveSeoImage } from "@/lib/seo/metadata";
 import { PublicSiteHeader } from "@/components/public-site-header";
 import ArticleViewCounter from "@/components/article-view-counter";
 
@@ -123,14 +123,15 @@ function jsonLd(article: PublicArticle, imageUrl: string) {
 
 function splitContent(content: string) {
     if (isHtml(content)) {
-        const blocks = content.match(/<(?:p|h[1-6]|ul|ol|blockquote|figure|table)[\s\S]*?<\/(?:p|h[1-6]|ul|ol|blockquote|figure|table)>/gi);
-        return blocks?.length ? blocks : [content];
+        const blockPattern = /<(p|h[1-6]|ul|ol|blockquote|figure|table|pre)\b[^>]*>[\s\S]*?<\/\1\s*>|<(?:img|hr)\b[^>]*\/?\s*>/gi;
+        const blocks = Array.from(content.matchAll(blockPattern), (match) => match[0]);
+        return blocks.length ? blocks : [content];
     }
     return content.split(/\n{2,}/).map((paragraph) => paragraph.trim()).filter(Boolean);
 }
 
 function isHtml(value: string) {
-    return /<\/?(p|h[1-6]|ul|ol|li|blockquote|figure|img|hr|strong|em|a|code|table)[\s>]/i.test(value);
+    return /<\/?(p|h[1-6]|ul|ol|li|blockquote|figure|img|hr|strong|em|a|code|pre|table)[\s>]/i.test(value);
 }
 
 export default async function ArticlePage({ params }: Props) {

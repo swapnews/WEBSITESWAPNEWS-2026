@@ -50,7 +50,7 @@ export default async function NewArticlePage({ searchParams }: NewArticlePagePro
 
             <section className="dashboard-panel clay-card">
                 {error ? <div className="auth-alert error">{error}</div> : null}
-                <ArticleForm categories={categories} />
+                <ArticleForm categories={categories} canPublishDirect={profile.role === "super_admin"} />
             </section>
         </DashboardLayout>
     );

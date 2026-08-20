@@ -58,13 +58,20 @@ export async function createArticleAction(formData: FormData) {
     const content = getString(formData, "content");
     const categoryId = getNumber(formData, "category_id");
     const isExclusive = getBool(formData, "is_exclusive");
-    const status = getString(formData, "status") === "in_review" ? "in_review" : "draft";
+    const isSuperAdmin = profile.role === "super_admin";
+    const requestedStatus = getString(formData, "status");
+    if (requestedStatus === "publish_direct" && !isSuperAdmin) {
+        redirect("/dashboard/articles/new?error=Akses%20direct%20publish%20ditolak");
+    }
+    const directPublish = requestedStatus === "publish_direct";
+    const status = directPublish ? "published" : requestedStatus === "in_review" ? "in_review" : "draft";
     const requestedSlug = normalizeSlug(getString(formData, "slug"));
     const focusKeyword = getString(formData, "focus_keyword").slice(0, 120);
     const seoTitle = getString(formData, "seo_title").slice(0, 70);
     const metaDescription = getString(formData, "meta_description").slice(0, 170);
     const tags = parseTags(getString(formData, "tags"));
     const featuredMediaId = getString(formData, "featured_media_id") || null;
+    const publishedAt = directPublish ? new Date().toISOString() : null;
 
     if (!title || !content) redirect("/dashboard/articles/new?error=Judul%20dan%20konten%20wajib%20diisi");
     if (!requestedSlug || RESERVED_SLUGS.has(requestedSlug)) redirect("/dashboard/articles/new?error=Slug%20tidak%20valid%20atau%20dilarang");
@@ -90,6 +97,7 @@ export async function createArticleAction(formData: FormData) {
             tags,
             featured_media_id: featuredMediaId,
             reading_time_minutes: readingTime(content),
+            published_at: publishedAt,
         })
         .select("id")
         .single();
@@ -99,6 +107,10 @@ export async function createArticleAction(formData: FormData) {
     }
 
     revalidatePath("/dashboard/articles");
+    if (directPublish) {
+        revalidatePath("/");
+        revalidatePath(`/${slug}`);
+    }
     redirect(`/dashboard/articles/${data.id}`);
 }
 
@@ -112,7 +124,7 @@ export async function updateArticleAction(formData: FormData) {
     if (!id) redirect("/dashboard/articles");
 
     const supabase = await createClient();
-    const { data: existing, error: fetchError } = await supabase.from("articles").select("author_id,status").eq("id", id).single();
+    const { data: existing, error: fetchError } = await supabase.from("articles").select("author_id,status,slug").eq("id", id).single();
 
     if (fetchError || !existing) {
         redirect("/dashboard/articles?error=Artikel%20tidak%20ditemukan");
@@ -145,7 +157,16 @@ export async function updateArticleAction(formData: FormData) {
     let scheduledAt: string | null | undefined;
     let pointsToAward: number | undefined;
 
+    const isSuperAdmin = profile.role === "super_admin";
+    if (action === "publish_direct" && !isSuperAdmin) {
+        redirect(`/dashboard/articles/${id}?error=Akses%20direct%20publish%20ditolak`);
+    }
     if (action === "submit_review" && ["draft", "revision", "rejected"].includes(status)) status = "in_review";
+    if (action === "publish_direct") {
+        status = "published";
+        publishedAt = new Date().toISOString();
+        scheduledAt = null;
+    }
     if (action === "publish" && isAdmin) {
         const awardPoints = Math.floor(Number(getString(formData, "award_points")) || 0);
         if (awardPoints < 5) {
@@ -214,6 +235,11 @@ export async function updateArticleAction(formData: FormData) {
 
     revalidatePath("/dashboard/articles");
     revalidatePath(`/dashboard/articles/${id}`);
+    if (status === "published" || existing.status === "published") {
+        revalidatePath("/");
+        revalidatePath(`/${existing.slug}`);
+        if (slug !== existing.slug) revalidatePath(`/${slug}`);
+    }
     redirect(`/dashboard/articles/${id}`);
 }
 

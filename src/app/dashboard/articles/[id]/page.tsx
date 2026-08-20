@@ -79,7 +79,7 @@ export default async function EditArticlePage({ params, searchParams }: EditArti
 
             <section className="dashboard-panel clay-card">
                 {error ? <div className="auth-alert error">{error}</div> : null}
-                <ArticleForm article={article} categories={categories} canEdit={canEdit} canReview={canReview} />
+                <ArticleForm article={article} categories={categories} canEdit={canEdit} canReview={canReview} canPublishDirect={profile.role === "super_admin"} />
             </section>
             <section className="dashboard-panel clay-card editorial-history"><div><span className="eyebrow">Internal Desk</span><h2>Riwayat Editorial</h2></div>{!notes?.length && !audit?.length && <p>Belum ada catatan atau perubahan status.</p>}<div className="editorial-timeline">{notes?.map(note => <article key={note.id}><i /><div><b>Catatan redaksi</b><p>{note.note}</p><small>{new Date(note.created_at).toLocaleString("id-ID")}</small></div></article>)}{audit?.map(item => <article key={`audit-${item.id}`}><i /><div><b>Perubahan status</b><p>{item.from_status || "—"} → {item.to_status}</p><small>{new Date(item.created_at).toLocaleString("id-ID")}</small></div></article>)}</div></section>
         </DashboardLayout>

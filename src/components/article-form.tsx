@@ -34,6 +34,7 @@ type ArticleFormProps = {
     categories: Category[];
     canEdit?: boolean;
     canReview?: boolean;
+    canPublishDirect?: boolean;
 };
 
 const RESERVED_SLUGS = new Set([
@@ -51,7 +52,7 @@ function slugify(value: string) {
         .slice(0, 90);
 }
 
-export function ArticleForm({ article, categories, canEdit = true, canReview = false }: ArticleFormProps) {
+export function ArticleForm({ article, categories, canEdit = true, canReview = false, canPublishDirect = false }: ArticleFormProps) {
     const [featuredMediaId, setFeaturedMediaId] = useState(article?.featured_media_id || "");
     const [featuredMediaUrl, setFeaturedMediaUrl] = useState(article?.featured_media?.secure_url || "");
     const [featuredMediaAlt, setFeaturedMediaAlt] = useState(article?.featured_media?.alt_text || "");
@@ -218,6 +219,11 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
                             <button type="submit" name="status" value="draft" className="secondary-button" disabled={slugInvalid}>
                                 <Save size={16} /> Simpan Draft
                             </button>
+                            {canPublishDirect && article?.status !== "published" ? (
+                                <button type="submit" name={isEditing ? "action" : "status"} value="publish_direct" className="primary-button direct-publish-button" disabled={slugInvalid}>
+                                    <CheckCircle2 size={16} /> Terbitkan Langsung
+                                </button>
+                            ) : null}
                             {(!article || ["draft", "revision", "rejected"].includes(article.status)) ? (
                                 <button type="submit" name={isEditing ? "action" : "status"} value={isEditing ? "submit_review" : "in_review"} className="primary-button" disabled={slugInvalid}>
                                     <Send size={16} /> Kirim untuk Review
@@ -229,7 +235,7 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
                     {canReview && isEditing ? (
                         <>
                             {article.status === "in_review" ? <><button type="submit" name="action" value="revision" className="secondary-button"><Clock3 size={16} /> Minta Revisi</button><button type="submit" name="action" value="reject" className="secondary-button danger"><XCircle size={16} /> Tolak</button></> : null}
-                            {article.status !== "published" ? <button type="submit" name="action" value="publish" className="primary-button"><CheckCircle2 size={16} /> Terbitkan Sekarang</button> : null}
+                            {article.status !== "published" ? <button type="submit" name="action" value="publish" className="primary-button"><CheckCircle2 size={16} /> Terbitkan + Beri Poin</button> : null}
                             {article.status !== "published" ? <button type="submit" name="action" value="schedule" className="secondary-button"><Clock3 size={16} /> Jadwalkan</button> : null}
                             {article.status === "published" ? <button type="submit" name="action" value="revision" className="secondary-button"><XCircle size={16} /> Turunkan ke Revisi</button> : null}
                             {article.status === "published" ? <button type="submit" name="action" value="archive" className="secondary-button">Arsipkan</button> : null}

@@ -143,7 +143,16 @@
     max-width: 100%;
     height: auto;
     margin: 24px auto;
-    border-radius: 18px
+    border: 1px solid #f3d5c5;
+    border-radius: 18px;
+    box-shadow: 0 16px 38px rgba(81, 34, 12, .12);
+    transition: border-color .18s, box-shadow .18s, transform .18s
+}
+
+.rich-editor-content img.ProseMirror-selectednode {
+    border-color: #ff5a1f;
+    box-shadow: 0 0 0 4px rgba(255, 90, 31, .16), 0 18px 42px rgba(81, 34, 12, .18);
+    transform: translateY(-2px)
 }
 
 .rich-editor-content a {
@@ -182,6 +191,62 @@
     border-radius: 22px;
     background: #fff;
     color: #718983
+}
+
+.rich-context-menu {
+    z-index: 180;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    max-width: min(94vw, 420px);
+    padding: 6px;
+    overflow-x: auto;
+    border: 1px solid rgba(255, 135, 72, .28);
+    border-radius: 15px;
+    background: rgba(31, 25, 22, .96);
+    box-shadow: 0 18px 46px rgba(35, 18, 9, .28);
+    scrollbar-width: none;
+    backdrop-filter: blur(18px)
+}
+
+.rich-context-menu::-webkit-scrollbar {
+    display: none
+}
+
+.rich-context-menu button {
+    display: grid;
+    place-items: center;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    color: #fff7f2;
+    transition: background .16s, color .16s, transform .16s
+}
+
+.rich-context-menu button:hover,
+.rich-context-menu button.active {
+    border-color: rgba(255, 177, 135, .35);
+    background: #ff5a1f;
+    color: #fff;
+    transform: translateY(-1px)
+}
+
+.rich-context-menu button:focus-visible,
+.rich-editor-toolbar button:focus-visible {
+    outline: 3px solid rgba(255, 90, 31, .34);
+    outline-offset: 2px
+}
+
+.rich-context-menu svg {
+    width: 18px;
+    height: 18px
+}
+
+.rich-context-menu .context-image-button {
+    background: rgba(255, 90, 31, .18);
+    color: #ffb187
 }
 
 @media(max-width:700px) {
@@ -277,5 +342,24 @@
         max-height: 88dvh;
         overflow: auto;
         padding: 12px
+    }
+
+    .rich-context-menu {
+        max-width: calc(100vw - 16px);
+        padding: 5px;
+        border-radius: 14px
+    }
+
+    .rich-context-menu button {
+        flex-basis: 44px
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .rich-editor-toolbar button,
+    .rich-context-menu button,
+    .rich-editor-content img {
+        transition: none
     }
 }
