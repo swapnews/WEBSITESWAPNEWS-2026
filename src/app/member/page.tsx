@@ -28,7 +28,7 @@ export default async function MemberDashboardPage() {
         <main className="member-page">
             <header className="member-head">
                 <span>AREA MEMBER</span>
-                <h1>Halo, {profile.full_name || profile.email}</h1>
+                <h1>Halo, <Link id="member-profile-name" href="/profile">{profile.full_name || profile.email}</Link></h1>
                 <p>{membership ? `Membership aktif sampai ${new Date(membership.expires_at).toLocaleDateString("id-ID", { dateStyle: "long" })}` : "Membership belum aktif."}</p>
             </header>
 
@@ -46,6 +46,7 @@ export default async function MemberDashboardPage() {
             </section>
 
             <div className="member-actions">
+                <Link id="member-edit-profile" href="/profile">Edit Profile</Link>
                 <Link href="/member/kirim-berita">Kirim berita</Link>
                 <Link href="/member/redeem">Redeem poin</Link>
                 <Link href="/merchandise">Merchandise</Link>

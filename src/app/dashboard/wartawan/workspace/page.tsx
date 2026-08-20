@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CheckCircle2, Clock3, FileCheck2, XCircle } from "lucide-react";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
@@ -24,8 +25,8 @@ export default async function WartawanWorkspacePage({ searchParams }: { searchPa
     const revision = (mine ?? []).filter((x) => x.status === "revision").length;
     return <main className="wartawan-workspace">
         <section className="wartawan-hero">
-            <AvatarUpload avatarUrl={profile.avatar_url} />
-            <div><span className="eyebrow">RUANG KERJA WARTAWAN</span><h1>Halo, {profile.full_name || "Wartawan SwapNews"}</h1><p>Review berita member dengan teliti, cepat, dan berintegritas.</p></div>
+            <AvatarUpload avatarUrl={profile.avatar_url} name={profile.full_name || "Wartawan SwapNews"} />
+            <div><span className="eyebrow">RUANG KERJA WARTAWAN</span><h1>Halo, <Link id="wartawan-profile-name" href="/profile">{profile.full_name || "Wartawan SwapNews"}</Link></h1><p>Review berita member dengan teliti, cepat, dan berintegritas.</p><Link id="wartawan-edit-profile" href="/profile">Edit Profile</Link></div>
             <div className="wartawan-points"><small>POIN ANDA</small><strong>{balance ?? 0}</strong><span>1 poin = Rp1.000</span></div>
         </section>
         {message && <div className="wartawan-notice">{message}</div>}

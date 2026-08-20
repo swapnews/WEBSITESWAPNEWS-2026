@@ -152,7 +152,7 @@
     scrollbar-width: thin;
 }
 
-.dash-nav-group + .dash-nav-group {
+.dash-nav-group+.dash-nav-group {
     margin-top: 20px;
 }
 
@@ -382,11 +382,18 @@
     height: 36px;
     flex: 0 0 auto;
     place-items: center;
+    overflow: hidden;
     border-radius: 10px;
     background: var(--dash-accent-soft);
     color: var(--dash-accent-strong);
     font-size: 13px;
     font-weight: 900;
+}
+
+.dash-avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .dash-user-meta {
@@ -668,7 +675,7 @@
     border-radius: 18px;
 }
 
-.dash-shell .dashboard-hero > svg {
+.dash-shell .dashboard-hero>svg {
     flex: 0 0 auto;
     color: var(--dash-accent);
 }
@@ -881,19 +888,26 @@
 }
 
 @keyframes dash-fade-in {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.dash-container > * {
+.dash-container>* {
     animation: dash-fade-in 220ms ease both;
 }
 
-.dash-container > *:nth-child(2) {
+.dash-container>*:nth-child(2) {
     animation-delay: 35ms;
 }
 
-.dash-container > *:nth-child(3) {
+.dash-container>*:nth-child(3) {
     animation-delay: 65ms;
 }
 
@@ -916,9 +930,9 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .dash-shell .mint-column > *:first-child:last-child,
-    .dash-shell .mint-column > .mint-table-card,
-    .dash-shell .mint-column > .mint-callout-banner {
+    .dash-shell .mint-column>*:first-child:last-child,
+    .dash-shell .mint-column>.mint-table-card,
+    .dash-shell .mint-column>.mint-callout-banner {
         grid-column: 1 / -1;
     }
 }
@@ -1102,13 +1116,23 @@
     }
 
     @keyframes dash-overlay-in {
-        from { opacity: 0; }
-        to { opacity: 1; }
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
     }
 
     @keyframes dash-drawer-in {
-        from { transform: translateX(-100%); }
-        to { transform: translateX(0); }
+        from {
+            transform: translateX(-100%);
+        }
+
+        to {
+            transform: translateX(0);
+        }
     }
 }
 
@@ -1202,7 +1226,7 @@
         font-size: 25px;
     }
 
-    .dash-shell .dashboard-hero > svg {
+    .dash-shell .dashboard-hero>svg {
         width: 30px;
         height: 30px;
     }
@@ -1223,6 +1247,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     .dash-shell *,
     .dash-mobile-overlay * {
         scroll-behavior: auto !important;

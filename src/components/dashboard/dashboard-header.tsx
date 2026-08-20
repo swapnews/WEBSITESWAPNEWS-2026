@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Plus, Globe, Shield } from "lucide-react";
 import type { Profile } from "@/lib/auth/get-profile";
@@ -39,15 +40,17 @@ export function DashboardHeader({ profile, title = "Dashboard", description }: D
                     </Link>
                 </div>
 
-                <div className="dash-user-profile-pill" aria-label={`${name}, ${roleLabel}`}>
-                    <div className="dash-avatar-circle" aria-hidden="true">{initial}</div>
+                <Link id="dashboard-profile-link" href="/profile" className="dash-user-profile-pill" aria-label={`Edit profile ${name}, ${roleLabel}`}>
+                    <div className="dash-avatar-circle" aria-hidden="true">
+                        {profile.avatar_url ? <Image src={profile.avatar_url} alt="" width={40} height={40} unoptimized /> : initial}
+                    </div>
                     <div className="dash-user-meta">
                         <span className="dash-user-name-text">{name}</span>
                         <small className="dash-user-role-text">
                             <Shield size={11} /> {roleLabel}
                         </small>
                     </div>
-                </div>
+                </Link>
             </div>
         </header>
     );

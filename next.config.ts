@@ -54,6 +54,15 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: "/profile/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store, max-age=0, must-revalidate",
+          },
+        ],
+      },
     ];
   },
 };

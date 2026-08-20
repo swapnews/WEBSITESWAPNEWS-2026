@@ -13,8 +13,32 @@ create table public.profiles (
   email text not null unique,
   full_name text,
   avatar_url text,
+  username text,
+  ktp_url text,
+  whatsapp text,
+  instagram_handle text,
+  address text,
+  bio text,
+  birth_date date,
+  gender text,
+  profession text,
+  city text,
+  province text,
+  postal_code text,
+  press_card_number text,
+  wartawan_status text not null default 'none',
   role public.app_role not null default 'visitor',
   is_member boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.profile_payout_accounts (
+  user_id uuid primary key references public.profiles(id) on delete cascade,
+  payout_type text not null default 'bank' check (payout_type in ('bank', 'ewallet')),
+  provider_name text not null,
+  account_number text not null,
+  account_holder text not null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -134,6 +158,10 @@ create trigger profiles_set_updated_at
 before update on public.profiles
 for each row execute function public.set_updated_at();
 
+create trigger profile_payout_accounts_set_updated_at
+before update on public.profile_payout_accounts
+for each row execute function public.set_updated_at();
+
 create trigger categories_set_updated_at
 before update on public.categories
 for each row execute function public.set_updated_at();
@@ -151,6 +179,7 @@ before update on public.comments
 for each row execute function public.set_updated_at();
 
 alter table public.profiles enable row level security;
+alter table public.profile_payout_accounts enable row level security;
 alter table public.categories enable row level security;
 alter table public.media_assets enable row level security;
 alter table public.articles enable row level security;
@@ -239,6 +268,26 @@ create policy "Super admins can manage profiles"
 on public.profiles for all
 using (public.is_super_admin())
 with check (public.is_super_admin());
+
+revoke all on table public.profile_payout_accounts from anon;
+grant select, insert, update, delete on table public.profile_payout_accounts to authenticated;
+
+create policy "Users read own payout account"
+on public.profile_payout_accounts for select
+using (auth.uid() = user_id);
+
+create policy "Users create own payout account"
+on public.profile_payout_accounts for insert
+with check (auth.uid() = user_id);
+
+create policy "Users update own payout account"
+on public.profile_payout_accounts for update
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+create policy "Users delete own payout account"
+on public.profile_payout_accounts for delete
+using (auth.uid() = user_id);
 
 create policy "Content managers can read media"
 on public.media_assets for select
