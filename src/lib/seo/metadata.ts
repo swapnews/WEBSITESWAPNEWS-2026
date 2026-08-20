@@ -23,16 +23,24 @@ function isValidHttpUrl(value: string): boolean {
     return value.startsWith("http://") || value.startsWith("https://");
 }
 
-/** Optimasi URL Cloudinary untuk OG: paksa 1200x630, kualitas auto, format JPEG.
- *  Dipaksa JPEG (.jpg) karena WhatsApp/Facebook scraper menolak format .webp
- *  dan memerlukan ekstensi file berakhiran .jpg serta ukuran <300KB. */
+/** Optimasi URL Cloudinary untuk OG: paksa 1200x630, format JPEG, cache publik.
+ *
+ *  PENTING — `q_auto` TIDAK BOLEH DIPAKAI di sini.
+ *  `q_auto` membuat Cloudinary menyesuaikan output per-klien, sehingga respons
+ *  dikirim dengan `Cache-Control: private` + `Vary: Save-Data`. Scraper
+ *  WhatsApp/Facebook bekerja sebagai *shared cache*, dan menolak mengambil
+ *  gambar yang ditandai `private` — inilah penyebab preview tidak muncul
+ *  meski seluruh meta tag sudah benar.
+ *  `q_auto:good` menghasilkan byte yang identik namun dengan header
+ *  `Cache-Control: public`, sehingga bisa diambil scraper. */
 export function transformOgImage(url: string): string {
     const marker = "/image/upload/";
     if (!url.includes("res.cloudinary.com") || !url.includes(marker)) return url;
     const markerIndex = url.indexOf(marker);
     const base = url.slice(0, markerIndex + marker.length);
     const tail = url.slice(markerIndex + marker.length);
-    const ogTransform = "w_1200,h_630,c_fill,q_auto,f_jpg";
+    // q_auto:good (BUKAN q_auto) agar Cloudinary mengirim Cache-Control: public.
+    const ogTransform = "w_1200,h_630,c_fill,q_auto:good,f_jpg";
     const segments = tail.split("/").filter(Boolean);
     // Potong segmen transformasi lama jika ada
     const isTransformSegment = (seg: string) => /^[a-z]+_/.test(seg) && !seg.includes(".");
