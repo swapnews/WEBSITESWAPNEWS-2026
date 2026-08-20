@@ -60,7 +60,7 @@ create table public.articles (
   featured_media_id uuid references public.media_assets(id) on delete set null,
   published_at timestamptz,
   scheduled_at timestamptz,
-  view_count integer not null default 0,
+  view_count integer not null default 182,
   reading_time_minutes integer not null default 1,
   is_exclusive boolean not null default false,
   created_at timestamptz not null default now(),
@@ -291,7 +291,7 @@ declare
   next_count integer;
 begin
   update public.articles
-  set view_count = view_count + 1
+  set view_count = greatest(coalesce(view_count, 0), 182) + 1
   where id = article_uuid and status = 'published'
   returning view_count into next_count;
 
