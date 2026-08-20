@@ -242,15 +242,18 @@ async function fetchMediaMap(supabase: ReadClient, mediaIds: string[]) {
         return result.data ?? [];
     };
 
-    let media = await selectMedia(supabase);
-    if (media.length < mediaIds.length) {
-        const serviceClient = createMediaServiceClient();
-        if (serviceClient) {
+    let media: { id: string; secure_url: string; alt_text?: string | null; title?: string | null }[] = [];
+    const serviceClient = createMediaServiceClient();
+    const primaryClient = serviceClient ? (serviceClient as ReadClient) : supabase;
+
+    try {
+        media = await selectMedia(primaryClient);
+    } catch {
+        if (primaryClient !== supabase) {
             try {
-                const serviceMedia = await selectMedia(serviceClient as ReadClient);
-                if (serviceMedia.length > media.length) media = serviceMedia;
+                media = await selectMedia(supabase);
             } catch (error) {
-                console.error("Failed to load Cloudinary media with service client", error);
+                console.error("Failed to load media assets", error);
             }
         }
     }
@@ -259,7 +262,7 @@ async function fetchMediaMap(supabase: ReadClient, mediaIds: string[]) {
         media.map((item) => [item.id, {
             secure_url: item.secure_url,
             alt_text: item.alt_text || item.title || "Gambar artikel",
-            title: item.title,
+            title: item.title ?? null,
         }]),
     );
 }

@@ -54,9 +54,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     let imageUrl: string;
 
     if (imageRaw.startsWith("data:")) {
-        // Featured media berupa data URI (artefak import WP) → ambil gambar valid dari konten
-        const contentImage = extractFirstImageFromHtml(article.content);
-        imageUrl = contentImage ? resolveSeoImage(contentImage) : resolveSeoImage(null);
+        // Featured media berupa data URI (base64) → arahkan ke endpoint OG image publik
+        imageUrl = `https://swapnews.co.id/og-image/${article.slug}.jpg`;
     } else {
         imageUrl = resolveSeoImage(imageRaw);
     }
