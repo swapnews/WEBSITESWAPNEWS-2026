@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
+import { useFormStatus } from "react-dom";
 import Image from "next/image";
 import {
-    Save, Send, CheckCircle2, Clock3, XCircle, Trash2,
+    Save, Send, CheckCircle2, Clock3, XCircle, Trash2, LoaderCircle,
     ScanSearch, WandSparkles, ShieldAlert,
 } from "lucide-react";
 
@@ -52,6 +53,33 @@ function slugify(value: string) {
         .slice(0, 90);
 }
 
+type FormSubmitButtonProps = {
+    children: ReactNode;
+    className: string;
+    disabled?: boolean;
+    name?: string;
+    value?: string;
+    pendingLabel: string;
+};
+
+function FormSubmitButton({ children, className, disabled, name, value, pendingLabel }: FormSubmitButtonProps) {
+    const { pending, data } = useFormStatus();
+    const isActive = pending && (!name || data?.get(name) === value);
+
+    return (
+        <button
+            type="submit"
+            name={name}
+            value={value}
+            className={className}
+            disabled={disabled || pending}
+            aria-busy={isActive}
+        >
+            {isActive ? <><LoaderCircle className="submit-spinner" size={16} /> {pendingLabel}</> : children}
+        </button>
+    );
+}
+
 export function ArticleForm({ article, categories, canEdit = true, canReview = false, canPublishDirect = false }: ArticleFormProps) {
     const [featuredMediaId, setFeaturedMediaId] = useState(article?.featured_media_id || "");
     const [featuredMediaUrl, setFeaturedMediaUrl] = useState(article?.featured_media?.secure_url || "");
@@ -65,6 +93,7 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
     const [excerpt, setExcerpt] = useState(article?.excerpt || "");
     const [tags, setTags] = useState((article?.tags ?? []).join(", "));
     const [content, setContent] = useState(article?.content || "");
+    const [categoryId, setCategoryId] = useState(article?.category_id ? String(article.category_id) : "");
     const [mediaOpen, setMediaOpen] = useState(false);
     const [editorImage, setEditorImage] = useState<{ url: string; alt: string } | null>(null);
     const [qualityScan, setQualityScan] = useState<EditorialScan | null>(null);
@@ -135,7 +164,7 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
 
                     <label>
                         Kategori Kanal
-                        <select name="category_id" defaultValue={article?.category_id ?? ""} disabled={!canEdit}>
+                        <select name="category_id" value={categoryId} onChange={(event) => setCategoryId(event.target.value)} disabled={!canEdit}>
                             <option value="">Pilih Kategori</option>
                             {categories.map((category) => (
                                 <option key={category.id} value={category.id}>
@@ -143,6 +172,7 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
                                 </option>
                             ))}
                         </select>
+                        {!categoryId ? <small className="field-hint">Kategori wajib sebelum artikel dikirim atau diterbitkan.</small> : null}
                     </label>
 
                     <label className="checkbox">
@@ -216,29 +246,29 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
                 <div className="cms-actions">
                     {canEdit ? (
                         <>
-                            <button type="submit" name="status" value="draft" className="secondary-button" disabled={slugInvalid}>
+                            <FormSubmitButton name="status" value="draft" className="secondary-button" disabled={slugInvalid} pendingLabel="Menyimpan…">
                                 <Save size={16} /> Simpan Draft
-                            </button>
+                            </FormSubmitButton>
                             {canPublishDirect && article?.status !== "published" ? (
-                                <button type="submit" name={isEditing ? "action" : "status"} value="publish_direct" className="primary-button direct-publish-button" disabled={slugInvalid}>
+                                <FormSubmitButton name={isEditing ? "action" : "status"} value="publish_direct" className="primary-button direct-publish-button" disabled={slugInvalid || !categoryId} pendingLabel="Menerbitkan…">
                                     <CheckCircle2 size={16} /> Terbitkan Langsung
-                                </button>
+                                </FormSubmitButton>
                             ) : null}
                             {(!article || ["draft", "revision", "rejected"].includes(article.status)) ? (
-                                <button type="submit" name={isEditing ? "action" : "status"} value={isEditing ? "submit_review" : "in_review"} className="primary-button" disabled={slugInvalid}>
+                                <FormSubmitButton name={isEditing ? "action" : "status"} value={isEditing ? "submit_review" : "in_review"} className="primary-button" disabled={slugInvalid || !categoryId} pendingLabel="Mengirim…">
                                     <Send size={16} /> Kirim untuk Review
-                                </button>
+                                </FormSubmitButton>
                             ) : null}
                         </>
                     ) : null}
 
                     {canReview && isEditing ? (
                         <>
-                            {article.status === "in_review" ? <><button type="submit" name="action" value="revision" className="secondary-button"><Clock3 size={16} /> Minta Revisi</button><button type="submit" name="action" value="reject" className="secondary-button danger"><XCircle size={16} /> Tolak</button></> : null}
-                            {article.status !== "published" ? <button type="submit" name="action" value="publish" className="primary-button"><CheckCircle2 size={16} /> Terbitkan + Beri Poin</button> : null}
-                            {article.status !== "published" ? <button type="submit" name="action" value="schedule" className="secondary-button"><Clock3 size={16} /> Jadwalkan</button> : null}
-                            {article.status === "published" ? <button type="submit" name="action" value="revision" className="secondary-button"><XCircle size={16} /> Turunkan ke Revisi</button> : null}
-                            {article.status === "published" ? <button type="submit" name="action" value="archive" className="secondary-button">Arsipkan</button> : null}
+                            {article.status === "in_review" ? <><FormSubmitButton name="action" value="revision" className="secondary-button" pendingLabel="Memproses…"><Clock3 size={16} /> Minta Revisi</FormSubmitButton><FormSubmitButton name="action" value="reject" className="secondary-button danger" pendingLabel="Menolak…"><XCircle size={16} /> Tolak</FormSubmitButton></> : null}
+                            {article.status !== "published" ? <FormSubmitButton name="action" value="publish" className="primary-button" disabled={!categoryId} pendingLabel="Menerbitkan…"><CheckCircle2 size={16} /> Terbitkan + Beri Poin</FormSubmitButton> : null}
+                            {article.status !== "published" ? <FormSubmitButton name="action" value="schedule" className="secondary-button" disabled={!categoryId} pendingLabel="Menjadwalkan…"><Clock3 size={16} /> Jadwalkan</FormSubmitButton> : null}
+                            {article.status === "published" ? <FormSubmitButton name="action" value="revision" className="secondary-button" pendingLabel="Memproses…"><XCircle size={16} /> Turunkan ke Revisi</FormSubmitButton> : null}
+                            {article.status === "published" ? <FormSubmitButton name="action" value="archive" className="secondary-button" pendingLabel="Mengarsipkan…">Arsipkan</FormSubmitButton> : null}
                         </>
                     ) : null}
                 </div>

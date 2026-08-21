@@ -19,6 +19,7 @@
     "@tiptap/react": "^3.30.0",
     "@tiptap/starter-kit": "^3.30.0",
     "@types/nodemailer": "^8.0.1",
+    "@upstash/redis": "^1.38.2",
     "cloudinary": "^2.10.0",
     "framer-motion": "^13.0.0",
     "lucide-react": "^1.31.0",

@@ -4,10 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
-    Bell, Bookmark, BookOpen, BriefcaseBusiness, Building2, Car, CircleUserRound,
-    Clapperboard, Flame, HeartPulse, Home, House, Laptop, Moon, Newspaper,
-    Plane, Radio, Rows3, Search, Sparkles, Sun, Trophy, Utensils, X, Zap,
+    Bell, Bookmark, CircleUserRound, Home, Moon,
+    Radio, Rows3, Search, Sun, X, Zap,
 } from "lucide-react";
+
+import { AdSlotFrame } from "@/components/ads/ad-slot";
+import type { AdSlot } from "@/lib/ads/types";
 
 export const PUBLIC_TOPICS = [
     { name: "News", slug: "news" }, { name: "Finance", slug: "finance" },
@@ -25,16 +27,17 @@ export function PublicSiteHeader({
     backHref,
     categoryName,
     tickerText,
+    headerAd,
 }: {
     backHref?: string;
     categoryName?: string;
     tickerText?: string;
+    headerAd?: AdSlot | null;
 }) {
     const [dark, setDark] = useState(true);
     const [compact, setCompact] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [savedOpen, setSavedOpen] = useState(false);
-    const [savedSlugs, setSavedSlugs] = useState<string[]>([]);
     const [savedArticles, setSavedArticles] = useState<{ slug: string; title: string; image: string }[]>([]);
 
     useEffect(() => {
@@ -44,7 +47,6 @@ export function PublicSiteHeader({
         const timer = window.setTimeout(() => {
             setDark(chosen);
             setCompact(localStorage.getItem("swapnews-density") === "compact");
-            setSavedSlugs(JSON.parse(localStorage.getItem("swapnews-bookmarks") || "[]"));
         }, 0);
         const onScroll = () => setScrolled(window.scrollY > 24);
         onScroll();
@@ -52,13 +54,12 @@ export function PublicSiteHeader({
         return () => { window.clearTimeout(timer); removeEventListener("scroll", onScroll); };
     }, []);
 
-    useEffect(() => {
-        if (!savedOpen) return;
+    const openSaved = () => {
         const slugs = JSON.parse(localStorage.getItem("swapnews-bookmarks") || "[]") as string[];
-        setSavedSlugs(slugs);
         const cached = JSON.parse(localStorage.getItem("swapnews-bookmark-cache") || "{}") as Record<string, { title: string; image: string }>;
         setSavedArticles(slugs.map((slug) => ({ slug, ...(cached[slug] ?? { title: slug, image: "/swapnews-logo.png" }) })));
-    }, [savedOpen]);
+        setSavedOpen(true);
+    };
 
     const switchTheme = () => {
         const next = !dark;
@@ -91,7 +92,7 @@ export function PublicSiteHeader({
                     <Image className="logo-white" src="/swapnews-logo-white.png" alt="SwapNews" width={164} height={48} priority />
                     <Image className="logo-accent" src="/swapnews-logo-accent.png" alt="SwapNews" width={164} height={48} priority />
                 </Link>
-                <div className="desktop-ad"><small>IKLAN</small><strong>Ruang Brand Premium SwapNews</strong><span>970 × 90</span></div>
+                <div className="desktop-ad-slot"><AdSlotFrame slot={headerAd} /></div>
                 <form className="desktop-search" action="/cari"><Search /><input name="q" aria-label="Cari berita" placeholder="Cari berita, topik, atau tokoh..." /><kbd>Ctrl K</kbd></form>
                 <div className="news-actions">
                     <Link id="news-search" href="/cari" aria-label="Cari berita" className="news-icon-link"><Search /></Link>
@@ -122,7 +123,7 @@ export function PublicSiteHeader({
                 <Link className="active" href="/"><Home /><span>Beranda</span></Link>
                 <Link id="explore" href="/cari"><Radio /><span>Eksplor</span></Link>
                 <Link id="create-news" className="create-button" href="/member/kirim-berita" aria-label="Buat berita"><Zap /></Link>
-                <button id="saved-news" onClick={() => setSavedOpen(true)}><Bookmark /><span>Tersimpan</span></button>
+                <button id="saved-news" onClick={openSaved}><Bookmark /><span>Tersimpan</span></button>
                 <Link id="profile" href="/member"><CircleUserRound /><span>Profil</span></Link>
             </nav>
 

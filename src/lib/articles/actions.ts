@@ -15,8 +15,10 @@ function getString(formData: FormData, key: string) {
 
 function getNumber(formData: FormData, key: string) {
     const value = getString(formData, key);
+    if (!value) return null;
+
     const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : null;
+    return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
 function getBool(formData: FormData, key: string) {
@@ -75,10 +77,28 @@ export async function createArticleAction(formData: FormData) {
 
     if (!title || !content) redirect("/dashboard/articles/new?error=Judul%20dan%20konten%20wajib%20diisi");
     if (!requestedSlug || RESERVED_SLUGS.has(requestedSlug)) redirect("/dashboard/articles/new?error=Slug%20tidak%20valid%20atau%20dilarang");
+    if ((directPublish || status === "in_review") && categoryId === null) {
+        redirect("/dashboard/articles/new?error=Kategori%20wajib%20dipilih%20sebelum%20artikel%20dikirim%20atau%20diterbitkan");
+    }
     if (await slugExists(requestedSlug)) redirect("/dashboard/articles/new?error=Slug%20sudah%20digunakan");
 
     const supabase = await createClient();
     const slug = requestedSlug;
+    let categorySlug: string | null = null;
+
+    if (categoryId !== null) {
+        const { data: category, error: categoryError } = await supabase
+            .from("categories")
+            .select("slug")
+            .eq("id", categoryId)
+            .maybeSingle();
+
+        if (categoryError || !category) {
+            console.error("createArticleAction category lookup failed", { categoryId, categoryError });
+            redirect("/dashboard/articles/new?error=Kategori%20tidak%20valid.%20Pilih%20kategori%20kembali");
+        }
+        categorySlug = category.slug;
+    }
 
     const { data, error } = await supabase
         .from("articles")
@@ -103,15 +123,24 @@ export async function createArticleAction(formData: FormData) {
         .single();
 
     if (error || !data) {
-        redirect(`/dashboard/articles/new?error=${encodeURIComponent(error?.message ?? "Gagal membuat artikel")}`);
+        console.error("createArticleAction insert failed", {
+            code: error?.code,
+            message: error?.message,
+            details: error?.details,
+        });
+        const code = error?.code ? ` (${error.code})` : "";
+        redirect(`/dashboard/articles/new?error=${encodeURIComponent(`Gagal menyimpan artikel${code}. Silakan coba lagi.`)}`);
     }
 
     revalidatePath("/dashboard/articles");
     if (directPublish) {
         revalidatePath("/");
         revalidatePath(`/${slug}`);
+        revalidatePath("/sitemap.xml");
+        if (categorySlug) revalidatePath(`/kanal/${categorySlug}`);
+        redirect(`/dashboard/articles?success=${encodeURIComponent(`Artikel “${title}” berhasil diterbitkan`)}`);
     }
-    redirect(`/dashboard/articles/${data.id}`);
+    redirect(`/dashboard/articles/${data.id}?success=${encodeURIComponent("Draft artikel berhasil dibuat")}`);
 }
 
 export async function updateArticleAction(formData: FormData) {
@@ -124,9 +153,13 @@ export async function updateArticleAction(formData: FormData) {
     if (!id) redirect("/dashboard/articles");
 
     const supabase = await createClient();
-    const { data: existing, error: fetchError } = await supabase.from("articles").select("author_id,status,slug").eq("id", id).single();
+    const { data: existing, error: fetchError } = await supabase.from("articles").select("author_id,status,slug").eq("id", id).maybeSingle();
 
-    if (fetchError || !existing) {
+    if (fetchError) {
+        console.error("updateArticleAction article lookup failed", { id, code: fetchError.code, message: fetchError.message });
+        redirect(`/dashboard/articles?error=${encodeURIComponent(`Gagal membaca artikel (${fetchError.code}). Silakan coba lagi.`)}`);
+    }
+    if (!existing) {
         redirect("/dashboard/articles?error=Artikel%20tidak%20ditemukan");
     }
 
@@ -191,6 +224,25 @@ export async function updateArticleAction(formData: FormData) {
     }
     if (action === "reject" && isAdmin) status = "rejected";
 
+    if (["published", "in_review", "scheduled"].includes(status) && categoryId === null) {
+        redirect(`/dashboard/articles/${id}?error=Kategori%20wajib%20dipilih%20sebelum%20artikel%20dikirim%20atau%20diterbitkan`);
+    }
+
+    let categorySlug: string | null = null;
+    if (categoryId !== null) {
+        const { data: category, error: categoryError } = await supabase
+            .from("categories")
+            .select("slug")
+            .eq("id", categoryId)
+            .maybeSingle();
+
+        if (categoryError || !category) {
+            console.error("updateArticleAction category lookup failed", { id, categoryId, categoryError });
+            redirect(`/dashboard/articles/${id}?error=Kategori%20tidak%20valid.%20Pilih%20kategori%20kembali`);
+        }
+        categorySlug = category.slug;
+    }
+
     const updates: Record<string, unknown> = {
         title,
         excerpt: excerpt || null,
@@ -216,7 +268,8 @@ export async function updateArticleAction(formData: FormData) {
     const { error } = await supabase.from("articles").update(updates).eq("id", id);
 
     if (error) {
-        redirect(`/dashboard/articles/${id}?error=${encodeURIComponent(error.message)}`);
+        console.error("updateArticleAction update failed", { id, code: error.code, message: error.message, details: error.details });
+        redirect(`/dashboard/articles/${id}?error=${encodeURIComponent(`Gagal menyimpan artikel (${error.code}). Silakan coba lagi.`)}`);
     }
 
     // Award dynamic points to author when article is published with rating >= 5
@@ -238,9 +291,14 @@ export async function updateArticleAction(formData: FormData) {
     if (status === "published" || existing.status === "published") {
         revalidatePath("/");
         revalidatePath(`/${existing.slug}`);
+        revalidatePath("/sitemap.xml");
         if (slug !== existing.slug) revalidatePath(`/${slug}`);
+        if (categorySlug) revalidatePath(`/kanal/${categorySlug}`);
     }
-    redirect(`/dashboard/articles/${id}`);
+    if (action === "publish_direct") {
+        redirect(`/dashboard/articles?success=${encodeURIComponent(`Artikel “${title}” berhasil diterbitkan`)}`);
+    }
+    redirect(`/dashboard/articles/${id}?success=${encodeURIComponent("Perubahan artikel berhasil disimpan")}`);
 }
 
 export async function deleteArticleAction(formData: FormData) {

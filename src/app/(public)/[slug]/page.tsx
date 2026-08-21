@@ -7,7 +7,8 @@ import { Clock3 } from "lucide-react";
 import ArticleComments from "@/components/article-comments";
 import ArticleCopyAttribution from "@/components/article-copy-attribution";
 import ArticleExperience from "@/components/article-experience";
-import { sanitizeAdHtml } from "@/lib/article-insertions";
+import { AdSlotFrame } from "@/components/ads/ad-slot";
+import { getActiveAdSlots } from "@/lib/ads/data";
 import { getArticleInsertions } from "@/lib/article-insertions-data";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import {
@@ -145,7 +146,11 @@ export default async function ArticlePage({ params }: Props) {
     // cookies() — kalau tersentuh, rute berubah dinamis dan ISR mati.
     const profile = article.is_exclusive ? await getCurrentProfile() : null;
     const locked = article.is_exclusive && !profile?.is_member;
-    const { insertions, product } = await getArticleInsertions();
+    const [{ insertions, product }, ads] = await Promise.all([
+        getArticleInsertions(),
+        getActiveAdSlots(),
+    ]);
+    const ad = (key: string) => ads.find((slot) => slot.slot_key === key);
     const contentBlocks = splitContent(article.content);
     const contentIsHtml = isHtml(article.content);
     const visibleBlocks = locked ? contentBlocks.slice(0, 2) : contentBlocks;
@@ -160,7 +165,7 @@ export default async function ArticlePage({ params }: Props) {
         <div className="public-article-shell article-2026-shell news-app">
             <ArticleExperience slug={article.slug} headings={headingLabels} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(article, ogImageUrl)) }} />
-            <PublicSiteHeader backHref="/" categoryName={article.category_name} tickerText={tickerText} />
+            <PublicSiteHeader backHref="/" categoryName={article.category_name} tickerText={tickerText} headerAd={locked ? null : ad("global_header_leaderboard")} />
 
             <main className="public-article-layout">
                 <article className="public-article">
@@ -178,6 +183,7 @@ export default async function ArticlePage({ params }: Props) {
                         {article.featured_media?.title && <figcaption>{article.featured_media.title}</figcaption>}
                     </figure>
                     <ArticleActions articleId={article.id} slug={article.slug} title={article.title} excerpt={article.excerpt} copyMessage={insertions.copy_message} />
+                    {!locked && <AdSlotFrame slot={ad("article_top_leaderboard")} />}
                     <section className="article-takeaways"><span>INTI BERITA</span><h2>Yang perlu Anda ketahui</h2><p>{article.excerpt}</p><div><b>{readingMinutes} menit baca</b><b><ArticleViewCounter articleId={article.id} initialCount={article.view_count} /> pembaca</b><b>{article.category_name}</b></div></section>
                     <ArticleCopyAttribution title={article.title} excerpt={article.excerpt} message={insertions.copy_message} />
                     <div id="article-copy" className={locked ? "public-article-copy is-locked" : "public-article-copy"}>
@@ -187,7 +193,7 @@ export default async function ArticlePage({ params }: Props) {
                                 {contentIsHtml ? <div dangerouslySetInnerHTML={{ __html: block }} /> : <p>{block}</p>}
                                 {!locked && insertions.read_also_enabled && paragraph === insertions.read_also_paragraph && related[0] && <aside className="article-inline-read"><span>{insertions.read_also_label}</span><Link href={`/${related[0].slug}`}>{related[0].title}</Link></aside>}
                                 {!locked && insertions.product_enabled && paragraph === insertions.product_paragraph && product && <aside className="article-inline-product">{product.image_url && <Image src={product.image_url} alt={product.name} width={150} height={110} />}<div><span>MERCHANDISE PILIHAN</span><h3>{product.name}</h3>{product.description && <p>{product.description}</p>}<b>Rp{product.price_idr.toLocaleString("id-ID")} · {product.price_points} poin</b><Link href="/merchandise">Lihat produk</Link></div></aside>}
-                                {!locked && insertions.ad_enabled && paragraph === insertions.ad_paragraph && insertions.ad_html && <aside className="article-inline-ad"><small>IKLAN</small><div dangerouslySetInnerHTML={{ __html: sanitizeAdHtml(insertions.ad_html) }} /></aside>}
+                                {!locked && insertions.ad_enabled && paragraph === insertions.ad_paragraph && <AdSlotFrame slot={ad("article_inline_rectangle")} />}
                             </div>;
                         })}
                     </div>
@@ -198,6 +204,7 @@ export default async function ArticlePage({ params }: Props) {
                         <p>Aktifkan membership Rp99.900/tahun untuk membaca artikel eksklusif, bebas iklan, dan hak kirim berita kontributor.</p>
                         <Link href="/membership">Aktifkan membership</Link>
                     </section>}
+                    {!locked && <AdSlotFrame slot={ad("article_bottom_leaderboard")} />}
                     {!locked && !insertions.read_also_enabled && related[0] && <aside className="public-read-also"><span>BACA JUGA</span><Link href={`/${related[0].slug}`}>{related[0].title}</Link></aside>}
                 </article>
 
@@ -207,6 +214,7 @@ export default async function ArticlePage({ params }: Props) {
                         <Image src={articleImage(item, index + 1)} alt={item.featured_media?.alt_text || item.title} width={110} height={82} />
                         <div><small>{item.category_name}</small><h3>{item.title}</h3><p>{item.reading_time_minutes} menit baca</p></div>
                     </Link>)}
+                    {!locked && <AdSlotFrame slot={ad("article_sidebar_halfpage")} />}
                 </aside>
             </main>
             <ArticleComments articleId={article.id} />

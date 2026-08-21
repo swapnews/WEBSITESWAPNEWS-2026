@@ -1,6 +1,8 @@
 import { cache } from "react";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
+import { getActiveAdSlots } from "@/lib/ads/data";
+import type { AdSlot } from "@/lib/ads/types";
 import { createPublicClient } from "@/lib/supabase/public";
 
 /** Klien read-only tanpa cookie. Semua fungsi di file ini hanya membaca data
@@ -58,6 +60,7 @@ export type PublicHomeData = {
     reels: SocialReel[];
     homepageSections: HomepageSection[];
     breakingNews: BreakingNews[];
+    ads: AdSlot[];
     isFallback: boolean;
 };
 
@@ -393,7 +396,10 @@ export function getFallbackArticles() {
 }
 
 export const getPublicHomeData = cache(async (): Promise<PublicHomeData> => {
-    const articles = await queryPublishedArticles(HOME_ARTICLE_LIMIT);
+    const [articles, ads] = await Promise.all([
+        queryPublishedArticles(HOME_ARTICLE_LIMIT),
+        getActiveAdSlots(),
+    ]);
     const usable = articles.length ? articles : fallbackArticles;
     const trending = [...usable].sort((a, b) => b.view_count - a.view_count).slice(0, 10);
     const hero = trending[0] ?? usable[0];
@@ -429,7 +435,7 @@ export const getPublicHomeData = cache(async (): Promise<PublicHomeData> => {
         games: categoryFeed(gameSlugs),
         sports: categoryFeed(sportSlugs),
         bali: categoryFeed(["bali", "denpasar", "badung", "gianyar", "tabanan", "buleleng", "karangasem", "jembrana", "klungkung", "bangli"]),
-        reels, homepageSections, breakingNews,
+        reels, homepageSections, breakingNews, ads,
         isFallback: articles.length === 0,
     };
 });

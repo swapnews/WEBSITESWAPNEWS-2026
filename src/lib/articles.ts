@@ -127,7 +127,10 @@ export async function getArticlesForDashboard(profile: Profile, limit?: number):
     }
 
     const { data, error } = await query;
-    if (error) return [];
+    if (error) {
+        console.error("getArticlesForDashboard failed", { code: error.code, message: error.message, details: error.details });
+        throw new Error(`Gagal memuat daftar artikel (${error.code})`);
+    }
 
     const articles = data as Omit<DashboardArticle, "author_name" | "category_name" | "featured_media">[];
 
@@ -167,9 +170,13 @@ export async function getArticleById(id: string, profile: Profile) {
             "id,slug,title,excerpt,content,status,category_id,author_id,featured_media_id,published_at,scheduled_at,view_count,reading_time_minutes,is_exclusive,focus_keyword,seo_title,meta_description,tags,created_at,updated_at",
         )
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
-    if (error || !data) return null;
+    if (error) {
+        console.error("getArticleById failed", { id, code: error.code, message: error.message, details: error.details });
+        throw new Error(`Gagal memuat artikel (${error.code})`);
+    }
+    if (!data) return null;
 
     const article = data as Omit<Article, "author_name" | "category_name" | "featured_media">;
     const canViewAll = isAdminRole(profile.role as AppRole);

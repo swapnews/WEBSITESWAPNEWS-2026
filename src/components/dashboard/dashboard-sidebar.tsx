@@ -23,6 +23,7 @@ import {
     SearchCheck,
     BookOpenCheck,
     ShoppingBag,
+    Megaphone,
 } from "lucide-react";
 
 import { signOutAction } from "@/lib/auth/actions";
@@ -76,6 +77,7 @@ export function DashboardSidebar({ profile }: DashboardSidebarProps) {
             { label: "Halaman Statis", href: "/dashboard/pages", icon: Files },
             { label: "Instagram Reels", href: "/dashboard/reels", icon: Clapperboard },
             { label: "Homepage Control", href: "/dashboard/homepage", icon: PanelsTopLeft },
+            { label: "Ads Management", href: "/dashboard/ads", icon: Megaphone },
             { label: "SEO Dashboard", href: "/dashboard/seo", icon: SearchCheck },
             { label: "Merchandise", href: "/dashboard/merchandise", icon: ShoppingBag },
             { label: "Manajemen Akun", href: "/dashboard/accounts", icon: Users },

@@ -15,13 +15,13 @@ import "../../styles/bali-integration.css";
 import "../../styles/public-pages-2026.css";
 import "../../styles/reels-fix.css";
 
-import { SiteFooter } from "@/components/site-footer";
+import { ManagedSiteFooter } from "@/components/managed-site-footer";
 
 export default function ArticlePublicLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
             {children}
-            <SiteFooter />
+            <ManagedSiteFooter />
         </>
     );
 }

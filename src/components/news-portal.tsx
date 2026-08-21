@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import type { PublicArticle, PublicHomeData } from "@/lib/public-articles";
+import { AdSlotFrame } from "@/components/ads/ad-slot";
 import { InstagramReels } from "@/components/instagram-reels";
 import { BaliLiveHub } from "@/components/bali-live-hub";
 
@@ -124,6 +125,7 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
     const psychologyStories = psychologySection ? [psychologySection.lead, ...psychologySection.items] : [];
     const savedArticles = useMemo(() => data.articles.filter(item => savedSlugs.includes(item.slug)), [data.articles, savedSlugs]);
     const continueArticle = useMemo(() => data.articles.find(item => item.slug === lastRead), [data.articles, lastRead]);
+    const ad = (key: string) => data.ads.find((slot) => slot.slot_key === key);
     const toggleDensity = () => { const next = !compact; setCompact(next); localStorage.setItem("swapnews-density", next ? "compact" : "comfortable"); };
 
     return (
@@ -135,7 +137,7 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
                     <Image className="logo-white" src="/swapnews-logo-white.png" alt="SwapNews" width={164} height={48} priority />
                     <Image className="logo-accent" src="/swapnews-logo-accent.png" alt="SwapNews" width={164} height={48} priority />
                 </Link>
-                <div className="desktop-ad"><small>IKLAN</small><strong>Ruang Brand Premium SwapNews</strong><span>970 × 90</span></div>
+                <div className="desktop-ad-slot"><AdSlotFrame slot={ad("global_header_leaderboard")} /></div>
                 <form className="desktop-search" action="/cari"><Search /><input name="q" aria-label="Cari berita" placeholder="Cari berita, topik, atau tokoh..." /><kbd>Ctrl K</kbd></form>
                 <div className="news-actions">
                     <Link id="news-search" href="/cari" aria-label="Cari berita" className="news-icon-link"><Search /></Link>
@@ -187,8 +189,9 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
                         </div>
                         <div className="hero-status"><span>{String(activeSlide + 1).padStart(2, "0")} / {String(trendingSlides.length).padStart(2, "0")}</span><i style={{ width: `${((activeSlide + 1) / Math.max(trendingSlides.length, 1)) * 100}%` }} /></div>
                     </div>
-                    <aside className="desktop-popular"><div className="desktop-module-title"><h2>Terpopuler</h2><span>24 JAM</span></div>{trendingSlides.slice(0, 5).map((item, index) => <Link href={`/${item.slug}`} key={item.id}><b>{String(index + 1).padStart(2, "0")}</b><Image className="desktop-story-thumb" src={articleImage(item, index + 1)} alt={item.featured_media?.alt_text || item.title} width={68} height={68} sizes="68px" /><span><small>{item.category_name}</small><strong>{item.title}</strong><em>{item.view_count.toLocaleString("id-ID")} dibaca</em></span></Link>)}<div className="desktop-native-ad"><small>IKLAN</small><strong>Jangkau pembaca berkualitas bersama SwapNews</strong></div></aside>
+                    <aside className="desktop-popular"><div className="desktop-module-title"><h2>Terpopuler</h2><span>24 JAM</span></div>{trendingSlides.slice(0, 5).map((item, index) => <Link href={`/${item.slug}`} key={item.id}><b>{String(index + 1).padStart(2, "0")}</b><Image className="desktop-story-thumb" src={articleImage(item, index + 1)} alt={item.featured_media?.alt_text || item.title} width={68} height={68} sizes="68px" /><span><small>{item.category_name}</small><strong>{item.title}</strong><em>{item.view_count.toLocaleString("id-ID")} dibaca</em></span></Link>)}<AdSlotFrame slot={ad("home_sidebar_rectangle")} /></aside>
                 </div>
+                <AdSlotFrame slot={ad("home_after_hero_billboard")} />
                 <section className="quick-brief" aria-label="Ringkas cepat">{data.articles.slice(5, 8).map((item, index) => <Link href={`/${item.slug}`} key={item.id}><b>0{index + 1}</b><span><small>{item.category_name}</small><strong>{item.title}</strong></span></Link>)}</section>
                 {continueArticle && <Link href={`/${continueArticle.slug}`} className="continue-reading"><span><BookOpen /> LANJUTKAN MEMBACA</span><strong>{continueArticle.title}</strong><ChevronRight /></Link>}
                 {data.breakingNews.length > 0 ? <div className="live-breaking-rail"><strong>BREAKING</strong><div>{data.breakingNews.map((item) => <Link href={item.target_url} key={item.id}>{item.headline}</Link>)}</div><span>LIVE</span></div> : trendingSlides[0] && <Link href={`/${trendingSlides[0].slug}`} className="desktop-breaking"><strong>BREAKING</strong><span>{trendingSlides[0].title}</span><small>{formatRelativeDate(trendingSlides[0].published_at)}</small></Link>}
@@ -211,12 +214,14 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
                         {filters.map(topic => <button key={topic} className={active === topic ? "active" : ""} onClick={() => selectTopic(topic)} aria-pressed={active === topic}>{topic}</button>)}
                     </div>
                 </section>}
+                <AdSlotFrame slot={ad("home_after_topics_leaderboard")} />
 
                 <section id="topic-feed" className={`topic-news-feed ${feedAnimating ? "is-changing" : ""}`} aria-live="polite" aria-labelledby="topic-feed-title">
                     <header><div><span>{active === "Trending" ? "PALING DICARI • PALING DIBACA" : "UPDATE REDAKSI"}</span><h2 id="topic-feed-title">{active === "Semua" ? "Berita Terbaru" : active}</h2><p>{active === "Trending" ? "Urutan berdasarkan jumlah pembaca tertinggi." : active === "Semua" ? "Semua berita terbaru dari seluruh kanal SwapNews." : `Berita dan artikel terbaru dalam kategori ${active}.`}</p></div><b>{topicArticles.length} artikel</b></header>
                     {pagedTopicArticles.length ? <div className="topic-news-grid">{pagedTopicArticles.map((item, index) => <Link href={`/${item.slug}`} key={item.id} className={index === 0 ? "topic-news-card featured" : "topic-news-card"}><div><Image src={articleImage(item, index)} alt={item.featured_media?.alt_text || item.title} fill sizes={index === 0 ? "640px" : "320px"} /><span className="news-image-shade" /><small>{item.category_name}</small></div><section><h3>{item.title}</h3><p>{item.excerpt}</p><footer><span>{formatRelativeDate(item.published_at)} · {item.reading_time_minutes} menit</span>{active === "Trending" && <b>{item.view_count.toLocaleString("id-ID")} dibaca</b>}</footer></section></Link>)}</div> : <div className="topic-feed-empty"><h3>Belum ada berita {active}</h3><p>Redaksi sedang menyiapkan artikel terbaik.</p></div>}
                     {topicPageCount > 1 && <nav className="topic-pagination" aria-label="Halaman berita"><button onClick={() => selectTopicPage(Math.max(1, topicPage - 1))} disabled={topicPage === 1} aria-label="Halaman sebelumnya"><ChevronLeft /></button>{Array.from({ length: topicPageCount }, (_, i) => i + 1).map(page => <button key={page} className={page === topicPage ? "active" : ""} aria-current={page === topicPage ? "page" : undefined} onClick={() => selectTopicPage(page)}>{page}</button>)}<button onClick={() => selectTopicPage(Math.min(topicPageCount, topicPage + 1))} disabled={topicPage === topicPageCount} aria-label="Halaman berikutnya"><ChevronRight /></button></nav>}
                 </section>
+                <AdSlotFrame slot={ad("home_midfeed_billboard")} />
 
                 {moduleEnabled("reels") && <InstagramReels reels={data.reels} />}
 

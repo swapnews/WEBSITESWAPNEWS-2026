@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import "../styles/ads-management.css";
 
 import { buildSiteMetadata } from "@/lib/seo/metadata";
 
