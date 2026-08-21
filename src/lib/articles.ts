@@ -3,7 +3,7 @@ import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/auth/get-profile";
 import type { AppRole } from "@/lib/auth/roles";
-import { isAdminRole } from "@/lib/auth/roles";
+import { isEditorialRole } from "@/lib/auth/roles";
 
 export type ArticleStatus = "draft" | "in_review" | "revision" | "scheduled" | "published" | "rejected" | "archived";
 
@@ -109,7 +109,7 @@ export const getCategories = cache(async (): Promise<Category[]> => {
 
 export async function getArticlesForDashboard(profile: Profile, limit?: number): Promise<DashboardArticle[]> {
     const supabase = await createClient();
-    const canViewAll = isAdminRole(profile.role as AppRole);
+    const canViewAll = isEditorialRole(profile.role as AppRole);
 
     let query = supabase
         .from("articles")
@@ -179,7 +179,7 @@ export async function getArticleById(id: string, profile: Profile) {
     if (!data) return null;
 
     const article = data as Omit<Article, "author_name" | "category_name" | "featured_media">;
-    const canViewAll = isAdminRole(profile.role as AppRole);
+    const canViewAll = isEditorialRole(profile.role as AppRole);
 
     if (!canViewAll && article.author_id !== profile.id) {
         return null;
@@ -201,4 +201,65 @@ export async function getArticleById(id: string, profile: Profile) {
         category_name: category.data?.name ?? null,
         featured_media: media.data ?? null,
     } as Article;
+}
+
+export type ApprovedWartawan = {
+    id: string;
+    email: string;
+    full_name: string | null;
+    username: string | null;
+};
+
+export type WartawanContributionStat = ApprovedWartawan & {
+    total_articles: number;
+    published_articles: number;
+    workflow_articles: number;
+    total_views: number;
+    article_points: number;
+    points_balance: number;
+};
+
+export async function getApprovedWartawan(): Promise<ApprovedWartawan[]> {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from("profiles")
+        .select("id,email,full_name,username")
+        .eq("role", "wartawan")
+        .eq("wartawan_status", "approved")
+        .order("full_name", { ascending: true });
+
+    if (error) {
+        console.error("getApprovedWartawan failed", { code: error.code, message: error.message });
+        throw new Error(`Gagal memuat daftar wartawan (${error.code})`);
+    }
+    return (data ?? []) as ApprovedWartawan[];
+}
+
+export async function getWartawanContributionStats(): Promise<WartawanContributionStat[]> {
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("wartawan_contribution_stats");
+
+    if (error) {
+        console.error("getWartawanContributionStats failed", { code: error.code, message: error.message });
+        throw new Error(`Gagal memuat hasil tulisan wartawan (${error.code})`);
+    }
+
+    type RpcStatRow = Omit<WartawanContributionStat, "total_articles" | "published_articles" | "workflow_articles" | "total_views" | "article_points" | "points_balance"> & {
+        total_articles: number | string | null;
+        published_articles: number | string | null;
+        workflow_articles: number | string | null;
+        total_views: number | string | null;
+        article_points: number | string | null;
+        points_balance: number | string | null;
+    };
+
+    return ((data ?? []) as RpcStatRow[]).map((item) => ({
+        ...item,
+        total_articles: Number(item.total_articles) || 0,
+        published_articles: Number(item.published_articles) || 0,
+        workflow_articles: Number(item.workflow_articles) || 0,
+        total_views: Number(item.total_views) || 0,
+        article_points: Number(item.article_points) || 0,
+        points_balance: Number(item.points_balance) || 0,
+    }));
 }

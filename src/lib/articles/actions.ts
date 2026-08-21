@@ -60,9 +60,9 @@ export async function createArticleAction(formData: FormData) {
     const content = getString(formData, "content");
     const categoryId = getNumber(formData, "category_id");
     const isExclusive = getBool(formData, "is_exclusive");
-    const isSuperAdmin = profile.role === "super_admin";
+    const canPublishDirect = profile.role === "super_admin" || profile.role === "wartawan";
     const requestedStatus = getString(formData, "status");
-    if (requestedStatus === "publish_direct" && !isSuperAdmin) {
+    if (requestedStatus === "publish_direct" && !canPublishDirect) {
         redirect("/dashboard/articles/new?error=Akses%20direct%20publish%20ditolak");
     }
     const directPublish = requestedStatus === "publish_direct";
@@ -132,6 +132,21 @@ export async function createArticleAction(formData: FormData) {
         redirect(`/dashboard/articles/new?error=${encodeURIComponent(`Gagal menyimpan artikel${code}. Silakan coba lagi.`)}`);
     }
 
+    if (directPublish && profile.role === "wartawan") {
+        const { error: pointsError } = await supabase.rpc("award_article_points", {
+            p_article_id: data.id,
+            p_points: 5,
+            p_reviewer_id: profile.id,
+        });
+        if (pointsError) {
+            console.error("createArticleAction direct-publish points failed", {
+                articleId: data.id,
+                code: pointsError.code,
+                message: pointsError.message,
+            });
+        }
+    }
+
     revalidatePath("/dashboard/articles");
     if (directPublish) {
         revalidatePath("/");
@@ -163,10 +178,8 @@ export async function updateArticleAction(formData: FormData) {
         redirect("/dashboard/articles?error=Artikel%20tidak%20ditemukan");
     }
 
-    const isAdmin = isAdminRole(profile.role as AppRole);
-    if (!isAdmin && existing.author_id !== profile.id) {
-        redirect("/dashboard/articles?error=Akses%20ditolak");
-    }
+    // Every editorial role can edit every article. Database RLS mirrors this check.
+    // Changing author_id remains protected by a SuperAdmin-only database trigger.
 
     const title = getString(formData, "title");
     const excerpt = getString(formData, "excerpt");
@@ -190,8 +203,10 @@ export async function updateArticleAction(formData: FormData) {
     let scheduledAt: string | null | undefined;
     let pointsToAward: number | undefined;
 
+    const isAdmin = isAdminRole(profile.role as AppRole);
     const isSuperAdmin = profile.role === "super_admin";
-    if (action === "publish_direct" && !isSuperAdmin) {
+    const canPublishDirect = isSuperAdmin || profile.role === "wartawan";
+    if (action === "publish_direct" && !canPublishDirect) {
         redirect(`/dashboard/articles/${id}?error=Akses%20direct%20publish%20ditolak`);
     }
     if (action === "submit_review" && ["draft", "revision", "rejected"].includes(status)) status = "in_review";
@@ -272,13 +287,35 @@ export async function updateArticleAction(formData: FormData) {
         redirect(`/dashboard/articles/${id}?error=${encodeURIComponent(`Gagal menyimpan artikel (${error.code}). Silakan coba lagi.`)}`);
     }
 
-    // Award dynamic points to author when article is published with rating >= 5
+    if (action === "publish_direct" && profile.role === "wartawan") {
+        const { error: pointsError } = await supabase.rpc("award_article_points", {
+            p_article_id: id,
+            p_points: 5,
+            p_reviewer_id: profile.id,
+        });
+        if (pointsError) {
+            console.error("updateArticleAction direct-publish points failed", {
+                articleId: id,
+                code: pointsError.code,
+                message: pointsError.message,
+            });
+        }
+    }
+
+    // Award dynamic points to author when article is published with rating >= 5.
     if (pointsToAward && pointsToAward >= 5 && status === "published") {
-        await supabase.rpc("award_article_points", {
+        const { error: pointsError } = await supabase.rpc("award_article_points", {
             p_article_id: id,
             p_points: pointsToAward,
             p_reviewer_id: profile.id,
         });
+        if (pointsError) {
+            console.error("updateArticleAction review points failed", {
+                articleId: id,
+                code: pointsError.code,
+                message: pointsError.message,
+            });
+        }
     }
 
     if (editorialNote) {
@@ -342,5 +379,53 @@ export async function deleteBulkArticlesAction(formData: FormData) {
 
     revalidatePath("/dashboard/articles");
     redirect(`/dashboard/articles?success=${encodeURIComponent(`${ids.length} artikel berhasil dihapus`)}`);
+}
+
+export async function transferArticleAuthorshipAction(formData: FormData) {
+    const profile = await getCurrentProfile();
+    if (!profile || profile.role !== "super_admin") {
+        redirect("/dashboard/articles?error=Akses%20transfer%20penulis%20ditolak");
+    }
+
+    const newAuthorId = getString(formData, "new_author_id");
+    const mode = getString(formData, "mode");
+    const ids = getString(formData, "ids").split(",").map((id) => id.trim()).filter(Boolean);
+    const categoryId = getNumber(formData, "category_id");
+
+    if (!newAuthorId) {
+        redirect("/dashboard/articles?error=Pilih%20wartawan%20tujuan");
+    }
+    if (mode === "selected" && ids.length === 0) {
+        redirect("/dashboard/articles?error=Pilih%20minimal%20satu%20artikel");
+    }
+    if (mode === "category" && categoryId === null) {
+        redirect("/dashboard/articles?error=Pilih%20kategori%20yang%20akan%20dipindahkan");
+    }
+    if (!new Set(["selected", "category"]).has(mode)) {
+        redirect("/dashboard/articles?error=Mode%20transfer%20tidak%20valid");
+    }
+
+    const supabase = await createClient();
+    const { data: affected, error } = await supabase.rpc("transfer_article_authorship", {
+        p_new_author_id: newAuthorId,
+        p_article_ids: mode === "selected" ? ids : null,
+        p_category_id: mode === "category" ? categoryId : null,
+    });
+
+    if (error) {
+        console.error("transferArticleAuthorshipAction failed", {
+            actorId: profile.id,
+            mode,
+            code: error.code,
+            message: error.message,
+        });
+        redirect(`/dashboard/articles?error=${encodeURIComponent(error.message)}`);
+    }
+
+    revalidatePath("/", "layout");
+    revalidatePath("/dashboard/articles");
+    revalidatePath("/dashboard/wartawan");
+    revalidatePath("/sitemap.xml");
+    redirect(`/dashboard/articles?success=${encodeURIComponent(`${Number(affected) || 0} artikel berhasil dipindahkan ke wartawan baru`)}`);
 }
 

@@ -10,7 +10,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
 export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
     super_admin: "Akses penuh termasuk kredensial, role, dan push notification manual.",
     admin: "Mengelola review konten, kategori, komentar, dan operasional redaksi.",
-    wartawan: "Menulis, menyimpan draft, dan mengirim artikel untuk direview.",
+    wartawan: "Menerbitkan langsung dan mengedit seluruh artikel redaksi tanpa hak hapus atau transfer penulis.",
     visitor: "Membaca berita publik dan mengakses fitur member setelah login.",
 };
 

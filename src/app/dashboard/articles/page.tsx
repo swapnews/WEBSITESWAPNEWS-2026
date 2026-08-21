@@ -4,7 +4,7 @@ import { FilePlus2, Search } from "lucide-react";
 
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { isEditorialRole, isAdminRole } from "@/lib/auth/roles";
-import { getArticlesForDashboard, type ArticleStatus } from "@/lib/articles";
+import { getApprovedWartawan, getArticlesForDashboard, getCategories, type ArticleStatus } from "@/lib/articles";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { ArticlesTableClient } from "./articles-table-client";
 
@@ -52,14 +52,24 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
     const params = await searchParams;
     const statusFilter = getParam(params, "status") as ArticleStatus | null;
     const search = getParam(params, "search") ?? "";
+    const categoryFilter = getParam(params, "category") ?? "";
+    const authorFilter = getParam(params, "author") ?? "";
     const error = getParam(params, "error");
     const success = getParam(params, "success");
+    const isAdmin = isAdminRole(profile.role);
+    const isSuperAdmin = profile.role === "super_admin";
 
-    const articles = await getArticlesForDashboard(profile);
+    const [articles, categories, wartawan] = await Promise.all([
+        getArticlesForDashboard(profile),
+        getCategories(),
+        isAdmin ? getApprovedWartawan() : Promise.resolve([]),
+    ]);
 
     const filtered = articles
         .filter((article) => {
             if (statusFilter && article.status !== statusFilter) return false;
+            if (categoryFilter && String(article.category_id) !== categoryFilter) return false;
+            if (authorFilter && article.author_id !== authorFilter) return false;
             if (search) {
                 const haystack = `${article.title} ${article.excerpt ?? ""} ${article.author_name ?? ""}`.toLowerCase();
                 if (!haystack.includes(search.toLowerCase())) return false;
@@ -71,12 +81,14 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
             slug: article.slug,
             title: article.title,
             status: article.status,
+            category_id: article.category_id,
+            author_id: article.author_id,
             updated_at: article.updated_at,
             author_name: article.author_name,
             category_name: article.category_name,
         }));
 
-    const canDelete = isAdminRole(profile.role);
+    const canDelete = isAdmin;
 
     return (
         <DashboardLayout profile={profile}>
@@ -111,6 +123,28 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
                             </select>
                         </label>
 
+                        <label>
+                            Kategori
+                            <select name="category" defaultValue={categoryFilter}>
+                                <option value="">Semua Kategori</option>
+                                {categories.map((category) => (
+                                    <option key={category.id} value={category.id}>{category.name}</option>
+                                ))}
+                            </select>
+                        </label>
+
+                        {wartawan.length ? (
+                            <label>
+                                Penulis
+                                <select name="author" defaultValue={authorFilter}>
+                                    <option value="">Semua Penulis</option>
+                                    {wartawan.map((item) => (
+                                        <option key={item.id} value={item.id}>{item.full_name ?? item.username ?? item.email}</option>
+                                    ))}
+                                </select>
+                            </label>
+                        ) : null}
+
                         <label className="cms-search">
                             Pencarian
                             <input name="search" type="search" placeholder="Judul, ringkasan, atau penulis..." defaultValue={search} />
@@ -126,6 +160,9 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
                 <ArticlesTableClient
                     articles={filtered}
                     canDelete={canDelete}
+                    canTransfer={isSuperAdmin}
+                    wartawan={wartawan}
+                    categories={categories.map(({ id, name }) => ({ id, name }))}
                     statusLabels={STATUS_LABELS}
                     statusColors={STATUS_COLORS}
                 />

@@ -224,23 +224,18 @@ create policy "Public can read published articles"
 on public.articles for select
 using (status = 'published');
 
-create policy "Authors can read own articles"
+create policy "Editorial team can read all articles"
 on public.articles for select
-using (auth.uid() = author_id or public.is_admin());
+using (public.current_role() in ('wartawan'::public.app_role, 'admin'::public.app_role, 'super_admin'::public.app_role));
 
 create policy "Authors can insert own drafts"
 on public.articles for insert
 with check (auth.uid() = author_id and public.can_manage_content());
 
-create policy "Authors can update own unpublished articles"
+create policy "Editorial team can update all articles"
 on public.articles for update
-using (auth.uid() = author_id and status in ('draft', 'in_review', 'revision', 'scheduled'))
-with check (auth.uid() = author_id and status in ('draft', 'in_review', 'revision', 'scheduled'));
-
-create policy "Admins can update any article"
-on public.articles for update
-using (public.is_admin())
-with check (public.is_admin());
+using (public.current_role() in ('wartawan'::public.app_role, 'admin'::public.app_role, 'super_admin'::public.app_role))
+with check (public.current_role() in ('wartawan'::public.app_role, 'admin'::public.app_role, 'super_admin'::public.app_role));
 
 create policy "Admins can delete articles"
 on public.articles for delete

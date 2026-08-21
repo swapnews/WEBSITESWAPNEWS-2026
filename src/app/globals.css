@@ -4526,3 +4526,308 @@ html[data-theme="dark"] .seo-field {
     animation: none;
   }
 }
+
+/* ===== Wartawan editorial workflow ===== */
+.authorship-category-panel {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 18px 0;
+  padding: 22px;
+  border: 1px solid rgba(249, 115, 22, .16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 0 0, rgba(249, 115, 22, .11), transparent 38%),
+    color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 16px 44px rgba(67, 31, 12, .06);
+}
+
+.authorship-category-panel h3 {
+  margin: 4px 0 5px;
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+
+.authorship-category-panel p,
+.panel-heading-row p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.authorship-category-panel form,
+.article-bulk-toolbar form,
+.article-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.authorship-category-panel select,
+.article-bulk-toolbar select {
+  min-width: 190px;
+  min-height: 42px;
+  padding: 0 34px 0 12px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.article-bulk-toolbar {
+  position: sticky;
+  z-index: 4;
+  top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 16px 0;
+  padding: 12px 14px 12px 18px;
+  border: 1px solid rgba(249, 115, 22, .22);
+  border-radius: 17px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow: 0 18px 45px rgba(120, 53, 15, .13);
+  backdrop-filter: blur(18px);
+  animation: editorial-toolbar-in .22s ease-out;
+}
+
+.article-bulk-toolbar>strong {
+  color: #ea580c;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.article-check-cell {
+  width: 42px;
+  text-align: center;
+}
+
+.article-check-cell input {
+  width: 16px;
+  height: 16px;
+  accent-color: #f97316;
+}
+
+.cms-table tr.is-selected td {
+  background: color-mix(in srgb, #f97316 7%, var(--surface));
+}
+
+.wartawan-tabs {
+  display: inline-flex;
+  gap: 6px;
+  margin: 6px 0 22px;
+  padding: 5px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 9%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow: 0 12px 35px rgba(67, 31, 12, .06);
+}
+
+.wartawan-tabs a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 15px;
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+
+.wartawan-tabs a:hover {
+  color: #ea580c;
+  transform: translateY(-1px);
+}
+
+.wartawan-tabs a.active {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: white;
+  box-shadow: 0 9px 22px rgba(234, 88, 12, .22);
+}
+
+.wartawan-tabs a span {
+  display: grid;
+  min-width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  font-size: 10px;
+}
+
+.wartawan-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.wartawan-summary-grid article {
+  position: relative;
+  display: grid;
+  min-height: 155px;
+  align-content: end;
+  overflow: hidden;
+  padding: 22px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 9%, transparent);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(249, 115, 22, .15), transparent 44%),
+    var(--surface);
+  box-shadow: 0 18px 48px rgba(67, 31, 12, .07);
+}
+
+.wartawan-summary-grid article>svg {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: #f97316;
+}
+
+.wartawan-summary-grid span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.wartawan-summary-grid strong {
+  margin: 3px 0;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: -.04em;
+}
+
+.wartawan-summary-grid small,
+.wartawan-identity small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.wartawan-results-panel {
+  overflow: hidden;
+}
+
+.panel-heading-row {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.panel-heading-row h2 {
+  margin: 3px 0 0;
+}
+
+.wartawan-results-table th,
+.wartawan-results-table td {
+  white-space: nowrap;
+}
+
+.wartawan-identity {
+  display: grid;
+  min-width: 175px;
+  gap: 3px;
+}
+
+.published-number {
+  color: #059669;
+  font-size: 16px;
+}
+
+.points-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(249, 115, 22, .11);
+  color: #ea580c;
+  font-weight: 900;
+}
+
+.compact-button {
+  min-height: 34px;
+  padding: 0 11px;
+  font-size: 10px;
+}
+
+@keyframes editorial-toolbar-in {
+  from {
+    opacity: 0;
+    transform: translateY(-7px);
+  }
+}
+
+@media (max-width: 1080px) {
+  .authorship-category-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .authorship-category-panel form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .wartawan-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wartawan-summary-grid article {
+    min-height: 132px;
+  }
+
+  .article-bulk-toolbar,
+  .article-bulk-actions,
+  .authorship-category-panel form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .article-bulk-actions,
+  .article-bulk-toolbar form,
+  .authorship-category-panel form {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+
+  .article-bulk-toolbar select,
+  .authorship-category-panel select,
+  .article-bulk-toolbar button,
+  .authorship-category-panel button {
+    width: 100%;
+  }
+
+  .wartawan-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .wartawan-tabs a {
+    justify-content: center;
+    padding: 0 10px;
+  }
+
+  .panel-heading-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+html[data-theme="dark"] .authorship-category-panel,
+html[data-theme="dark"] .wartawan-summary-grid article {
+  box-shadow: none;
+}
