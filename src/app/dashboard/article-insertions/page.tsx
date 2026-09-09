@@ -16,7 +16,11 @@ export default async function ArticleInsertionsDashboard({ searchParams }: Props
     if (profile.role !== "super_admin") redirect("/dashboard");
     const supabase = await createClient();
     const [{ data }, { data: products }] = await Promise.all([
-        supabase.from("article_insertion_settings").select("*").eq("id", true).maybeSingle(),
+        supabase
+            .from("article_insertion_settings")
+            .select("read_also_enabled,read_also_paragraph,read_also_label,product_enabled,product_paragraph,product_id,ad_enabled,ad_paragraph,ad_html,copy_message")
+            .eq("id", true)
+            .maybeSingle(),
         supabase.from("products").select("id,name,stock,is_active").eq("is_active", true).order("name"),
     ]);
     const settings = { ...DEFAULT_INSERTION_SETTINGS, ...(data ?? {}) };
