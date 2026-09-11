@@ -32,7 +32,39 @@ export function MonitoringClient() {
         <section className="monitoring-header"><div><span className="eyebrow">SUPER ADMIN MONITORING</span><h1>System Health Dashboard</h1><p>Semua layanan penting SwapNews dalam satu panel.</p></div><button className="refresh-btn" onClick={() => void refresh()} disabled={loading}><RefreshCw size={16} className={loading ? "monitor-spin" : ""} /> {loading ? "Checking..." : "Refresh Status"}</button></section>
         {error && <div className="monitor-error">{error}</div>}
         <section className="monitor-overall"><div className={`overall-dot ${health?.overall || "yellow"}`} /><div><strong>Status keseluruhan: {health ? statusLabel(health.overall) : "CHECKING"}</strong><small>{health ? `Diperiksa ${new Date(health.timestamp).toLocaleTimeString("id-ID")}` : "Memeriksa layanan..."}</small></div><span className="overall-latency"><Activity size={15} /> {health?.latency_ms ?? 0}ms</span></section>
-        <section className="monitor-services">{Object.entries(health?.services || {}).map(([key, service]) => { const Icon = icons[key] || Server; return <article className="status-card" key={key}><div className={`status-icon ${service.status}`}><Icon size={23} /></div><div className="status-info"><h2 className="status-title">{labels[key] || key}</h2><p className="status-desc">{service.message}</p><strong className={`status-value ${service.status}`}>{statusLabel(service.status)}</strong>{service.latency_ms !== undefined && <small className="last-checked">Response {service.latency_ms}ms</small>}</div><div className={`status-lamp ${service.status}`} /></article>; })}</section>
-        <section><h2 className="monitor-section-title">Operational Metrics</h2><div className="metrics-grid">{Object.entries(health?.metrics || {}).map(([key, value]) => <article className="metric-card" key={key}><div className="metric-label">{key.replaceAll("_", " ")}</div><div className="metric-count">{value.toLocaleString("id-ID")}</div></article>)}</div></section>
+        <section className="monitor-services">
+            {Object.entries(health?.services || {}).map(([key, service]) => {
+                const Icon = icons[key] || Server;
+                return (
+                    <article className="status-card" key={key}>
+                        <div className={`status-icon ${service.status}`}>
+                            <Icon size={24} />
+                        </div>
+                        <div className="status-info">
+                            <h2 className="status-title">{labels[key] || key}</h2>
+                            <p className="status-desc">{service.message}</p>
+                            <span className={`status-value ${service.status}`}>
+                                {statusLabel(service.status)}
+                            </span>
+                            {service.latency_ms !== undefined && (
+                                <small className="last-checked">Respon {service.latency_ms}ms</small>
+                            )}
+                        </div>
+                        <div className={`status-lamp ${service.status}`} />
+                    </article>
+                );
+            })}
+        </section>
+        <section>
+            <h2 className="monitor-section-title">Operational Metrics</h2>
+            <div className="metrics-grid">
+                {Object.entries(health?.metrics || {}).map(([key, value]) => (
+                    <article className="metric-card" key={key}>
+                        <div className="metric-label">{key.replaceAll("_", " ")}</div>
+                        <div className="metric-count">{value.toLocaleString("id-ID")}</div>
+                    </article>
+                ))}
+            </div>
+        </section>
     </main>;
 }

@@ -23,6 +23,10 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = buildSiteMetadata();
 
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#FFF8F0" },
     { media: "(prefers-color-scheme: dark)", color: "#1C1410" },
