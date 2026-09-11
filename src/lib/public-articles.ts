@@ -230,45 +230,78 @@ function publishedDate(value: string | null) {
     return date && !Number.isNaN(date.getTime()) ? date.toISOString() : new Date().toISOString();
 }
 
+/** Klien service-role KHUSUS untuk membaca media_assets.
+ *  Kunci dibersihkan dari spasi/kutip yang sering ikut ter-paste di dashboard
+ *  Vercel; kunci JWT yang cacat sebelumnya membuat klien ini gagal senyap. */
 function createMediaServiceClient() {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim().replace(/^["']|["']$/g, "");
     if (!url || !key) return null;
+    // JWT valid selalu punya 3 segmen. Kunci cacat lebih baik ditolak di sini
+    // supaya kita langsung jatuh ke klien publik, bukan diam-diam gagal.
+    if (key.split(".").length !== 3) {
+        console.error("SUPABASE_SERVICE_ROLE_KEY tidak berbentuk JWT valid — media dibaca via klien publik.");
+        return null;
+    }
     return createSupabaseClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
-async function fetchMediaMap(supabase: ReadClient, mediaIds: string[]) {
-    if (!mediaIds.length) return new Map<string, PublicMedia>();
+type MediaRow = { id: string; secure_url: string; alt_text?: string | null; title?: string | null };
 
-    const selectMedia = async (client: ReadClient) => {
+/** Ambil URL Cloudinary untuk setiap `featured_media_id`.
+ *
+ *  PENTING — jangan pernah menganggap satu klien sudah cukup.
+ *  RLS `media_assets` membatasi pembacaan publik, dan pernah ada bug policy
+ *  (subquery memakai `id` tanpa kualifikasi sehingga terbaca `articles.id`)
+ *  yang membuat klien anon selalu menerima 0 baris. Ketika itu terjadi, seluruh
+ *  kartu berita jatuh ke gambar placeholder walau URL Cloudinary tersimpan
+ *  dengan benar. Karena itu kita GABUNGKAN hasil service-role dan klien publik,
+ *  lalu mencatat baris yang tetap hilang agar kegagalan tidak pernah senyap. */
+async function fetchMediaMap(supabase: ReadClient, mediaIds: string[]) {
+    const resolved = new Map<string, PublicMedia>();
+    if (!mediaIds.length) return resolved;
+
+    const selectMedia = async (client: ReadClient, label: string): Promise<MediaRow[]> => {
         const result = await client.from("media_assets").select("id,secure_url,alt_text,title").in("id", mediaIds);
-        if (result.error) throw result.error;
-        return result.data ?? [];
+        if (result.error) {
+            console.error(`fetchMediaMap(${label}) gagal`, result.error.message);
+            return [];
+        }
+        return (result.data ?? []) as MediaRow[];
     };
 
-    let media: { id: string; secure_url: string; alt_text?: string | null; title?: string | null }[] = [];
-    const serviceClient = createMediaServiceClient();
-    const primaryClient = serviceClient ? (serviceClient as ReadClient) : supabase;
-
-    try {
-        media = await selectMedia(primaryClient);
-    } catch {
-        if (primaryClient !== supabase) {
-            try {
-                media = await selectMedia(supabase);
-            } catch (error) {
-                console.error("Failed to load media assets", error);
-            }
+    const absorb = (rows: MediaRow[]) => {
+        for (const row of rows) {
+            if (!row?.id || !row.secure_url) continue;
+            if (resolved.has(row.id)) continue;
+            resolved.set(row.id, {
+                secure_url: row.secure_url,
+                alt_text: row.alt_text || row.title || "Gambar artikel",
+                title: row.title ?? null,
+            });
         }
+    };
+
+    const serviceClient = createMediaServiceClient();
+    if (serviceClient) {
+        absorb(await selectMedia(serviceClient as ReadClient, "service-role"));
     }
 
-    return new Map(
-        media.map((item) => [item.id, {
-            secure_url: item.secure_url,
-            alt_text: item.alt_text || item.title || "Gambar artikel",
-            title: item.title ?? null,
-        }]),
-    );
+    // Selalu lanjut ke klien publik bila masih ada yang belum terpetakan.
+    if (resolved.size < mediaIds.length) {
+        absorb(await selectMedia(supabase, "public-anon"));
+    }
+
+    if (resolved.size < mediaIds.length) {
+        const missing = mediaIds.filter((id) => !resolved.has(id));
+        console.error(
+            `fetchMediaMap: ${missing.length}/${mediaIds.length} media tidak terbaca. ` +
+            `Jalankan migrasi 021_fix_public_media_rls.sql dan periksa SUPABASE_SERVICE_ROLE_KEY. ` +
+            `Contoh id: ${missing.slice(0, 3).join(", ")}`,
+        );
+    }
+
+    return resolved;
 }
 
 function extractCloudinaryFromHtml(html?: string | null): string | null {
