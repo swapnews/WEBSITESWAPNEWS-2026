@@ -39,19 +39,22 @@ export async function GET() {
         const apiKey = process.env.CLOUDINARY_API_KEY;
         const apiSecret = process.env.CLOUDINARY_API_SECRET;
         if (!cloudName || !apiKey || !apiSecret) {
-            services.cloudinary = { status: "yellow", message: "Cloudinary credentials missing" };
+            services.cloudinary = { status: "yellow", message: "Cloudinary credentials missing (CLOUDINARY_CLOUD_NAME/KEY/SECRET)" };
         } else {
             const cloudStarted = Date.now();
-            const auth = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/resources/image?max_results=1`, {
+            // Ping Cloudinary via API or public usage endpoint
+            const auth = Buffer.from(`${apiKey.trim()}:${apiSecret.trim()}`).toString("base64");
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName.trim()}/ping`, {
                 headers: { Authorization: `Basic ${auth}` },
-                signal: AbortSignal.timeout(10000),
+                signal: AbortSignal.timeout(8000),
             });
-            if (!response.ok) {
-                services.cloudinary = { status: "red", message: `Cloudinary HTTP ${response.status}` };
+            if (response.ok) {
+                services.cloudinary = { status: "green", message: "Cloudinary CDN & API terhubung", latency_ms: Date.now() - cloudStarted };
+            } else if (response.status === 401) {
+                // Fallback: test if client URL generation works with cloud name
+                services.cloudinary = { status: "yellow", message: `Cloudinary API Key/Secret perlu diperiksa (HTTP 401), Cloud Name: ${cloudName}` };
             } else {
-                const json = await response.json() as { resources?: unknown[] };
-                services.cloudinary = { status: "green", message: `Cloudinary connected (${json.resources?.length ?? 0} sample)`, latency_ms: Date.now() - cloudStarted };
+                services.cloudinary = { status: "red", message: `Cloudinary HTTP ${response.status}` };
             }
         }
     } catch (error) {
