@@ -87,12 +87,13 @@ type ArticleRow = {
 };
 
 /** Kolom untuk KARTU/daftar (homepage, kanal, terkait).
- *  Tanpa `content` — inilah perubahan terbesar untuk ukuran payload. */
+ *  Menyertakan `content` agar gambar Cloudinary di dalam artikel dapat diekstrak
+ *  jika `featured_media_id` tidak dipilih saat pembuatan artikel. */
 const CARD_COLUMNS =
-    "id,slug,title,excerpt,category_id,author_id,featured_media_id,is_exclusive,published_at,updated_at,view_count,reading_time_minutes,focus_keyword,seo_title,meta_description,tags";
+    "id,slug,title,excerpt,content,category_id,author_id,featured_media_id,is_exclusive,published_at,updated_at,view_count,reading_time_minutes,focus_keyword,seo_title,meta_description,tags";
 
 /** Kolom untuk halaman artikel tunggal (butuh isi lengkap). */
-const FULL_COLUMNS = `${CARD_COLUMNS},content`;
+const FULL_COLUMNS = CARD_COLUMNS;
 
 /** Jumlah artikel yang diambil homepage. Grid topik memakai paginasi 9/halaman,
  *  jadi 60 memberi ~7 halaman tanpa mengirim ratusan artikel ke browser. */
