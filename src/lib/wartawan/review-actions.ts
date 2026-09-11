@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
+// Request-scoped client: mark_article_reviewed relies on auth.uid(), so it must
+// run as the signed-in Super Admin, not as the service role.
+import { createClient } from "@/lib/supabase/server";
 
 function adminClient() {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -33,3 +36,24 @@ export async function reviewMemberArticleAction(formData: FormData) {
     revalidatePath("/dashboard/articles");
     redirect("/dashboard/wartawan?success=Review%20artikel%20berhasil%20disimpan");
 }
+
+/**
+ * Super Admin confirms a live article. Uses the `mark_article_reviewed` RPC so
+ * the permission check lives in the database, and only revalidates dashboard
+ * routes because the public page content is unchanged.
+ */
+export async function markArticleReviewedAction(formData: FormData) {
+    const profile = await getCurrentProfile();
+    if (!profile || profile.role !== "super_admin") redirect("/dashboard?error=Akses%20khusus%20Super%20Admin");
+
+    const id = String(formData.get("id") || "");
+    if (!id) redirect("/dashboard/wartawan?tab=pasca-review&error=Artikel%20tidak%20valid");
+
+    const supabase = await createClient();
+    const { error } = await supabase.rpc("mark_article_reviewed", { p_article_id: id });
+    if (error) redirect(`/dashboard/wartawan?tab=pasca-review&error=${encodeURIComponent(error.message)}`);
+
+    revalidatePath("/dashboard/wartawan");
+    redirect("/dashboard/wartawan?tab=pasca-review&success=Artikel%20ditandai%20sudah%20direview");
+}
+

@@ -254,7 +254,7 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
                                     <CheckCircle2 size={16} /> Terbitkan Langsung
                                 </FormSubmitButton>
                             ) : null}
-                            {(!article || ["draft", "revision", "rejected"].includes(article.status)) ? (
+                            {!canPublishDirect && (!article || ["draft", "revision", "rejected"].includes(article.status)) ? (
                                 <FormSubmitButton name={isEditing ? "action" : "status"} value={isEditing ? "submit_review" : "in_review"} className="primary-button" disabled={slugInvalid || !categoryId} pendingLabel="Mengirim…">
                                     <Send size={16} /> Kirim untuk Review
                                 </FormSubmitButton>

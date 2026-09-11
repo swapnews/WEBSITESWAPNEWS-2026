@@ -32,7 +32,7 @@ export default function ContributorForm() {
         const payload = await response.json();
         if (!response.ok) { setStatus(payload.error || "Gagal mengirim."); return; }
         form.reset();
-        setStatus("Berita terkirim dan menunggu review redaksi.");
+        setStatus(payload.message || "Berita terkirim.");
     };
 
     return (

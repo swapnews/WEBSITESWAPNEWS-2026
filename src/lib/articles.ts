@@ -263,3 +263,86 @@ export async function getWartawanContributionStats(): Promise<WartawanContributi
         points_balance: Number(item.points_balance) || 0,
     }));
 }
+
+export type PostReviewArticle = {
+    id: string;
+    slug: string;
+    title: string;
+    published_at: string | null;
+    author_id: string;
+    author_name: string | null;
+};
+
+/**
+ * Articles already live on the portal that a Super Admin has not vetted yet.
+ * `reviewed_by IS NULL` is the marker, backed by a partial index (migration 022).
+ * Columns are listed explicitly and the result is capped to keep egress small.
+ */
+export async function getArticlesAwaitingPostReview(limit = 30): Promise<PostReviewArticle[]> {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from("articles")
+        .select("id,slug,title,published_at,author_id")
+        .eq("status", "published")
+        .is("reviewed_by", null)
+        .order("published_at", { ascending: false })
+        .limit(limit);
+
+    if (error) {
+        console.error("getArticlesAwaitingPostReview failed", { code: error.code, message: error.message });
+        return [];
+    }
+
+    const rows = (data ?? []) as Omit<PostReviewArticle, "author_name">[];
+    if (!rows.length) return [];
+
+    // One batched lookup instead of one request per article.
+    const authorIds = [...new Set(rows.map((row) => row.author_id))];
+    const { data: authors } = await supabase.from("profiles").select("id,full_name,email").in("id", authorIds);
+    const authorMap = new Map((authors ?? []).map((author) => [author.id, author.full_name ?? author.email]));
+
+    return rows.map((row) => ({ ...row, author_name: authorMap.get(row.author_id) ?? null }));
+}
+
+export type UserPointsStat = {
+    id: string;
+    email: string;
+    full_name: string | null;
+    username: string | null;
+    role: AppRole;
+    article_points: number;
+    redeemed_points: number;
+    points_balance: number;
+    entries_count: number;
+    last_entry_at: string | null;
+};
+
+/**
+ * Points for every user that has ledger activity. Aggregation happens in
+ * Postgres (`all_user_points_stats`) so the raw ledger never crosses the wire.
+ */
+export async function getAllUserPointsStats(): Promise<UserPointsStat[]> {
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("all_user_points_stats");
+
+    if (error) {
+        console.error("getAllUserPointsStats failed", { code: error.code, message: error.message });
+        return [];
+    }
+
+    type RpcRow = Omit<UserPointsStat, "article_points" | "redeemed_points" | "points_balance" | "entries_count"> & {
+        article_points: number | string | null;
+        redeemed_points: number | string | null;
+        points_balance: number | string | null;
+        entries_count: number | string | null;
+    };
+
+    return ((data ?? []) as RpcRow[]).map((item) => ({
+        ...item,
+        article_points: Number(item.article_points) || 0,
+        redeemed_points: Number(item.redeemed_points) || 0,
+        points_balance: Number(item.points_balance) || 0,
+        entries_count: Number(item.entries_count) || 0,
+    }));
+}
+

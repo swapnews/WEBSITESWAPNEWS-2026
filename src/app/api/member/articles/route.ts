@@ -1,7 +1,9 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { generateUniqueSlug } from "@/lib/articles";
+import { isEditorialRole } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 
 function clean(value: unknown, max: number) {
@@ -16,8 +18,9 @@ type Body = {
 export async function POST(request: Request) {
     const profile = await getCurrentProfile();
     if (!profile) return NextResponse.json({ error: "Login diperlukan." }, { status: 401 });
-    const isWartawan = profile.role === "wartawan" || profile.role === "admin" || profile.role === "super_admin";
-    if (!profile.is_member && !isWartawan) return NextResponse.json({ error: "Membership aktif atau status Wartawan diperlukan." }, { status: 403 });
+    // Editorial roles skip moderation entirely; their submission goes live immediately.
+    const canPublishDirect = isEditorialRole(profile.role);
+    if (!profile.is_member && !canPublishDirect) return NextResponse.json({ error: "Membership aktif atau status Wartawan diperlukan." }, { status: 403 });
 
     let body: Body;
     try { body = await request.json() as Body; }
@@ -51,11 +54,17 @@ export async function POST(request: Request) {
     }
 
     const slug = await generateUniqueSlug(title);
+    const publishedAt = canPublishDirect ? new Date().toISOString() : null;
     const { data: article, error } = await supabase.from("articles").insert({
         slug, title, content, excerpt: content.replace(/\s+/g, " ").slice(0, 157),
-        status: "in_review", category_id: categoryId, author_id: profile.id,
+        status: canPublishDirect ? "published" : "in_review",
+        published_at: publishedAt,
+        category_id: categoryId, author_id: profile.id,
     }).select("id").single();
-    if (error || !article) return NextResponse.json({ error: "Berita gagal disimpan." }, { status: 500 });
+    if (error || !article) {
+        console.error("member article insert failed", { code: error?.code, message: error?.message, details: error?.details });
+        return NextResponse.json({ error: "Berita gagal disimpan." }, { status: 500 });
+    }
 
     const eventDate = typeof body.event_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.event_date) ? body.event_date : null;
     const { error: submissionError } = await supabase.from("contributor_submissions").insert({
@@ -64,5 +73,24 @@ export async function POST(request: Request) {
     });
     if (submissionError) return NextResponse.json({ error: "Data kontributor gagal disimpan." }, { status: 500 });
 
-    return NextResponse.json({ message: "Berita terkirim dan menunggu review redaksi.", article_id: article.id }, { status: 201 });
+    if (!canPublishDirect) {
+        return NextResponse.json({ message: "Berita terkirim dan menunggu review redaksi.", article_id: article.id, status: "in_review" }, { status: 201 });
+    }
+
+    // Direct publish keeps the same 5-point reward as the dashboard path.
+    const { error: pointsError } = await supabase.rpc("award_article_points", {
+        p_article_id: article.id, p_points: 5, p_reviewer_id: profile.id,
+    });
+    if (pointsError) {
+        console.error("member article direct-publish points failed", { articleId: article.id, code: pointsError.code, message: pointsError.message });
+    }
+
+    // Revalidate only the paths this article can appear on. A blanket layout
+    // revalidation would rebuild every route and burn the ISR write budget.
+    const { data: category } = await supabase.from("categories").select("slug").eq("id", categoryId).maybeSingle();
+    revalidatePath(`/${slug}`);
+    revalidatePath("/");
+    if (category?.slug) revalidatePath(`/kanal/${category.slug}`);
+
+    return NextResponse.json({ message: "Berita berhasil diterbitkan dan langsung tayang.", article_id: article.id, slug, status: "published" }, { status: 201 });
 }

@@ -1,14 +1,15 @@
 /* eslint-disable @next/next/no-img-element -- KTP memakai URL private/dinamis dan tidak boleh melewati Next Image Optimization proxy. */
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, Award, CheckCircle2, Eye, FileCheck2, Files, UserRoundCheck, XCircle } from "lucide-react";
+import { ArrowLeft, Award, CheckCircle2, Coins, Eye, FileCheck2, Files, PencilLine, ShieldCheck, UserRoundCheck, XCircle } from "lucide-react";
 
 import { DashboardLayout } from "@/components/dashboard-layout";
-import { getWartawanContributionStats } from "@/lib/articles";
+import { getAllUserPointsStats, getArticlesAwaitingPostReview, getWartawanContributionStats } from "@/lib/articles";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { isAdminRole } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { approveWartawanAction, rejectWartawanAction } from "@/lib/wartawan/actions";
+import { markArticleReviewedAction } from "@/lib/wartawan/review-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -32,25 +33,44 @@ export default async function WartawanDashboardPage({ searchParams }: WartawanDa
     if (!isAdminRole(profile.role)) redirect("/dashboard?error=Akses%20khusus%20Admin");
 
     const params = await searchParams;
-    const tab = getParam(params, "tab") === "hasil" ? "hasil" : "pendaftaran";
+    const requestedTab = getParam(params, "tab");
+    const tab = requestedTab === "hasil" || requestedTab === "pasca-review" || requestedTab === "poin" ? requestedTab : "pendaftaran";
+    const isSuperAdmin = profile.role === "super_admin";
+    if (tab === "poin" && !isSuperAdmin) redirect("/dashboard/wartawan?error=Rekap%20poin%20khusus%20Super%20Admin");
+
     const error = getParam(params, "error");
     const success = getParam(params, "success");
     const supabase = await createClient();
 
-    const [{ data: pendingWartawan }, { data: verificationHistory }, contributionStats] = await Promise.all([
-        supabase
-            .from("profiles")
-            .select("id,email,full_name,whatsapp,ktp_url,instagram_handle,address,username,wartawan_status,created_at")
-            .eq("wartawan_status", "pending")
-            .order("created_at", { ascending: false }),
-        supabase
-            .from("profiles")
-            .select("id,email,full_name,wartawan_status,created_at")
-            .in("wartawan_status", ["approved", "rejected"])
-            .order("created_at", { ascending: false })
-            .limit(50),
-        getWartawanContributionStats(),
+    // Badge counts use head:true, so Postgres returns a number and zero rows.
+    const [{ count: pendingCount }, { count: postReviewCount }] = await Promise.all([
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("wartawan_status", "pending"),
+        supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "published").is("reviewed_by", null),
     ]);
+
+    // Only the active tab loads rows. Previously every tab was fetched on every
+    // visit, which multiplied egress for data the user could not even see.
+    const contributionStats = tab === "hasil" ? await getWartawanContributionStats() : [];
+    const postReviewQueue = tab === "pasca-review" ? await getArticlesAwaitingPostReview() : [];
+    const pointsStats = tab === "poin" ? await getAllUserPointsStats() : [];
+
+    const [pendingWartawan, verificationHistory] = tab === "pendaftaran"
+        ? await Promise.all([
+            supabase
+                .from("profiles")
+                .select("id,email,full_name,whatsapp,ktp_url,instagram_handle,address,username,wartawan_status,created_at")
+                .eq("wartawan_status", "pending")
+                .order("created_at", { ascending: false })
+                .then((result) => result.data),
+            supabase
+                .from("profiles")
+                .select("id,email,full_name,wartawan_status,created_at")
+                .in("wartawan_status", ["approved", "rejected"])
+                .order("created_at", { ascending: false })
+                .limit(50)
+                .then((result) => result.data),
+        ])
+        : [null, null];
 
     const publishedTotal = contributionStats.reduce((sum, item) => sum + item.published_articles, 0);
     const articlePointsTotal = contributionStats.reduce((sum, item) => sum + item.article_points, 0);
@@ -73,12 +93,20 @@ export default async function WartawanDashboardPage({ searchParams }: WartawanDa
             <nav className="wartawan-tabs" aria-label="Navigasi wartawan">
                 <Link id="wartawan-tab-registration" href="/dashboard/wartawan?tab=pendaftaran" className={tab === "pendaftaran" ? "active" : ""}>
                     <UserRoundCheck size={17} /> Pendaftaran
-                    {(pendingWartawan?.length ?? 0) > 0 ? <span>{pendingWartawan?.length}</span> : null}
+                    {(pendingCount ?? 0) > 0 ? <span>{pendingCount}</span> : null}
                 </Link>
                 <Link id="wartawan-tab-results" href="/dashboard/wartawan?tab=hasil" className={tab === "hasil" ? "active" : ""}>
                     <FileCheck2 size={17} /> Hasil Tulisan
-                    <span>{contributionStats.length}</span>
                 </Link>
+                <Link id="wartawan-tab-post-review" href="/dashboard/wartawan?tab=pasca-review" className={tab === "pasca-review" ? "active" : ""}>
+                    <ShieldCheck size={17} /> Review Pasca-Terbit
+                    {(postReviewCount ?? 0) > 0 ? <span>{postReviewCount}</span> : null}
+                </Link>
+                {isSuperAdmin ? (
+                    <Link id="wartawan-tab-points" href="/dashboard/wartawan?tab=poin" className={tab === "poin" ? "active" : ""}>
+                        <Coins size={17} /> Poin Semua User
+                    </Link>
+                ) : null}
             </nav>
 
             {tab === "hasil" ? (
@@ -117,6 +145,70 @@ export default async function WartawanDashboardPage({ searchParams }: WartawanDa
                         </div>
                     </section>
                 </>
+            ) : tab === "pasca-review" ? (
+                <section className="dashboard-panel clay-card wartawan-results-panel">
+                    <div className="panel-heading-row">
+                        <div><span className="eyebrow">Kontrol Redaksi</span><h2>Berita Tayang Belum Direview</h2></div>
+                        <p>{postReviewCount ?? 0} artikel</p>
+                    </div>
+                    <p className="field-hint">Wartawan menerbitkan tanpa moderasi. Berita di bawah sudah tayang dan menunggu pemeriksaan Super Admin. Anda tetap dapat mengedit isinya.</p>
+                    <div className="cms-table-wrap">
+                        <table className="cms-table">
+                            <thead><tr><th>Judul</th><th>Penulis</th><th>Tayang</th><th>Aksi</th></tr></thead>
+                            <tbody>
+                                {!postReviewQueue.length ? (
+                                    <tr><td colSpan={4} className="cms-empty">Semua berita tayang sudah direview.</td></tr>
+                                ) : postReviewQueue.map((item) => (
+                                    <tr key={item.id}>
+                                        <td><strong>{item.title}</strong></td>
+                                        <td>{item.author_name ?? "—"}</td>
+                                        <td>{item.published_at ? new Date(item.published_at).toLocaleString("id-ID", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—"}</td>
+                                        <td>
+                                            <div className="user-actions">
+                                                <Link className="secondary-button compact-button" href={`/dashboard/articles/${item.id}`}><PencilLine size={14} /> Edit</Link>
+                                                <Link className="secondary-button compact-button" href={`/${item.slug}`} target="_blank" rel="noopener noreferrer"><Eye size={14} /> Lihat</Link>
+                                                {isSuperAdmin ? (
+                                                    <form action={markArticleReviewedAction}>
+                                                        <input type="hidden" name="id" value={item.id} />
+                                                        <button type="submit" className="primary-button compact-button"><CheckCircle2 size={14} /> Sudah Direview</button>
+                                                    </form>
+                                                ) : null}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            ) : tab === "poin" ? (
+                <section className="dashboard-panel clay-card wartawan-results-panel">
+                    <div className="panel-heading-row">
+                        <div><span className="eyebrow">Rekap Poin</span><h2>Poin Semua User</h2></div>
+                        <p>{pointsStats.length} user</p>
+                    </div>
+                    <p className="field-hint">Hanya user yang memiliki riwayat poin ditampilkan. Rekap dihitung di database agar tidak membebani transfer data.</p>
+                    <div className="cms-table-wrap">
+                        <table className="cms-table wartawan-results-table">
+                            <thead><tr><th>User</th><th>Role</th><th>Poin Artikel</th><th>Ditebus</th><th>Saldo</th><th>Transaksi</th><th>Terakhir</th></tr></thead>
+                            <tbody>
+                                {!pointsStats.length ? (
+                                    <tr><td colSpan={7} className="cms-empty">Belum ada aktivitas poin.</td></tr>
+                                ) : pointsStats.map((item) => (
+                                    <tr key={item.id}>
+                                        <td><div className="wartawan-identity"><strong>{item.full_name ?? item.username ?? "Tanpa nama"}</strong><small>{item.email}</small></div></td>
+                                        <td><span className={`user-role ${item.role}`}>{item.role}</span></td>
+                                        <td><span className="points-pill"><Award size={14} /> {item.article_points.toLocaleString("id-ID")}</span></td>
+                                        <td>{item.redeemed_points.toLocaleString("id-ID")}</td>
+                                        <td><strong className="published-number">{item.points_balance.toLocaleString("id-ID")}</strong></td>
+                                        <td>{item.entries_count.toLocaleString("id-ID")}</td>
+                                        <td>{item.last_entry_at ? new Date(item.last_entry_at).toLocaleDateString("id-ID") : "—"}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             ) : (
                 <>
                     <section className="dashboard-panel clay-card">
