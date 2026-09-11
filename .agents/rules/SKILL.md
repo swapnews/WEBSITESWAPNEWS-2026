@@ -10,20 +10,28 @@ description: >
   Gmail SMTP, Pakasir.com, Vercel, Tiptap, lucide-react); dan (4) Protokol SEO
   Berita 2026 untuk media online Indonesia (Google Search Central, Google News,
   Yandex Webmaster, Schema.org, dan pendekatan Yoast) termasuk structured data,
-  news sitemap, robots, E-E-A-T, GEO/SXO, dan kebijakan AI.
+  news sitemap, robots, E-E-A-T, GEO/SXO, dan kebijakan AI; serta (5) Protokol
+  EGRESS & KUOTA (Supabase Free Plan 5 GB) yang mengikat setiap query, cache,
+  polling, dan revalidasi agar project tidak pernah lagi kena restriksi kuota.
   Selalu jawab Bahasa Indonesia. Setiap tugas non-trivial: Plan → Task → Walkthrough.
 alwaysApply: true
 ---
 
 # 🧭 STRUKTUR DOKUMEN
 
-Dokumen ini punya **empat lapis**, dengan urutan prioritas dari atas:
+Dokumen ini punya **lima lapis**, dengan urutan prioritas dari atas:
 
 ```text
-LAPIS 1 — FUNDAMENTAL  ─►  LAPIS 2 — ENGINEER  ─►  LAPIS 3 — TECH STACK SWAPNEWS  ─►  LAPIS 4 — SEO BERITA 2026
+LAPIS 1 — FUNDAMENTAL  ─►  LAPIS 2 — ENGINEER  ─►  LAPIS 3 — TECH STACK SWAPNEWS  ─►  LAPIS 4 — SEO BERITA 2026  ─►  LAPIS 5 — EGRESS & KUOTA
 ```
 
-> Jika ada konflik antar-lapis, **Lapis 1 menang**, lalu Lapis 2, lalu Lapis 3, lalu Lapis 4.
+> Jika ada konflik antar-lapis, **Lapis 1 menang**, lalu Lapis 2, dan seterusnya.
+>
+> **PENGECUALIAN PENTING:** Lapis 5 (Egress) berada di urutan terakhir untuk
+> keputusan *desain*, tetapi **batas kuotanya bersifat keras**. Fitur yang
+> "benar" secara SEO atau UX tapi membakar kuota egress tetap **tidak boleh
+> naik production** — karena project yang kena restriksi berarti seluruh situs
+> mati, dan saat itu semua lapis lain menjadi tidak relevan.
 
 ---
 
@@ -729,9 +737,121 @@ Strategi: RSC untuk konten berat, client component minimal di daun tree, WebP re
 - [ ] Caching/revalidate Next.js terkoordinasi (bila konten berubah).
 - [ ] Pembayaran: status `paid` hanya dari webhook Pakasir tervalidasi signature.
 - [ ] Build & lint bersih; tidak ada konflik dengan fitur lama.
+- [ ] **Egress**: lolos checklist Lapis 5 (§5.8).
+
+---
+
+# 🟦 LAPIS 5 — EGRESS & KUOTA (SUPABASE FREE PLAN)
+
+## 5.1 Kenapa lapis ini ada
+
+Project ini **pernah kena `exceed_egress_quota`** dan aksesnya dibatasi. Ini
+bukan risiko teoretis. Di Free Plan, melewati kuota = situs berita mati, dan
+tidak ada SEO, UX, atau fitur editorial yang bisa menyelamatkannya.
+
+Penyebabnya hampir tidak pernah "traffic terlalu besar". Hampir selalu
+**query yang mengirim data yang tidak pernah dipakai**.
+
+## 5.2 Kuota Free Plan
+
+| Jenis | Kuota/bulan | Kelebihan |
+|-------|-------------|-----------|
+| Uncached egress | 5 GB | Tidak bisa dibeli di Free Plan → project direstriksi |
+| Cached egress | 5 GB | Dihitung **terpisah** dari uncached |
+
+> **Anggaran kerja kita: 4 GB.** Sisa 1 GB adalah bantalan untuk lonjakan
+> berita viral. Jangan pernah merencanakan pemakaian sampai mepet 5 GB.
+
+## 5.3 Semua sumber egress yang ditagih
+
+Egress dihitung dari **semua** layanan, bukan cuma database:
+
+- **Database** — hasil query via PostgREST (label: *Database Egress*) dan via
+  connection pooler Supavisor (label: *Shared Pooler Egress*).
+- **Auth** — respons session, refresh token, data user.
+- **Storage** — download file. *(SwapNews memakai Cloudinary untuk media, jadi
+  jalur ini mendekati nol — pertahankan.)*
+- **Realtime** — setiap pesan yang dikirim ke setiap client yang subscribe.
+- **Edge Functions** — response body.
+- **Log Drains** — log yang diteruskan keluar.
+
+## 5.4 Aturan keras query
+
+1. **Dilarang `SELECT *`.** Selalu sebut kolom secara eksplisit.
+2. **Dilarang mengambil kolom besar di query daftar.** Kolom HTML/teks panjang
+   (`content`) hanya boleh diambil pada query **satu baris**.
+   - *Preseden nyata:* `CARD_COLUMNS` dulu menyertakan `content` hanya untuk
+     me-regex gambar pertama. Satu render homepage = 60 badan artikel terunduh
+     lalu dibuang. Solusinya kolom turunan `cover_image_url` (migrasi 023),
+     bukan mengorbankan fiturnya.
+3. **Butuh nilai turunan dari kolom besar? Hitung saat menulis, bukan saat
+   membaca.** Simpan hasilnya di kolom kecil + trigger.
+4. **Selalu `.limit()`.** Query tanpa batas akan tumbuh diam-diam seiring
+   bertambahnya artikel.
+5. **Agregasi di database, bukan di client.** Pakai RPC yang mengembalikan
+   hasil akhir; jangan tarik ledger lalu jumlahkan di JavaScript.
+6. **Hitungan badge pakai `{ count: "exact", head: true }`** agar server
+   mengirim angka saja, tanpa baris.
+
+## 5.5 Aturan cache & revalidasi
+
+- **Jangan pernah pasang header cache global.** Pola `source: "/:path*"` dengan
+  `no-store` pernah membuat `/_next/static/*` tidak pernah ter-cache, sehingga
+  setiap pengunjung mengunduh ulang seluruh JS/CSS/font. `no-store` hanya untuk
+  rute privat: `/dashboard/*`, `/member/*`, `/profile/*`, `/panelswap`.
+- **Halaman publik wajib ISR** (`export const revalidate`), jangan
+  `force-dynamic`. Setiap `force-dynamic` di halaman publik = query baru per
+  pengunjung.
+- **`revalidatePath` harus spesifik.** Revalidasi `layout` memaksa build ulang
+  seluruh cabang; sebut path yang benar-benar berubah.
+- **Bungkus pembacaan bersama dengan `cache()`** supaya satu render tidak
+  memanggil query yang sama berkali-kali.
+
+## 5.6 Aturan polling & realtime
+
+- Polling adalah egress **berulang, per-client, selamanya**. Interval 3 detik =
+  1.200 request/jam per tab yang terbuka.
+- Endpoint yang di-poll wajib mengembalikan **payload sekecil mungkin** (status
+  + angka, bukan objek lengkap).
+- Polling wajib **berhenti saat tab tidak terlihat** dan saat komponen unmount.
+- Realtime menagih **per pesan per subscriber**. Jangan broadcast tabel penuh;
+  kirim event minimal lalu ambil detailnya sesuai kebutuhan.
+
+## 5.7 Aturan media
+
+- Media tetap di **Cloudinary**, bukan Supabase Storage — ini yang membuat
+  komponen egress terbesar sebuah situs berita berada di luar kuota Supabase.
+- Jangan simpan data URI base64 di kolom database. Base64 membengkakkan baris
+  ~33% dan ikut terunduh di setiap query yang menyentuh kolom itu.
+
+## 5.8 Egress quality gate (wajib sebelum "selesai")
+
+- [ ] Tidak ada `SELECT *`; semua kolom disebut eksplisit.
+- [ ] Tidak ada kolom HTML/teks besar di query daftar mana pun.
+- [ ] Semua query daftar punya `.limit()`.
+- [ ] Hitungan memakai `head: true`, bukan mengambil baris lalu `.length`.
+- [ ] Laporan/statistik diagregasi lewat RPC.
+- [ ] Halaman publik memakai ISR, bukan `force-dynamic`.
+- [ ] Tidak ada header cache global; `no-store` hanya di rute privat.
+- [ ] `revalidatePath` menargetkan path spesifik, bukan `layout`.
+- [ ] Polling baru: interval dibenarkan, payload minimal, berhenti saat idle.
+- [ ] Tab dashboard memuat datanya sendiri (lazy), bukan semua tab sekaligus.
+
+## 5.9 Saat kuota tetap naik
+
+Urutan diagnosis:
+
+1. Dashboard Supabase → **Reports → Egress**, pisahkan per layanan untuk tahu
+   sumbernya (Database / Auth / Storage / Realtime / Edge Function).
+2. Cari **query daftar** dulu, bukan halaman detail — dampaknya berlipat per
+   baris per pengunjung.
+3. Periksa kolom terbesar di tabel terpanas (`articles.content`).
+4. Periksa polling dan realtime subscription yang tidak pernah berhenti.
+5. Periksa header cache; cache yang bocor membuat aset statis terhitung ulang.
 
 ---
 
 > **Penutup:** Dokumen ini adalah aturan tunggal untuk SwapNews.co.id.
-> Prioritas konflik: **Lapis 1 (Fundamental) > Lapis 2 (Standar Engineer) > Lapis 3 (Tech Stack) > Lapis 4 (SEO Berita)**.
+> Prioritas konflik: **Lapis 1 (Fundamental) > Lapis 2 (Standar Engineer) > Lapis 3 (Tech Stack) > Lapis 4 (SEO Berita) > Lapis 5 (Egress)**,
+> dengan catatan **batas kuota Lapis 5 bersifat keras dan tidak bisa ditawar**.
 > Selalu Bahasa Indonesia. Selalu Challenge-First lalu Security-First sebelum kode masuk production.

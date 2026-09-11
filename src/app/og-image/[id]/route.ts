@@ -42,9 +42,12 @@ export async function GET(
 
         // 2. Cari di articles berdasarkan slug (atau ID jika UUID)
         if (!imageUrl) {
+            // `cover_image_url` diisi trigger (migrasi 023). Membaca kolom kecil ini
+            // jauh lebih murah daripada mengunduh HTML artikel di setiap permintaan
+            // crawler media sosial.
             let articleQuery = supabase
                 .from("articles")
-                .select("featured_media_id, content");
+                .select("featured_media_id, cover_image_url");
 
             if (isUuid) {
                 articleQuery = articleQuery.or(`slug.eq.${cleanId},id.eq.${cleanId}`);
@@ -65,11 +68,8 @@ export async function GET(
                 }
             }
 
-            if (!imageUrl && article?.content) {
-                const match = article.content.match(/<img[^>]+src=["']([^"']+)["']/i);
-                if (match?.[1]) {
-                    imageUrl = match[1];
-                }
+            if (!imageUrl && article?.cover_image_url) {
+                imageUrl = article.cover_image_url;
             }
         }
 

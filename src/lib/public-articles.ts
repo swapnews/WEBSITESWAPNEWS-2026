@@ -72,6 +72,9 @@ type ArticleRow = {
     /** Hanya terisi pada query artikel tunggal. Query daftar sengaja tidak
      *  mengambil kolom ini karena isinya HTML penuh (bisa puluhan KB/artikel). */
     content?: string | null;
+    /** Gambar pertama di dalam `content`, diekstrak saat menyimpan (migrasi 023).
+     *  Ini pengganti murah untuk membaca seluruh HTML hanya demi mencari gambar. */
+    cover_image_url?: string | null;
     category_id: number | null;
     author_id: string;
     featured_media_id: string | null;
@@ -87,13 +90,46 @@ type ArticleRow = {
 };
 
 /** Kolom untuk KARTU/daftar (homepage, kanal, terkait).
- *  Menyertakan `content` agar gambar Cloudinary di dalam artikel dapat diekstrak
- *  jika `featured_media_id` tidak dipilih saat pembuatan artikel. */
-const CARD_COLUMNS =
-    "id,slug,title,excerpt,content,category_id,author_id,featured_media_id,is_exclusive,published_at,updated_at,view_count,reading_time_minutes,focus_keyword,seo_title,meta_description,tags";
+ *
+ *  JANGAN menambahkan `content` ke sini. Kartu tidak pernah menampilkan badan
+ *  artikel; sebelumnya kolom itu ikut terunduh hanya untuk mencari gambar
+ *  pertama, sehingga satu render homepage (60 baris) bisa memindahkan beberapa
+ *  MB teks yang langsung dibuang. Pada Free Plan (kuota 5 GB) ini adalah cara
+ *  tercepat menghabiskan egress. Gambar kini dibaca dari `cover_image_url`. */
+const CARD_COLUMNS_BASE =
+    "id,slug,title,excerpt,category_id,author_id,featured_media_id,is_exclusive,published_at,updated_at,view_count,reading_time_minutes,focus_keyword,seo_title,meta_description,tags";
 
-/** Kolom untuk halaman artikel tunggal (butuh isi lengkap). */
-const FULL_COLUMNS = CARD_COLUMNS;
+/** `cover_image_url` baru ada setelah migrasi 023 dijalankan. Kode dan database
+ *  tidak selalu di-deploy bersamaan, jadi kolom ini diperlakukan opsional. */
+let coverColumnAvailable = true;
+
+const cardColumns = () =>
+    coverColumnAvailable ? `${CARD_COLUMNS_BASE},cover_image_url` : CARD_COLUMNS_BASE;
+
+type ArticleQueryResult = { data: unknown; error: { code?: string; message?: string } | null };
+
+/** Jalankan query artikel, dan bila database belum punya `cover_image_url`
+ *  (Postgres 42703 = undefined_column), ulangi tanpa kolom itu.
+ *
+ *  Ini mencegah kegagalan urutan deploy: sebelum ada penjaga ini, men-deploy
+ *  kode lebih dulu daripada migrasi membuat SELURUH daftar artikel gagal dan
+ *  homepage jatuh ke artikel demo. Hasilnya di-cache agar percobaan gagal
+ *  hanya terjadi sekali per proses, bukan di setiap request. */
+async function runArticleQuery(
+    build: (columns: string) => PromiseLike<ArticleQueryResult>,
+): Promise<ArticleQueryResult> {
+    const result = await build(cardColumns());
+    if (result.error?.code === "42703" && coverColumnAvailable) {
+        coverColumnAvailable = false;
+        console.warn(
+            "Kolom articles.cover_image_url belum ada — memakai fallback. " +
+            "Jalankan supabase/migrations/023_article_cover_image_url.sql agar " +
+            "query daftar berhenti mengunduh HTML artikel.",
+        );
+        return await build(cardColumns());
+    }
+    return result;
+}
 
 /** Jumlah artikel yang diambil homepage. Grid topik memakai paginasi 9/halaman,
  *  jadi 60 memberi ~7 halaman tanpa mengirim ratusan artikel ke browser. */
@@ -331,8 +367,11 @@ function normalizeArticle(
                 ? `/og-image/${row.slug}.jpg`
                 : rawMedia.secure_url,
         };
-    } else if (row.content) {
-        const contentImg = extractCloudinaryFromHtml(row.content);
+    } else {
+        // `cover_image_url` sudah dihitung di database (migrasi 023). Fallback ke
+        // `content` hanya berlaku di halaman artikel tunggal, di mana HTML memang
+        // sudah ikut terambil — jadi tidak ada unduhan tambahan.
+        const contentImg = row.cover_image_url || (row.content ? extractCloudinaryFromHtml(row.content) : null);
         if (contentImg) {
             featuredMedia = {
                 secure_url: contentImg,
@@ -409,9 +448,11 @@ async function hydrateArticleRows(supabase: ReadClient, rows: ArticleRow[]) {
 const queryRelatedCandidates = cache(async (categoryId: number | null, limit = 24): Promise<PublicArticle[]> => {
     try {
         const supabase = createPublicClient();
-        let query = supabase.from("articles").select(CARD_COLUMNS).eq("status", "published");
-        if (categoryId) query = query.eq("category_id", categoryId);
-        const { data, error } = await query.order("published_at", { ascending: false }).limit(limit);
+        const { data, error } = await runArticleQuery((columns) => {
+            let query = supabase.from("articles").select(columns).eq("status", "published");
+            if (categoryId) query = query.eq("category_id", categoryId);
+            return query.order("published_at", { ascending: false }).limit(limit);
+        });
         if (error) throw error;
 
         const rows = (data ?? []) as unknown as ArticleRow[];
@@ -427,12 +468,12 @@ const queryRelatedCandidates = cache(async (categoryId: number | null, limit = 2
 async function queryPublishedArticles(limit = HOME_ARTICLE_LIMIT): Promise<PublicArticle[]> {
     try {
         const supabase = createPublicClient();
-        const { data, error } = await supabase
+        const { data, error } = await runArticleQuery((columns) => supabase
             .from("articles")
-            .select(CARD_COLUMNS)
+            .select(columns)
             .eq("status", "published")
             .order("published_at", { ascending: false })
-            .limit(limit);
+            .limit(limit));
 
         if (error) throw error;
         return await hydrateArticleRows(supabase, (data ?? []) as unknown as ArticleRow[]);
@@ -494,12 +535,13 @@ export const getPublicHomeData = cache(async (): Promise<PublicHomeData> => {
 export const getPublicArticleBySlug = cache(async (slug: string) => {
     try {
         const supabase = createPublicClient();
-        const { data, error } = await supabase
+        // Halaman artikel tunggal: satu baris, jadi `content` aman diambil.
+        const { data, error } = await runArticleQuery((columns) => supabase
             .from("articles")
-            .select(FULL_COLUMNS)
+            .select(`${columns},content`)
             .eq("status", "published")
             .eq("slug", slug)
-            .maybeSingle();
+            .maybeSingle());
 
         if (error || !data) return null;
 
@@ -576,9 +618,9 @@ export const getPublicChannelData = cache(async (slug: string): Promise<PublicCh
         if (error || !category) return null;
         const { data: children = [] } = await supabase.from("categories").select("id,name,slug").eq("parent_id", category.id).order("sort_order");
         const categoryIds = [category.id, ...(children ?? []).map((item) => item.id)];
-        const { data: rows, error: articleError } = await supabase.from("articles")
-            .select(CARD_COLUMNS)
-            .eq("status", "published").in("category_id", categoryIds).order("published_at", { ascending: false }).limit(40);
+        const { data: rows, error: articleError } = await runArticleQuery((columns) => supabase.from("articles")
+            .select(columns)
+            .eq("status", "published").in("category_id", categoryIds).order("published_at", { ascending: false }).limit(40));
         if (articleError) throw articleError;
         const articleRows = (rows ?? []) as unknown as ArticleRow[];
         const authorIds = [...new Set(articleRows.map((row) => row.author_id))];
