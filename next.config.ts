@@ -4,6 +4,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   images: {
+    loader: "custom",
+    loaderFile: "./src/lib/image-loader.ts",
     // AVIF/WebP memangkas ukuran gambar 30-50% dibanding JPEG/PNG.
     formats: ["image/avif", "image/webp"],
     // Cache hasil optimasi gambar 30 hari agar tidak diproses ulang tiap request.

@@ -422,7 +422,7 @@ export async function transferArticleAuthorshipAction(formData: FormData) {
         redirect(`/dashboard/articles?error=${encodeURIComponent(error.message)}`);
     }
 
-    revalidatePath("/", "layout");
+    revalidatePath("/");
     revalidatePath("/dashboard/articles");
     revalidatePath("/dashboard/wartawan");
     revalidatePath("/sitemap.xml");

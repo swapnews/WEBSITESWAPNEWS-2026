@@ -8,7 +8,7 @@ import { buildSocialMetadata, resolveSeoImage } from "@/lib/seo/metadata";
 import { getActiveAdSlot } from "@/lib/ads/data";
 import { PublicSiteHeader } from "@/components/public-site-header";
 
-export const revalidate = 60;
+export const revalidate = 600;
 type Props = { params: Promise<{ slug: string }> };
 const variant = (slug: string) => slug.includes("game") ? "games" : slug.includes("sport") || slug.includes("bola") ? "sports" : slug.includes("bali") ? "bali" : slug.includes("musik") ? "music" : slug.includes("psikologi") ? "psychology" : "default";
 

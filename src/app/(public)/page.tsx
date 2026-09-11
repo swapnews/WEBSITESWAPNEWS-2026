@@ -3,9 +3,9 @@ import NewsPortal from "@/components/news-portal";
 import { getPublicHomeData } from "@/lib/public-articles";
 import { buildSocialMetadata } from "@/lib/seo/metadata";
 
-// ISR: HTML disajikan dari cache CDN, diregenerasi maksimal tiap 60 detik.
+// ISR: HTML disajikan dari cache CDN, diregenerasi maksimal tiap 300 detik (5 menit).
 // Berita baru tetap muncul seketika karena server action memanggil revalidatePath("/").
-export const revalidate = 60;
+export const revalidate = 300;
 
 export const metadata: Metadata = buildSocialMetadata({
   title: "SwapNews — Suara Wawasan Aktual Publik",
