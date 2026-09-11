@@ -64,6 +64,21 @@ export async function GET() {
         ? { status: "green", message: "Gmail SMTP credentials configured" }
         : { status: "yellow", message: "GMAIL_USER or GMAIL_APP_PASSWORD missing" };
 
+    const redisUrl = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
+    const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
+    const waitingRoomEnabled = process.env.WAITING_ROOM_ENABLED === "true";
+    if (!redisUrl || !redisToken) {
+        services.waiting_room = {
+            status: waitingRoomEnabled ? "red" : "yellow",
+            message: waitingRoomEnabled ? "Waiting Room aktif tapi Redis URL/Token belum diisi" : "Waiting Room nonaktif (Redis belum dikonfigurasi)",
+        };
+    } else {
+        services.waiting_room = {
+            status: waitingRoomEnabled ? "green" : "yellow",
+            message: waitingRoomEnabled ? "Waiting Room AKTIF (Upstash Redis terhubung)" : "Waiting Room NONAKTIF (Redis terkonfigurasi, proteksi off)",
+        };
+    }
+
     const statuses = Object.values(services).map((service) => service.status);
     const overall = statuses.includes("red") ? "red" : statuses.includes("yellow") ? "yellow" : "green";
     return NextResponse.json({ timestamp: new Date().toISOString(), overall, services, metrics, latency_ms: Date.now() - started });

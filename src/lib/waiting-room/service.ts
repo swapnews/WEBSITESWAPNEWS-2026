@@ -14,7 +14,9 @@ function providerFor(config: WaitingRoomConfig) {
 }
 
 function estimatedWaitSeconds(position: number, config: WaitingRoomConfig) {
-    return Math.max(3, Math.ceil((position * config.sessionTtlSeconds) / config.capacity));
+    // Estimasi realistis dibatasi oleh throughput pull polling antrean (interval 3 detik per user).
+    // Rumus: posisi * 3 detik per antrean, minimal 3 detik.
+    return Math.max(3, Math.ceil(position * 3));
 }
 
 export async function resolveWaitingRoomStatus(userId: string, config: WaitingRoomConfig, source: string): Promise<WaitingRoomStatus> {

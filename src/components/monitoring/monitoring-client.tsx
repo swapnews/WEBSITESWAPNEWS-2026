@@ -1,14 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Activity, CheckCircle2, Database, HardDrive, Mail, RefreshCw, Server, TriangleAlert, XCircle } from "lucide-react";
+import { Activity, CheckCircle2, Database, HardDrive, Mail, RefreshCw, Server, ShieldCheck, TriangleAlert, XCircle } from "lucide-react";
 
 type Status = "green" | "yellow" | "red";
 type Service = { status: Status; message: string; latency_ms?: number };
 type Health = { timestamp: string; overall: Status; services: Record<string, Service>; metrics: Record<string, number>; latency_ms: number };
 
-const labels: Record<string, string> = { database: "Database", cloudinary: "Cloudinary Media", email: "Email Gmail SMTP" };
-const icons: Record<string, typeof Database> = { database: Database, cloudinary: HardDrive, email: Mail };
+const labels: Record<string, string> = { database: "Database", cloudinary: "Cloudinary Media", email: "Email Gmail SMTP", waiting_room: "Waiting Room Protection" };
+const icons: Record<string, typeof Database> = { database: Database, cloudinary: HardDrive, email: Mail, waiting_room: ShieldCheck };
 
 export function MonitoringClient() {
     const [health, setHealth] = useState<Health | null>(null);

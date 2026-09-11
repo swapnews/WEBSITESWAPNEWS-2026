@@ -58,13 +58,37 @@ export function WaitingRoomClient({ nextPath }: WaitingRoomClientProps) {
     }, [nextPath]);
 
     useEffect(() => {
-        const controller = new AbortController();
+        let controller = new AbortController();
+        let intervalId: number | null = null;
+
+        const schedulePoll = () => {
+            if (intervalId !== null) window.clearInterval(intervalId);
+            // Tab tersembunyi melambat ke 25 detik (cukup menjaga heartbeat TTL tanpa spamming Upstash/Vercel).
+            // Tab aktif tetap 3 detik agar antrean bergerak cepat.
+            const pollDelay = document.hidden ? 25_000 : 3_000;
+            intervalId = window.setInterval(() => {
+                void checkStatus(controller.signal);
+            }, pollDelay);
+        };
+
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                // Saat user kembali membuka tab, langsung cek status sekarang juga tanpa menunggu interval
+                void checkStatus(controller.signal);
+            }
+            schedulePoll();
+        };
+
         const initialCheck = window.setTimeout(() => void checkStatus(controller.signal), 0);
-        const interval = window.setInterval(() => void checkStatus(controller.signal), 3_000);
+        schedulePoll();
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
         return () => {
             controller.abort();
             window.clearTimeout(initialCheck);
-            window.clearInterval(interval);
+            if (intervalId !== null) window.clearInterval(intervalId);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
     }, [checkStatus, requestKey]);
 
