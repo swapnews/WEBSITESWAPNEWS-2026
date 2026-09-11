@@ -14,10 +14,8 @@ import { AdSlotFrame } from "@/components/ads/ad-slot";
 import { InstagramReels } from "@/components/instagram-reels";
 import { BaliLiveHub } from "@/components/bali-live-hub";
 
-const DEMO_IMAGES = ["/news/city.png", "/news/bali.png", "/news/sports.png"];
-
 function articleImage(article: PublicArticle, index = 0) {
-    return article.featured_media?.secure_url ?? DEMO_IMAGES[index % DEMO_IMAGES.length];
+    return article.featured_media?.secure_url || "/og-default.jpg";
 }
 
 function formatRelativeDate(value: string) {

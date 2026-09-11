@@ -270,6 +270,12 @@ async function fetchMediaMap(supabase: ReadClient, mediaIds: string[]) {
     );
 }
 
+function extractCloudinaryFromHtml(html?: string | null): string | null {
+    if (!html) return null;
+    const match = html.match(/<img[^>]+src=["'](https?:\/\/[^"']+)["']/i);
+    return match ? match[1] : null;
+}
+
 function normalizeArticle(
     row: ArticleRow,
     authorMap: Map<string, string>,
@@ -282,14 +288,25 @@ function normalizeArticle(
     // isi HTML penuh, yang memaksa kita mengunduh seluruh badan artikel.
     const excerptSource = row.excerpt?.trim() || row.meta_description?.trim() || row.content || row.title;
     const rawMedia = row.featured_media_id ? mediaMap.get(row.featured_media_id) ?? null : null;
-    const featuredMedia: PublicMedia | null = rawMedia
-        ? {
+    
+    let featuredMedia: PublicMedia | null = null;
+    if (rawMedia) {
+        featuredMedia = {
             ...rawMedia,
             secure_url: rawMedia.secure_url?.startsWith("data:")
                 ? `/og-image/${row.slug}.jpg`
                 : rawMedia.secure_url,
+        };
+    } else if (row.content) {
+        const contentImg = extractCloudinaryFromHtml(row.content);
+        if (contentImg) {
+            featuredMedia = {
+                secure_url: contentImg,
+                alt_text: row.title,
+                title: row.title,
+            };
         }
-        : null;
+    }
 
     return {
         id: row.id,
@@ -576,5 +593,5 @@ export function formatRelativeDate(value: string) {
 }
 
 export function articleImage(article: PublicArticle, index = 0) {
-    return article.featured_media?.secure_url ?? DEMO_IMAGES[index % DEMO_IMAGES.length];
+    return article.featured_media?.secure_url || "/og-default.jpg";
 }
