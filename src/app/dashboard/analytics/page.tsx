@@ -4,6 +4,7 @@ import { Eye, FileText, Gift, ShoppingBag, UserCheck, Users } from "lucide-react
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { isAdminRole } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
+import { DashboardLayout } from "@/components/dashboard-layout";
 
 export const dynamic = "force-dynamic";
 
@@ -28,18 +29,20 @@ export default async function AnalyticsPage() {
     ];
 
     return (
-        <main className="member-page">
-            <header className="member-head"><span>ANALITIK</span><h1>Dashboard performa</h1><p>Ringkasan 30 hari terakhir.</p></header>
-            <section className="member-stats analytics-grid">
-                {cards.map(({ label, value, icon: Icon }) => <article key={label}><Icon /><small>{label}</small><strong>{(value ?? 0).toLocaleString("id-ID")}</strong></article>)}
-            </section>
-            <section className="member-panel">
-                <h2>Artikel terpopuler</h2>
-                {!popular?.length && <p>Belum ada data.</p>}
-                {popular?.map((article: { id: string; title: string; view_count: number }, index: number) => (
-                    <div className="member-row" key={article.id}><span>#{index + 1} {article.title}</span><b>{article.view_count.toLocaleString("id-ID")} views</b></div>
-                ))}
-            </section>
-        </main>
+        <DashboardLayout profile={profile}>
+            <main className="member-page" style={{ maxWidth: 1080, margin: "0 auto" }}>
+                <header className="member-head"><span>ANALITIK</span><h1>Dashboard performa</h1><p>Ringkasan 30 hari terakhir.</p></header>
+                <section className="member-stats analytics-grid">
+                    {cards.map(({ label, value, icon: Icon }) => <article key={label}><Icon /><small>{label}</small><strong>{(value ?? 0).toLocaleString("id-ID")}</strong></article>)}
+                </section>
+                <section className="member-panel">
+                    <h2>Artikel terpopuler</h2>
+                    {!popular?.length && <p>Belum ada data.</p>}
+                    {popular?.map((article: { id: string; title: string; view_count: number }, index: number) => (
+                        <div className="member-row" key={article.id}><span>#{index + 1} {article.title}</span><b>{article.view_count.toLocaleString("id-ID")} views</b></div>
+                    ))}
+                </section>
+            </main>
+        </DashboardLayout>
     );
 }

@@ -19,6 +19,18 @@ html[data-theme="light"] .dash-shell {
     --dash-success: #15803d;
     --dash-danger: #dc2626;
     --dash-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px -5px rgba(0, 0, 0, 0.04);
+
+    /* Override global theme variables inside dashboard shell to force light mode */
+    --background: #f8fafc !important;
+    --surface: #ffffff !important;
+    --surface-strong: #ffffff !important;
+    --foreground: #0a0a0a !important;
+    --muted: #525252 !important;
+    --line: #e2e8f0 !important;
+    --news-surface: #ffffff !important;
+    --news-text: #0a0a0a !important;
+    --news-line: #e2e8f0 !important;
+    --news-text-soft: #525252 !important;
     color-scheme: light !important;
     min-height: 100svh;
     background: var(--dash-bg) !important;
@@ -30,6 +42,58 @@ html[data-theme="light"] .dash-shell {
 html[data-theme="dark"] .dash-shell *,
 html[data-theme="light"] .dash-shell * {
     color-scheme: light !important;
+}
+
+/* White background and clean slate border for all cards, panels, and forms inside dashboard */
+.dash-shell .clay-card,
+.dash-shell .dashboard-hero,
+.dash-shell .dashboard-panel,
+.dash-shell .cms-form,
+.dash-shell .seo-panel,
+.dash-shell .slug-row,
+.dash-shell .editor-toolbar,
+.dash-shell .rich-article-editor,
+.dash-shell .editorial-workflow-box,
+.dash-shell .editorial-history,
+.dash-shell .quality-engine,
+.dash-shell .quality-result,
+.dash-shell .editor-media-inner,
+.dash-shell .wartawan-hero,
+.dash-shell .wartawan-metrics article,
+.dash-shell .wartawan-review-card,
+.dash-shell .cms-actions,
+.dash-shell .user-management-hero,
+.dash-shell .user-management-panel,
+.dash-shell .membership-settings-page,
+.dash-shell .member-panel {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0a0a0a !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Input, textarea, select styling in dashboard */
+.dash-shell input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+.dash-shell textarea,
+.dash-shell select {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+.dash-shell input:focus,
+.dash-shell textarea:focus,
+.dash-shell select:focus {
+    border-color: #f97316 !important;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15) !important;
+}
+
+.dash-shell .slug-prefix {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border-right: 1px solid #cbd5e1 !important;
 }
 
 /* Black text enforcement for all headers, titles, cards, and labels */

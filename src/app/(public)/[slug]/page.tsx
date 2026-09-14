@@ -203,11 +203,24 @@ export default async function ArticlePage({ params }: Props) {
                         })}
                     </div>
                     {article.tags.length > 0 && <div className="article-tags" aria-label="Tags artikel">{article.tags.map((tag) => <span key={tag}>#{tag}</span>)}</div>}
-                    {locked && <section className="public-paywall" aria-label="Konten eksklusif member">
-                        <span>KONTEN EKSKLUSIF</span>
-                        <h2>Artikel ini khusus member SwapNews.</h2>
-                        <p>Aktifkan membership untuk membaca artikel eksklusif, bebas iklan, dan hak kirim berita kontributor.</p>
-                        <Link href="/membership">Aktifkan membership</Link>
+                    {locked && <section className="public-paywall" aria-label="Konten eksklusif member" style={{ background: "linear-gradient(135deg, #0f172a, #1e293b)", color: "#ffffff", padding: "40px 24px", borderRadius: 20, textAlign: "center", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 20px 40px rgba(0,0,0,0.3)", marginTop: 32 }}>
+                        <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: 99, background: "#ea580c", color: "#fff", fontSize: 11, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 12 }}>
+                            ✨ KONTEN EKSKLUSIF MEMBER
+                        </span>
+                        <h2 style={{ fontSize: 24, fontWeight: 900, color: "#ffffff", margin: "0 0 12px" }}>
+                            Artikel ini khusus member SwapNews
+                        </h2>
+                        <p style={{ fontSize: 14, color: "#cbd5e1", maxWidth: 520, margin: "0 auto 24px", lineHeight: 1.6 }}>
+                            Nikmati akses tanpa batas ke berita eksklusif ini. Daftar sekarang untuk klaim <strong>Coba 7 Hari Gratis</strong> atau berlangganan <strong>Rp49.900/tahun</strong>.
+                        </p>
+                        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+                            <Link href="/membership" style={{ padding: "12px 24px", borderRadius: 12, background: "linear-gradient(135deg, #ea580c, #f97316)", color: "#ffffff", fontWeight: 900, fontSize: 14, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8, boxShadow: "0 6px 16px rgba(234,88,12,0.4)" }}>
+                                🎁 Klaim Coba 7 Hari Gratis
+                            </Link>
+                            <Link href="/membership" style={{ padding: "12px 24px", borderRadius: 12, background: "rgba(255,255,255,0.1)", color: "#ffffff", fontWeight: 800, fontSize: 14, textDecoration: "none", border: "1px solid rgba(255,255,255,0.2)" }}>
+                                Langganan Rp49.900 / Tahun
+                            </Link>
+                        </div>
                     </section>}
                     {!locked && <AdSlotFrame slot={ad("article_bottom_leaderboard")} />}
                     {!locked && !insertions.read_also_enabled && related[0] && <aside className="public-read-also"><span>BACA JUGA</span><Link href={`/${related[0].slug}`}>{related[0].title}</Link></aside>}
