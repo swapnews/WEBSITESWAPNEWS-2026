@@ -235,6 +235,27 @@
     width: 100%
 }
 
+/* Article 2026 Enhanced Table Aesthetic */
+.public-article-copy table {
+    margin: 32px 0;
+    border-radius: 16px;
+    border: 1px solid var(--news-line);
+    background: color-mix(in srgb, var(--news-surface) 90%, transparent);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .07);
+}
+
+.public-article-copy table th {
+    background: linear-gradient(135deg, rgba(255, 90, 31, .15), rgba(255, 90, 31, .04));
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .06em;
+}
+
+.public-article-copy table td {
+    font-size: 13px;
+    font-family: var(--news-font, inherit);
+}
+
 @media(max-width:900px) {
     .article-experience-dock {
         left: 50%;

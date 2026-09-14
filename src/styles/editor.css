@@ -289,30 +289,79 @@
     font-size: .92em;
 }
 
+/* Premium Article Table UI/UX */
 .public-article-copy table,
 .public-article-copy .rich-table {
+    display: table;
     width: 100%;
-    border-collapse: collapse;
-    margin: 24px 0;
-    overflow-x: auto;
-    display: block;
-    max-width: 100%;
-    border-radius: 12px;
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 28px 0;
     border: 1px solid var(--news-line, rgba(255, 218, 190, .14));
-}
-
-.public-article-copy th,
-.public-article-copy td {
-    padding: 12px 16px;
-    border: 1px solid var(--news-line, rgba(255, 218, 190, .14));
-    text-align: left;
-    font-size: 15px;
-    line-height: 1.6;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--news-surface, #1c130e);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .06);
+    font-size: 13.5px;
+    line-height: 1.55;
 }
 
 .public-article-copy th {
-    background: rgba(255, 90, 31, .08);
+    padding: 10px 14px;
+    background: linear-gradient(180deg, rgba(255, 90, 31, .12), rgba(255, 90, 31, .05));
     color: var(--news-text, #fff7ee);
-    font-weight: 700;
     font-family: Outfit, sans-serif;
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    text-align: left;
+    border-bottom: 1.5px solid var(--news-line, rgba(255, 218, 190, .2));
+    border-right: 1px solid var(--news-line, rgba(255, 218, 190, .1));
+}
+
+.public-article-copy th:last-child {
+    border-right: 0;
+}
+
+.public-article-copy td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--news-line, rgba(255, 218, 190, .08));
+    border-right: 1px solid var(--news-line, rgba(255, 218, 190, .08));
+    color: var(--news-text, #fff7ee);
+    font-size: 13px;
+    line-height: 1.5;
+    vertical-align: top;
+    transition: background-color 0.15s ease;
+}
+
+.public-article-copy td:last-child {
+    border-right: 0;
+}
+
+.public-article-copy tr:last-child td {
+    border-bottom: 0;
+}
+
+.public-article-copy tbody tr:nth-child(even) td {
+    background: rgba(255, 255, 255, .02);
+}
+
+html[data-theme="light"] .public-article-copy tbody tr:nth-child(even) td {
+    background: rgba(0, 0, 0, .015);
+}
+
+.public-article-copy tbody tr:hover td {
+    background: rgba(255, 90, 31, .06);
+}
+
+.public-article-copy .article-content-block:has(table) {
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: var(--news-accent, #ff5a1f) transparent;
+    -webkit-overflow-scrolling: touch;
+    margin: 20px 0;
+    border-radius: 14px;
 }
