@@ -193,6 +193,61 @@
     color: #718983
 }
 
+.rich-editor-content table,
+.rich-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid #dce8e5;
+    table-layout: fixed;
+}
+
+.rich-editor-content th,
+.rich-editor-content td,
+.rich-table th,
+.rich-table td {
+    min-width: 1em;
+    padding: 10px 14px;
+    border: 1px solid #dce8e5;
+    vertical-align: top;
+    box-sizing: border-box;
+    position: relative;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.rich-editor-content th,
+.rich-table th {
+    font-weight: 700;
+    text-align: left;
+    background-color: #f3f9f8;
+    color: #173832;
+    font-family: Outfit, sans-serif;
+}
+
+.rich-editor-content .selectedCell:after,
+.rich-table .selectedCell:after {
+    z-index: 2;
+    position: absolute;
+    content: "";
+    inset: 0;
+    background: rgba(20, 150, 135, .15);
+    pointer-events: none;
+}
+
+.rich-editor-content .column-resize-handle,
+.rich-table .column-resize-handle {
+    position: absolute;
+    right: -2px;
+    top: 0;
+    bottom: -2px;
+    width: 4px;
+    background-color: #0aa891;
+    pointer-events: none;
+}
+
 .rich-context-menu {
     z-index: 180;
     display: flex;

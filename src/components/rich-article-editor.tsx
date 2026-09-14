@@ -6,10 +6,43 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Underline from "@tiptap/extension-underline";
-import { Bold, Code, Eraser, Heading2, Heading3, ImagePlus, Italic, Link2, List, ListOrdered, Pilcrow, Quote, Redo2, Strikethrough, Underline as UnderlineIcon, Undo2, Unlink } from "lucide-react";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
+import {
+    Bold,
+    Code,
+    Columns,
+    Eraser,
+    Heading2,
+    Heading3,
+    ImagePlus,
+    Italic,
+    Link2,
+    List,
+    ListOrdered,
+    Pilcrow,
+    Quote,
+    Redo2,
+    Rows,
+    Strikethrough,
+    Table as TableIcon,
+    Trash2,
+    Underline as UnderlineIcon,
+    Undo2,
+    Unlink,
+} from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 
-type Props = { value: string; onChange: (html: string) => void; onImage: () => void; imageToInsert?: { url: string; alt: string } | null; onImageInserted?: () => void; disabled?: boolean };
+type Props = {
+    value: string;
+    onChange: (html: string) => void;
+    onImage: () => void;
+    imageToInsert?: { url: string; alt: string } | null;
+    onImageInserted?: () => void;
+    disabled?: boolean;
+};
 
 export function RichArticleEditor({ value, onChange, onImage, imageToInsert, onImageInserted, disabled }: Props) {
     const imagePositionRef = useRef<number | null>(null);
@@ -17,7 +50,21 @@ export function RichArticleEditor({ value, onChange, onImage, imageToInsert, onI
     const editor = useEditor({
         immediatelyRender: false,
         editable: !disabled,
-        extensions: [StarterKit, Underline, Image.configure({ allowBase64: false, HTMLAttributes: { loading: "lazy" } }), Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { rel: "noopener noreferrer" } })],
+        extensions: [
+            StarterKit,
+            Underline,
+            Image.configure({ allowBase64: false, HTMLAttributes: { loading: "lazy" } }),
+            Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { rel: "noopener noreferrer" } }),
+            Table.configure({
+                resizable: true,
+                HTMLAttributes: {
+                    class: "rich-table",
+                },
+            }),
+            TableRow,
+            TableHeader,
+            TableCell,
+        ],
         content: value || "<p></p>",
         editorProps: { attributes: { class: "rich-editor-content", "aria-label": "Isi artikel" } },
         onUpdate: ({ editor: instance }) => onChange(instance.getHTML()),
@@ -29,8 +76,14 @@ export function RichArticleEditor({ value, onChange, onImage, imageToInsert, onI
         onImage();
     }, [disabled, editor, onImage]);
 
-    useEffect(() => { editor?.setEditable(!disabled); }, [disabled, editor]);
-    useEffect(() => { onImageInsertedRef.current = onImageInserted; }, [onImageInserted]);
+    useEffect(() => {
+        editor?.setEditable(!disabled);
+    }, [disabled, editor]);
+
+    useEffect(() => {
+        onImageInsertedRef.current = onImageInserted;
+    }, [onImageInserted]);
+
     useEffect(() => {
         if (!editor || !imageToInsert?.url) return;
         const savedPosition = imagePositionRef.current;
@@ -44,8 +97,19 @@ export function RichArticleEditor({ value, onChange, onImage, imageToInsert, onI
         imagePositionRef.current = null;
         onImageInsertedRef.current?.();
     }, [editor, imageToInsert]);
+
     if (!editor) return <div className="rich-editor-loading">Menyiapkan editor visual…</div>;
-    const link = () => { const previous = editor.getAttributes("link").href as string | undefined; const url = window.prompt("Tempel URL tujuan", previous || "https://"); if (url === null) return; if (!url.trim()) editor.chain().focus().unsetLink().run(); else editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run(); };
+
+    const link = () => {
+        const previous = editor.getAttributes("link").href as string | undefined;
+        const url = window.prompt("Tempel URL tujuan", previous || "https://");
+        if (url === null) return;
+        if (!url.trim()) editor.chain().focus().unsetLink().run();
+        else editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+    };
+
+    const isInsideTable = editor.isActive("table");
+
     const tools = [
         ["Paragraf", Pilcrow, () => editor.chain().focus().setParagraph().run(), editor.isActive("paragraph")],
         ["Judul bagian", Heading2, () => editor.chain().focus().toggleHeading({ level: 2 }).run(), editor.isActive("heading", { level: 2 })],
@@ -59,35 +123,138 @@ export function RichArticleEditor({ value, onChange, onImage, imageToInsert, onI
         ["Kutipan", Quote, () => editor.chain().focus().toggleBlockquote().run(), editor.isActive("blockquote")],
         ["Kode", Code, () => editor.chain().focus().toggleCode().run(), editor.isActive("code")],
     ] as const;
-    return <div className="rich-article-editor">
-        <div className="rich-editor-head"><div><span>VISUAL STORY EDITOR</span><strong>Tulis seperti hasil akhirnya</strong></div><small>{editor.storage.characterCount?.words?.() ?? editor.getText().trim().split(/\s+/).filter(Boolean).length} kata</small></div>
-        <div className="rich-editor-toolbar" role="toolbar" aria-label="Format artikel">
-            {tools.map(([label, Icon, action, active]) => <button type="button" key={label} title={label} aria-label={label} className={active ? "active" : ""} onClick={action} disabled={disabled}><Icon /></button>)}
-            <i />
-            <button type="button" title="Link" aria-label="Link" className={editor.isActive("link") ? "active" : ""} onClick={link} disabled={disabled}><Link2 /></button>
-            <button type="button" title="Hapus link" aria-label="Hapus link" onClick={() => editor.chain().focus().unsetLink().run()} disabled={disabled}><Unlink /></button>
-            <button type="button" title="Sisipkan gambar" aria-label="Sisipkan gambar" onClick={requestImage} disabled={disabled}><ImagePlus /></button>
-            <button type="button" title="Bersihkan format" aria-label="Bersihkan format" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()} disabled={disabled}><Eraser /></button>
-            <i />
-            <button type="button" title="Urungkan" aria-label="Urungkan" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}><Undo2 /></button>
-            <button type="button" title="Ulangi" aria-label="Ulangi" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}><Redo2 /></button>
+
+    return (
+        <div className="rich-article-editor">
+            <div className="rich-editor-head">
+                <div>
+                    <span>VISUAL STORY EDITOR</span>
+                    <strong>Tulis seperti hasil akhirnya</strong>
+                </div>
+                <small>{editor.storage.characterCount?.words?.() ?? editor.getText().trim().split(/\s+/).filter(Boolean).length} kata</small>
+            </div>
+            <div className="rich-editor-toolbar" role="toolbar" aria-label="Format artikel">
+                {tools.map(([label, Icon, action, active]) => (
+                    <button type="button" key={label} title={label} aria-label={label} className={active ? "active" : ""} onClick={action} disabled={disabled}>
+                        <Icon />
+                    </button>
+                ))}
+                <i />
+                <button type="button" title="Link" aria-label="Link" className={editor.isActive("link") ? "active" : ""} onClick={link} disabled={disabled}><Link2 /></button>
+                <button type="button" title="Hapus link" aria-label="Hapus link" onClick={() => editor.chain().focus().unsetLink().run()} disabled={disabled}><Unlink /></button>
+                <button type="button" title="Sisipkan gambar" aria-label="Sisipkan gambar" onClick={requestImage} disabled={disabled}><ImagePlus /></button>
+
+                <i />
+                {/* Tabel menu & actions */}
+                <button
+                    type="button"
+                    title={isInsideTable ? "Tabel aktif (Klik untuk hapus tabel)" : "Sisipkan Tabel (3x3)"}
+                    aria-label="Sisipkan Tabel"
+                    className={isInsideTable ? "active" : ""}
+                    onClick={() => {
+                        if (isInsideTable) {
+                            editor.chain().focus().deleteTable().run();
+                        } else {
+                            editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+                        }
+                    }}
+                    disabled={disabled}
+                >
+                    <TableIcon />
+                </button>
+
+                {isInsideTable && (
+                    <>
+                        <button type="button" title="Tambah Baris Setelah" aria-label="Tambah Baris" onClick={() => editor.chain().focus().addRowAfter().run()} disabled={disabled}>
+                            <Rows />
+                        </button>
+                        <button type="button" title="Hapus Baris" aria-label="Hapus Baris" onClick={() => editor.chain().focus().deleteRow().run()} disabled={disabled}>
+                            <MinusRowIcon />
+                        </button>
+                        <button type="button" title="Tambah Kolom Setelah" aria-label="Tambah Kolom" onClick={() => editor.chain().focus().addColumnAfter().run()} disabled={disabled}>
+                            <Columns />
+                        </button>
+                        <button type="button" title="Hapus Kolom" aria-label="Hapus Kolom" onClick={() => editor.chain().focus().deleteColumn().run()} disabled={disabled}>
+                            <MinusColIcon />
+                        </button>
+                        <button type="button" title="Hapus Seluruh Tabel" aria-label="Hapus Tabel" onClick={() => editor.chain().focus().deleteTable().run()} disabled={disabled}>
+                            <Trash2 />
+                        </button>
+                    </>
+                )}
+
+                <i />
+                <button type="button" title="Bersihkan format" aria-label="Bersihkan format" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()} disabled={disabled}><Eraser /></button>
+                <i />
+                <button type="button" title="Urungkan" aria-label="Urungkan" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}><Undo2 /></button>
+                <button type="button" title="Ulangi" aria-label="Ulangi" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}><Redo2 /></button>
+            </div>
+
+            {!disabled && (
+                <BubbleMenu
+                    editor={editor}
+                    pluginKey="articleSelectionMenu"
+                    appendTo={() => document.body}
+                    shouldShow={({ from, to }) => from !== to}
+                    options={{ strategy: "fixed", placement: "top", offset: 10, flip: true, shift: { padding: 8 } }}
+                    className="rich-context-menu rich-selection-menu"
+                    role="toolbar"
+                    aria-label="Format teks terpilih"
+                >
+                    <button type="button" aria-label="Tebal" title="Tebal" className={editor.isActive("bold") ? "active" : ""} onClick={() => editor.chain().focus().toggleBold().run()}><Bold /></button>
+                    <button type="button" aria-label="Miring" title="Miring" className={editor.isActive("italic") ? "active" : ""} onClick={() => editor.chain().focus().toggleItalic().run()}><Italic /></button>
+                    <button type="button" aria-label="Garis bawah" title="Garis bawah" className={editor.isActive("underline") ? "active" : ""} onClick={() => editor.chain().focus().toggleUnderline().run()}><UnderlineIcon /></button>
+                    <button type="button" aria-label="Tambahkan link" title="Tambahkan link" className={editor.isActive("link") ? "active" : ""} onClick={link}><Link2 /></button>
+                    <button type="button" aria-label="Bersihkan format" title="Bersihkan format" onClick={() => editor.chain().focus().unsetAllMarks().run()}><Eraser /></button>
+                </BubbleMenu>
+            )}
+
+            {!disabled && (
+                <FloatingMenu
+                    editor={editor}
+                    pluginKey="articleCursorMenu"
+                    appendTo={() => document.body}
+                    shouldShow={({ editor: currentEditor, state }) => state.selection.empty && state.selection.$from.parent.textContent.length === 0 && currentEditor.isActive("paragraph")}
+                    options={{ strategy: "fixed", placement: "bottom-start", offset: 10, flip: true, shift: { padding: 8 } }}
+                    className="rich-context-menu rich-cursor-menu"
+                    role="toolbar"
+                    aria-label="Alat cepat penulisan"
+                >
+                    <button type="button" aria-label="Tebal" title="Tebal" className={editor.isActive("bold") ? "active" : ""} onClick={() => editor.chain().focus().toggleBold().run()}><Bold /></button>
+                    <button type="button" aria-label="Miring" title="Miring" className={editor.isActive("italic") ? "active" : ""} onClick={() => editor.chain().focus().toggleItalic().run()}><Italic /></button>
+                    <button type="button" aria-label="Judul bagian" title="Judul bagian" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}><Heading2 /></button>
+                    <button type="button" aria-label="Bullet" title="Bullet" onClick={() => editor.chain().focus().toggleBulletList().run()}><List /></button>
+                    <button type="button" aria-label="Kutipan" title="Kutipan" onClick={() => editor.chain().focus().toggleBlockquote().run()}><Quote /></button>
+                    <button type="button" aria-label="Sisipkan Tabel" title="Sisipkan Tabel" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}><TableIcon /></button>
+                    <button type="button" aria-label="Sisipkan gambar" title="Sisipkan gambar" className="context-image-button" onClick={requestImage}><ImagePlus /></button>
+                </FloatingMenu>
+            )}
+
+            <EditorContent editor={editor} />
+            <div className="rich-editor-foot">
+                <span>Pilih teks untuk format · arahkan kursor untuk menu mengambang · klik ikon Tabel untuk menyisipkan / memanipulasi baris &amp; kolom.</span>
+                <b>Tabel, Gambar &amp; format tersimpan otomatis</b>
+            </div>
         </div>
-        {!disabled && <BubbleMenu editor={editor} pluginKey="articleSelectionMenu" appendTo={() => document.body} shouldShow={({ from, to }) => from !== to} options={{ strategy: "fixed", placement: "top", offset: 10, flip: true, shift: { padding: 8 } }} className="rich-context-menu rich-selection-menu" role="toolbar" aria-label="Format teks terpilih">
-            <button type="button" aria-label="Tebal" title="Tebal" className={editor.isActive("bold") ? "active" : ""} onClick={() => editor.chain().focus().toggleBold().run()}><Bold /></button>
-            <button type="button" aria-label="Miring" title="Miring" className={editor.isActive("italic") ? "active" : ""} onClick={() => editor.chain().focus().toggleItalic().run()}><Italic /></button>
-            <button type="button" aria-label="Garis bawah" title="Garis bawah" className={editor.isActive("underline") ? "active" : ""} onClick={() => editor.chain().focus().toggleUnderline().run()}><UnderlineIcon /></button>
-            <button type="button" aria-label="Tambahkan link" title="Tambahkan link" className={editor.isActive("link") ? "active" : ""} onClick={link}><Link2 /></button>
-            <button type="button" aria-label="Bersihkan format" title="Bersihkan format" onClick={() => editor.chain().focus().unsetAllMarks().run()}><Eraser /></button>
-        </BubbleMenu>}
-        {!disabled && <FloatingMenu editor={editor} pluginKey="articleCursorMenu" appendTo={() => document.body} shouldShow={({ editor: currentEditor, state }) => state.selection.empty && state.selection.$from.parent.textContent.length === 0 && currentEditor.isActive("paragraph")} options={{ strategy: "fixed", placement: "bottom-start", offset: 10, flip: true, shift: { padding: 8 } }} className="rich-context-menu rich-cursor-menu" role="toolbar" aria-label="Alat cepat penulisan">
-            <button type="button" aria-label="Tebal" title="Tebal" className={editor.isActive("bold") ? "active" : ""} onClick={() => editor.chain().focus().toggleBold().run()}><Bold /></button>
-            <button type="button" aria-label="Miring" title="Miring" className={editor.isActive("italic") ? "active" : ""} onClick={() => editor.chain().focus().toggleItalic().run()}><Italic /></button>
-            <button type="button" aria-label="Judul bagian" title="Judul bagian" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}><Heading2 /></button>
-            <button type="button" aria-label="Bullet" title="Bullet" onClick={() => editor.chain().focus().toggleBulletList().run()}><List /></button>
-            <button type="button" aria-label="Kutipan" title="Kutipan" onClick={() => editor.chain().focus().toggleBlockquote().run()}><Quote /></button>
-            <button type="button" aria-label="Sisipkan gambar" title="Sisipkan gambar" className="context-image-button" onClick={requestImage}><ImagePlus /></button>
-        </FloatingMenu>}
-        <EditorContent editor={editor} />
-        <div className="rich-editor-foot"><span>Pilih teks untuk format · arahkan kursor untuk alat cepat.</span><b>Gambar & format tersimpan sebagai HTML</b></div>
-    </div>;
+    );
+}
+
+function MinusRowIcon() {
+    return (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2" />
+            <path d="M3 12h18" />
+            <path d="M14 7h6" stroke="#ef4444" strokeWidth="2" />
+        </svg>
+    );
+}
+
+function MinusColIcon() {
+    return (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2" />
+            <path d="M12 3v18" />
+            <path d="M7 14v6" stroke="#ef4444" strokeWidth="2" />
+        </svg>
+    );
 }

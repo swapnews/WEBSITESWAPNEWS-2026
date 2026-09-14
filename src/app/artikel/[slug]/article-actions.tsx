@@ -14,23 +14,64 @@ function applyScale(scale: number) {
     target.style.setProperty("--article-scale", String(scale));
 }
 
-function extractSpeechText(): string {
-    const clone = document.getElementById("article-copy")?.cloneNode(true) as HTMLElement | null;
-    if (!clone) return "";
-    clone.querySelectorAll("script,style,aside,button,nav").forEach((node) => node.remove());
-    return (clone.innerText || clone.textContent || "")
+function extractFullArticleSpeechText(fallbackLead?: string): string {
+    const copyElement = document.getElementById("article-copy");
+    if (!copyElement) {
+        return fallbackLead || "";
+    }
+
+    const clone = copyElement.cloneNode(true) as HTMLElement;
+    // Bersihkan elemen iklan, produk inline, baca juga, script, audio, dan tombol
+    clone.querySelectorAll("script,style,aside,button,nav,iframe,svg,noscript,.ad-slot,.article-inline-read,.article-inline-product").forEach((node) => node.remove());
+
+    // Tangani tabel: ubah sel menjadi teks kalimat terstruktur agar dibaca alami
+    clone.querySelectorAll("table").forEach((table) => {
+        const rows = Array.from(table.querySelectorAll("tr"));
+        const tableLines: string[] = [];
+        rows.forEach((tr) => {
+            const cells = Array.from(tr.querySelectorAll("th, td")).map((c) => (c.textContent || "").trim()).filter(Boolean);
+            if (cells.length) {
+                tableLines.push(cells.join(", "));
+            }
+        });
+        const tableText = tableLines.join(". ");
+        const placeholder = document.createTextNode(tableText ? ` ${tableText}. ` : "");
+        table.parentNode?.replaceChild(placeholder, table);
+    });
+
+    const raw = clone.innerText || clone.textContent || "";
+    const cleanText = raw
+        .replace(/\r\n|\r|\n/g, " ")
         .replace(/\s+/g, " ")
         .trim();
+
+    return cleanText;
 }
 
-function chunkText(text: string, maxLength = 200): string[] {
-    const sentences = text.match(/[^.!?…]+[.!?…]*/g) ?? [];
+function chunkText(text: string, maxLength = 160): string[] {
+    // Potong berdasarkan tanda baca kalimat utama (. ! ? … ; : dan koma panjang)
+    const sentences = text.match(/[^.!?…;]+[.!?…;]*/g) ?? [];
     const chunks: string[] = [];
     let current = "";
+
     for (const sentence of sentences) {
         const clean = sentence.trim();
         if (!clean) continue;
-        if ((current + " " + clean).length > maxLength && current) {
+
+        if (clean.length > maxLength) {
+            // Jika satu kalimat sangat panjang, potong berdasarkan koma atau kata
+            const clauses = clean.match(/[^,]+,*/g) ?? [clean];
+            for (const clause of clauses) {
+                const subClean = clause.trim();
+                if (!subClean) continue;
+                if ((current + " " + subClean).length > maxLength && current) {
+                    chunks.push(current.trim());
+                    current = subClean;
+                } else {
+                    current = `${current} ${subClean}`.trim();
+                }
+            }
+        } else if ((current + " " + clean).length > maxLength && current) {
             chunks.push(current.trim());
             current = clean;
         } else {
@@ -38,7 +79,7 @@ function chunkText(text: string, maxLength = 200): string[] {
         }
     }
     if (current.trim()) chunks.push(current.trim());
-    return chunks.length ? chunks : (text.length ? [text.slice(0, maxLength)] : []);
+    return chunks.filter((c) => c.length > 0);
 }
 
 export default function ArticleActions({ articleId, slug, title, excerpt, copyMessage }: { articleId: string; slug: string; title: string; excerpt: string; copyMessage: string }) {
@@ -147,9 +188,15 @@ export default function ArticleActions({ articleId, slug, title, excerpt, copyMe
             return;
         }
 
-        const rawText = extractSpeechText();
-        const fullText = rawText ? `${title}. ${rawText}` : title;
-        const chunks = chunkText(fullText);
+        const bodyContent = extractFullArticleSpeechText(excerpt);
+        // Susun teks runtut: Judul -> Ringkasan -> Isi Lengkap Berita
+        const speechSegments: string[] = [];
+        if (title) speechSegments.push(title);
+        if (excerpt && !bodyContent.startsWith(excerpt)) speechSegments.push(excerpt);
+        if (bodyContent) speechSegments.push(bodyContent);
+
+        const fullNarrative = speechSegments.join(". ");
+        const chunks = chunkText(fullNarrative);
         if (!chunks.length) return;
 
         const start = () => {
@@ -157,7 +204,8 @@ export default function ArticleActions({ articleId, slug, title, excerpt, copyMe
             speakingRef.current = true;
             setSpeaking(true);
             const voice = pickVoice();
-            // Workaround Chrome: speech berhenti jika tidak ada interaksi ~15 detik
+
+            // Workaround Chrome/Safari timeout issue: restart/ping synthesis loop berkala
             if (keepAliveRef.current !== null) window.clearInterval(keepAliveRef.current);
             keepAliveRef.current = window.setInterval(() => {
                 if (!speakingRef.current || synth.paused || !synth.speaking) {
@@ -169,28 +217,39 @@ export default function ArticleActions({ articleId, slug, title, excerpt, copyMe
                 }
                 synth.pause();
                 synth.resume();
-            }, 12000);
+            }, 10000);
 
-            const speakChunk = (index: number) => {
-                if (!speakingRef.current || index >= chunks.length) {
-                    if (index >= chunks.length) stopSpeech();
+            let currentChunkIndex = 0;
+
+            const speakNext = () => {
+                if (!speakingRef.current || currentChunkIndex >= chunks.length) {
+                    if (currentChunkIndex >= chunks.length) stopSpeech();
                     return;
                 }
-                const utterance = new SpeechSynthesisUtterance(chunks[index]);
+
+                const chunkTextToSpeak = chunks[currentChunkIndex];
+                const utterance = new SpeechSynthesisUtterance(chunkTextToSpeak);
                 utterance.lang = "id-ID";
-                utterance.rate = 0.96;
+                utterance.rate = 0.98;
                 if (voice) utterance.voice = voice;
-                utterance.onend = () => speakChunk(index + 1);
+
+                utterance.onend = () => {
+                    currentChunkIndex++;
+                    speakNext();
+                };
+
                 utterance.onerror = (event) => {
                     if (event.error === "interrupted" || event.error === "canceled") return;
-                    speakChunk(index + 1);
+                    currentChunkIndex++;
+                    speakNext();
                 };
+
                 synth.speak(utterance);
             };
-            speakChunk(0);
+
+            speakNext();
         };
 
-        // Voices sering dimuat secara asinkron; mulai saat tersedia
         if (synth.getVoices().length > 0) {
             start();
         } else {
