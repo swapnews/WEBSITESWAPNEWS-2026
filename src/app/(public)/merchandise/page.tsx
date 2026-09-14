@@ -1,50 +1,40 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import { Package } from "lucide-react";
-
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { createClient } from "@/lib/supabase/server";
-import BuyButton from "./buy-button";
+import { getSiteConfig } from "@/lib/site-config";
+import { ShopeeCatalogView, type MerchandiseItem } from "@/components/merchandise/shopee-catalog-view";
+import "@/styles/merchandise-shopee.css";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = {
-    title: "Merchandise — SwapNews",
-    description: "Katalog merchandise resmi SwapNews. Bayar dengan rupiah via Pakasir atau tukar poin member.",
-};
+
+export async function generateMetadata(): Promise<Metadata> {
+    const config = await getSiteConfig();
+    return {
+        title: `${config.merchandise_store_title} — SwapNews Official Store`,
+        description: `${config.merchandise_store_subtitle} Katalog merchandise resmi SwapNews. Bayar via QRIS Pakasir atau tukar poin member.`,
+    };
+}
 
 export default async function MerchandisePage() {
-    const [profile, supabase] = await Promise.all([getCurrentProfile(), createClient()]);
+    const [profile, supabase, config] = await Promise.all([
+        getCurrentProfile(),
+        createClient(),
+        getSiteConfig(),
+    ]);
+
     const { data: products } = await supabase
-        .from("products").select("id,slug,name,description,price_idr,price_points,stock,image_url")
-        .eq("is_active", true).gt("stock", 0).order("created_at", { ascending: false });
+        .from("products")
+        .select("id,slug,name,description,category_product,sku,weight_grams,price_idr,original_price_idr,price_points,stock,rating,sales_count,variants,image_url,is_active")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
 
     return (
-        <main className="member-page">
-            <header className="member-head">
-                <span>MERCHANDISE</span>
-                <h1>Produk resmi SwapNews</h1>
-                <p>Bayar via Pakasir atau tukar poin member.</p>
-            </header>
-            {!products?.length && <section className="member-cta"><Package /><h2>Katalog segera hadir</h2><p>Produk merchandise sedang disiapkan redaksi.</p></section>}
-            <section className="product-grid">
-                {products?.map((product) => <article className="product-card" key={product.id}>
-                    {product.image_url
-                        ? <Image src={product.image_url} alt={product.name} width={400} height={300} />
-                        : <div className="product-placeholder"><Package /></div>}
-                    <div className="product-body">
-                        <h2>{product.name}</h2>
-                        {product.description && <p>{product.description}</p>}
-                        <div className="product-prices">
-                            <b>Rp{product.price_idr.toLocaleString("id-ID")}</b>
-                            <span>{product.price_points} poin</span>
-                        </div>
-                        <small>Stok: {product.stock}</small>
-                        <BuyButton productId={product.id} points={product.price_points} isMember={Boolean(profile?.is_member)} />
-                    </div>
-                </article>)}
-            </section>
-            {profile?.is_member && <p className="member-hint">Saldo poin bisa dicek di <Link href="/member">dashboard member</Link>.</p>}
+        <main className="merchandise-portal-page" style={{ minHeight: "100vh", background: "#f8fafc" }}>
+            <ShopeeCatalogView
+                products={(products as MerchandiseItem[]) || []}
+                config={config}
+                isMember={Boolean(profile?.is_member)}
+            />
         </main>
     );
 }

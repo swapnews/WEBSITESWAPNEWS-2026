@@ -21,6 +21,7 @@ import {
     type PublicArticle,
 } from "@/lib/public-articles";
 import ArticleActions from "@/app/artikel/[slug]/article-actions";
+import { getSiteConfig } from "@/lib/site-config";
 import { resolveSeoImage } from "@/lib/seo/metadata";
 import { PublicSiteHeader } from "@/components/public-site-header";
 import ArticleViewCounter from "@/components/article-view-counter";
@@ -34,8 +35,12 @@ export const dynamicParams = true;
 
 /** Prebuild artikel terpopuler agar pengunjung dari Google langsung dapat HTML cache. */
 export async function generateStaticParams() {
-    const slugs = await getPopularArticleSlugs(30);
-    return slugs.map((slug) => ({ slug }));
+    try {
+        const slugs = await getPopularArticleSlugs(5);
+        return slugs.map((slug) => ({ slug }));
+    } catch {
+        return [];
+    }
 }
 
 type Props = { params: Promise<{ slug: string }> };
@@ -201,7 +206,7 @@ export default async function ArticlePage({ params }: Props) {
                     {locked && <section className="public-paywall" aria-label="Konten eksklusif member">
                         <span>KONTEN EKSKLUSIF</span>
                         <h2>Artikel ini khusus member SwapNews.</h2>
-                        <p>Aktifkan membership Rp99.900/tahun untuk membaca artikel eksklusif, bebas iklan, dan hak kirim berita kontributor.</p>
+                        <p>Aktifkan membership untuk membaca artikel eksklusif, bebas iklan, dan hak kirim berita kontributor.</p>
                         <Link href="/membership">Aktifkan membership</Link>
                     </section>}
                     {!locked && <AdSlotFrame slot={ad("article_bottom_leaderboard")} />}

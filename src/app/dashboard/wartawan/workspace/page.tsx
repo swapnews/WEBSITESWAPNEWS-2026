@@ -28,7 +28,7 @@ export default async function WartawanWorkspacePage({ searchParams }: { searchPa
     return <main className="wartawan-workspace">
         <section className="wartawan-hero">
             <AvatarUpload avatarUrl={profile.avatar_url} name={profile.full_name || "Wartawan SwapNews"} />
-            <div><span className="eyebrow">RUANG KERJA WARTAWAN</span><h1>Halo, <Link id="wartawan-profile-name" href="/profile">{profile.full_name || "Wartawan SwapNews"}</Link></h1><p>Review berita member dengan teliti, cepat, dan berintegritas.</p><Link id="wartawan-edit-profile" href="/profile">Edit Profile</Link></div>
+            <div><span className="eyebrow">RUANG KERJA WARTAWAN</span><h1>Halo, <Link id="wartawan-profile-name" href="/profile">{profile.full_name || "Wartawan SwapNews"}</Link></h1><p>Review berita member, tulis artikel baru, atau kelola & terbitkan berita yang sudah ada.</p><div style={{ display: "flex", gap: "10px", marginTop: "10px", flexWrap: "wrap" }}><Link id="wartawan-edit-profile" href="/profile" className="secondary-button" style={{ padding: "6px 12px", fontSize: "12px" }}>Edit Profile</Link><Link id="wartawan-manage-articles" href="/dashboard/articles" className="secondary-button" style={{ padding: "6px 12px", fontSize: "12px" }}>Kelola Semua Berita</Link><Link id="wartawan-new-article" href="/dashboard/articles/new" className="primary-button" style={{ padding: "6px 12px", fontSize: "12px" }}>+ Tulis Berita Baru</Link></div></div>
             <div className="wartawan-points"><small>POIN ANDA</small><strong>{balance ?? 0}</strong><span>1 poin = Rp1.000</span></div>
         </section>
         {message && <div className="wartawan-notice">{message}</div>}

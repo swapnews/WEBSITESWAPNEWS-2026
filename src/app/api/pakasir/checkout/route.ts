@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-
+import { getSiteConfig } from "@/lib/site-config";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { createPakasirTransaction } from "@/lib/pakasir";
 import { createClient } from "@/lib/supabase/server";
@@ -19,8 +19,9 @@ export async function POST(request: Request) {
     if (!type) return NextResponse.json({ error: "Tipe checkout tidak valid." }, { status: 400 });
 
     const supabase = await createClient();
+    const config = await getSiteConfig();
     const orderId = `${type === "membership" ? "MEM" : "ORD"}-${crypto.randomUUID()}`;
-    let amount = 99900;
+    let amount = config.membership_price_idr;
     let recordId: string;
 
     if (type === "membership") {

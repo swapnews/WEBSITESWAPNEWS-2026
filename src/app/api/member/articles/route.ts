@@ -77,9 +77,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: "Berita terkirim dan menunggu review redaksi.", article_id: article.id, status: "in_review" }, { status: 201 });
     }
 
-    // Direct publish keeps the same 5-point reward as the dashboard path.
+    // Direct publish awards 10-point reward.
     const { error: pointsError } = await supabase.rpc("award_article_points", {
-        p_article_id: article.id, p_points: 5, p_reviewer_id: profile.id,
+        p_article_id: article.id, p_points: 10, p_reviewer_id: profile.id,
     });
     if (pointsError) {
         console.error("member article direct-publish points failed", { articleId: article.id, code: pointsError.code, message: pointsError.message });

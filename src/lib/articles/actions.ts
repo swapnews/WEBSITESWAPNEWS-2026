@@ -135,7 +135,7 @@ export async function createArticleAction(formData: FormData) {
     if (directPublish && profile.role === "wartawan") {
         const { error: pointsError } = await supabase.rpc("award_article_points", {
             p_article_id: data.id,
-            p_points: 5,
+            p_points: 10,
             p_reviewer_id: profile.id,
         });
         if (pointsError) {
@@ -290,7 +290,7 @@ export async function updateArticleAction(formData: FormData) {
     if (action === "publish_direct" && profile.role === "wartawan") {
         const { error: pointsError } = await supabase.rpc("award_article_points", {
             p_article_id: id,
-            p_points: 5,
+            p_points: 10,
             p_reviewer_id: profile.id,
         });
         if (pointsError) {
@@ -302,11 +302,11 @@ export async function updateArticleAction(formData: FormData) {
         }
     }
 
-    // Award dynamic points to author when article is published with rating >= 5.
-    if (pointsToAward && pointsToAward >= 5 && status === "published") {
+    // Award fixed 10 points to author when article is published.
+    if (status === "published" && action === "publish" && isAdmin) {
         const { error: pointsError } = await supabase.rpc("award_article_points", {
             p_article_id: id,
-            p_points: pointsToAward,
+            p_points: 10,
             p_reviewer_id: profile.id,
         });
         if (pointsError) {

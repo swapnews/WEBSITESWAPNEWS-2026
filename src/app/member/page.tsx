@@ -4,6 +4,7 @@ import { Coins, FileText, Gift, Wallet } from "lucide-react";
 
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { createClient } from "@/lib/supabase/server";
+import { getSiteConfig } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,9 @@ export default async function MemberDashboardPage() {
     const approved = monthly ?? 0;
     const progress = Math.min((approved / 50) * 100, 100);
 
+    const config = await getSiteConfig();
+    const formattedPrice = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(config.membership_price_idr);
+
     return (
         <main className="member-page">
             <header className="member-head">
@@ -34,7 +38,7 @@ export default async function MemberDashboardPage() {
 
             {!membership && <section className="member-cta">
                 <h2>Aktifkan membership</h2>
-                <p>Rp99.900/tahun untuk artikel eksklusif, bebas iklan, badge member, dan hak kirim berita.</p>
+                <p>{formattedPrice}/tahun untuk artikel eksklusif, bebas iklan, badge member, dan hak kirim berita.</p>
                 <Link href="/membership">Lihat paket membership</Link>
             </section>}
 

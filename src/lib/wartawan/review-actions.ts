@@ -31,7 +31,7 @@ export async function reviewMemberArticleAction(formData: FormData) {
     const { error } = await supabase.from("articles").update(updates).eq("id", id).eq("status", "in_review");
     if (error) redirect(`/dashboard/wartawan?error=${encodeURIComponent(error.message)}`);
     if (note) await supabase.from("editorial_notes").insert({ article_id: id, author_id: profile.id, note });
-    if (decision === "published") await supabase.rpc("award_article_points", { p_article_id: id, p_points: 5, p_reviewer_id: profile.id });
+    if (decision === "published") await supabase.rpc("award_article_points", { p_article_id: id, p_points: 10, p_reviewer_id: profile.id });
     revalidatePath("/dashboard/wartawan");
     revalidatePath("/dashboard/articles");
     redirect("/dashboard/wartawan?success=Review%20artikel%20berhasil%20disimpan");

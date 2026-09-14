@@ -240,18 +240,24 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
 
                     <section className="quality-engine"><header><div><span>EDITORIAL QUALITY ENGINE • RULES 2026.1</span><h3>Scan standar berita</h3><p>EYD, struktur, jurnalistik, people-first, dan SEO.</p></div><div><button type="button" className="secondary-button" onClick={applySafeFix}><WandSparkles size={15} /> Fix Aman</button><button type="button" className="primary-button" onClick={runQualityScan}><ScanSearch size={15} /> Scan Artikel</button></div></header>{qualityScan && <div className="quality-result"><div className={`quality-score ${qualityScan.passed ? "passed" : "failed"}`}><strong>{qualityScan.score}</strong><span>/100</span><small>{qualityScan.passed ? "LAYAK" : "PERLU REVIEW"}</small></div><div className="quality-dimensions">{Object.entries(qualityScan.scores).map(([key, value]) => <div key={key}><span>{key}</span><b>{value}</b></div>)}</div><div className="quality-issues">{qualityScan.issues.length === 0 ? <p>Tidak ada masalah terdeteksi.</p> : qualityScan.issues.map(item => <article className={item.severity} key={item.id}><ShieldAlert /><div><b>{item.message}</b>{item.suggestion && <p>{item.suggestion}</p>}<small>{item.category} • {item.severity}</small></div></article>)}</div><footer>{qualityScan.stats.words} kata • {qualityScan.stats.paragraphs} paragraf • {qualityScan.stats.sentences} kalimat</footer></div>}</section>
 
-                    {isEditing && <section className="editorial-workflow-box"><div><span>EDITORIAL WORKFLOW</span><h3>Catatan dan penjadwalan</h3><p>Catatan tersimpan di riwayat internal redaksi.</p></div><label>Catatan editor<textarea name="editorial_note" rows={3} placeholder="Alasan revisi, fakta yang perlu dicek, atau keputusan editor..." /></label>{canReview && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}><label>Nilai Poin Artikel Admin (1 - 10 Poin)<select name="award_points" defaultValue="10"><option value="10">10 Poin (Sangat Baik / Orisinal)</option><option value="9">9 Poin (Sangat Baik)</option><option value="8">8 Poin (Baik)</option><option value="7">7 Poin (Cukup Baik)</option><option value="6">6 Poin (Standar Min)</option><option value="5">5 Poin (Batas Layak Publish)</option><option value="4">4 Poin (TOLAK - Kurang Layak)</option><option value="3">3 Poin (TOLAK)</option><option value="2">2 Poin (TOLAK)</option><option value="1">1 Poin (TOLAK)</option></select><small className="field-hint" style={{ color: "var(--teal-muted)", marginTop: 4 }}>*Poin &lt; 5 otomatis DITOLAK. Poin 5–10 DITERBITKAN + poin diberikan ke penulis.</small></label><label>Jadwal terbit<input name="scheduled_at" type="datetime-local" min={new Date().toISOString().slice(0, 16)} /></label></div>}</section>}
+                    {isEditing && <section className="editorial-workflow-box"><div><span>EDITORIAL WORKFLOW</span><h3>Catatan dan penjadwalan</h3><p>Catatan tersimpan di riwayat internal redaksi.</p></div><label>Catatan editor<textarea name="editorial_note" rows={3} placeholder="Alasan revisi, fakta yang perlu dicek, atau keputusan editor..." /></label>{canReview && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}><div className="points-fixed-badge" style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(249, 115, 22, 0.08)", border: "1px solid rgba(249, 115, 22, 0.2)" }}><strong style={{ display: "block", color: "var(--dash-accent-strong, #ea580c)", fontSize: 13 }}>Hadiah Poin: 10 Poin</strong><small style={{ color: "#756b65", fontSize: 11 }}>Setiap artikel yang disetujui/diterbitkan otomatis mendapatkan 10 poin ke akun penulis.</small></div><label>Jadwal terbit<input name="scheduled_at" type="datetime-local" min={new Date().toISOString().slice(0, 16)} /></label></div>}</section>}
                 </div>
 
                 <div className="cms-actions">
                     {canEdit ? (
                         <>
-                            <FormSubmitButton name="status" value="draft" className="secondary-button" disabled={slugInvalid} pendingLabel="Menyimpan…">
-                                <Save size={16} /> Simpan Draft
-                            </FormSubmitButton>
+                            {article?.status === "published" ? (
+                                <FormSubmitButton name="action" value="save" className="primary-button" disabled={slugInvalid || !categoryId} pendingLabel="Menyimpan Perubahan…">
+                                    <Save size={16} /> Simpan & Update Berita Terbit
+                                </FormSubmitButton>
+                            ) : (
+                                <FormSubmitButton name="status" value="draft" className="secondary-button" disabled={slugInvalid} pendingLabel="Menyimpan…">
+                                    <Save size={16} /> Simpan Draft
+                                </FormSubmitButton>
+                            )}
                             {canPublishDirect && article?.status !== "published" ? (
                                 <FormSubmitButton name={isEditing ? "action" : "status"} value="publish_direct" className="primary-button direct-publish-button" disabled={slugInvalid || !categoryId} pendingLabel="Menerbitkan…">
-                                    <CheckCircle2 size={16} /> Terbitkan Langsung
+                                    <CheckCircle2 size={16} /> Terbitkan Langsung (10 Poin)
                                 </FormSubmitButton>
                             ) : null}
                             {!canPublishDirect && (!article || ["draft", "revision", "rejected"].includes(article.status)) ? (
@@ -265,7 +271,7 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
                     {canReview && isEditing ? (
                         <>
                             {article.status === "in_review" ? <><FormSubmitButton name="action" value="revision" className="secondary-button" pendingLabel="Memproses…"><Clock3 size={16} /> Minta Revisi</FormSubmitButton><FormSubmitButton name="action" value="reject" className="secondary-button danger" pendingLabel="Menolak…"><XCircle size={16} /> Tolak</FormSubmitButton></> : null}
-                            {article.status !== "published" ? <FormSubmitButton name="action" value="publish" className="primary-button" disabled={!categoryId} pendingLabel="Menerbitkan…"><CheckCircle2 size={16} /> Terbitkan + Beri Poin</FormSubmitButton> : null}
+                            {article.status !== "published" ? <FormSubmitButton name="action" value="publish" className="primary-button" disabled={!categoryId} pendingLabel="Menerbitkan…"><CheckCircle2 size={16} /> Terbitkan & Beri 10 Poin</FormSubmitButton> : null}
                             {article.status !== "published" ? <FormSubmitButton name="action" value="schedule" className="secondary-button" disabled={!categoryId} pendingLabel="Menjadwalkan…"><Clock3 size={16} /> Jadwalkan</FormSubmitButton> : null}
                             {article.status === "published" ? <FormSubmitButton name="action" value="revision" className="secondary-button" pendingLabel="Memproses…"><XCircle size={16} /> Turunkan ke Revisi</FormSubmitButton> : null}
                             {article.status === "published" ? <FormSubmitButton name="action" value="archive" className="secondary-button" pendingLabel="Mengarsipkan…">Arsipkan</FormSubmitButton> : null}
