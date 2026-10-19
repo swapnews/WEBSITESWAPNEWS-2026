@@ -12,12 +12,14 @@ export function normalizeArticleContent(raw) {
     text = text.replace(/\r\n/g, '\n');
     text = text.replace(/\r/g, '\n');
 
-    // 2. Tangani 'rnrn' literal (bukan bagian dari kata)
+    // 2. Tangani 'rnrn' dan 'rn' di sekitar tag atau tanda baca
     text = text.replace(/rnrn/gi, '\n\n');
+    text = text.replace(/rn(?=<)/gi, '\n');
+    text = text.replace(/(>)\s*rn/gi, '$1\n');
     text = text.replace(/(^|[\s>.\?!;:,"'])rn([\s<.\?!;:,"']|$)/gi, '$1\n$2');
 
     // 3. Tangani pola 'nn' yang merupakan newline
-    text = text.replace(/(<\/[a-z0-9]+>)\s*nn\s*/gi, '$1\n\n'); // </strong>nn, </em>nn, </li>nn
+    text = text.replace(/(<\/[a-z0-9]+>)\s*nn\s*/gi, '$1\n\n');
     text = text.replace(/(\.|\?|!|”|"|'|\))\s*nn\s*([A-Z0-9<“"'])/g, '$1\n\n$2');
     text = text.replace(/([a-z0-9])\s*\.nn\s*([A-Z0-9])/g, '$1.\n\n$2');
     text = text.replace(/:\s*nn\s*/gi, ':\n\n');
@@ -33,10 +35,14 @@ export function normalizeArticleContent(raw) {
     text = text.replace(/^nn\s*/gi, '');
     text = text.replace(/\s*nn$/gi, '');
 
-    // Tangani sisa 'n' liar di depan tag seperti n <li> atau n <ol>
-    text = text.replace(/(\n|^)n\s*(<[a-z])/gi, '$1$2');
+    // 4. Tangani huruf 'n' tunggal liar di antara atau di sekitar seluruh tag HTML:
+    text = text.replace(/>\s*n\s*</gi, '><');
+    text = text.replace(/(<[a-z0-9]+\b[^>]*>)\s*n\s*/gi, '$1\n');
+    text = text.replace(/\s*n\s*(<\/[a-z0-9]+>)/gi, '\n$1');
+    text = text.replace(/(<\/[a-z0-9]+>)\s*n\s*(<[a-z0-9]+)/gi, '$1\n$2');
+    text = text.replace(/(<\/[a-z0-9]+>)\s*n(\s|$)/gi, '$1\n$2');
 
-    // 4. Jika teks belum memiliki tag <p>, bungkus setiap blok baris ke dalam <p>
+    // 5. Jika teks belum memiliki tag <p>, bungkus setiap blok baris ke dalam <p>
     const hasParagraphTags = /<\/?(p|div|section|article)\b/i.test(text);
 
     if (!hasParagraphTags) {
@@ -54,11 +60,10 @@ export function normalizeArticleContent(raw) {
             })
             .join('\n');
     } else {
-        // Jika sudah ada tag <p>, rapikan
         text = text.replace(/\n{2,}/g, '\n');
     }
 
-    // 5. Bersihkan artefak sisa
+    // 6. Bersihkan artefak sisa
     text = text.replace(/<p>\s*(&nbsp;|\s)*<\/p>/gi, '');
     text = text.replace(/&nbsp;{2,}/g, ' ');
 

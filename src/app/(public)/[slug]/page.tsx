@@ -164,12 +164,21 @@ function jsonLd(article: PublicArticle, imageUrl: string) {
 
 function splitContent(content: string) {
     if (isHtml(content)) {
+        // Bersihkan sisa string n liar yang menempel di batas tag
+        const sanitized = content
+            .replace(/>\s*n\s*</gi, '><')
+            .replace(/(<(?:ul|ol|li|p|div|blockquote|figure|h[1-6]|table)\b[^>]*>)\s*n\s*/gi, '$1')
+            .replace(/\s*n\s*(<\/(?:ul|ol|li|p|div|blockquote|figure|h[1-6]|table)>)/gi, '$1')
+            .replace(/(<\/[a-z0-9]+>)\s*n\s*(<[a-z0-9]+)/gi, '$1$2');
+
         const blockPattern = /<(p|h[1-6]|ul|ol|blockquote|figure|table|pre)\b[^>]*>[\s\S]*?<\/\1\s*>|<(?:img|hr)\b[^>]*\/?\s*>/gi;
-        const blocks = Array.from(content.matchAll(blockPattern), (match) => match[0]);
-        return blocks.length ? blocks : [content];
+        const blocks = Array.from(sanitized.matchAll(blockPattern), (match) => match[0]);
+        if (blocks.length) return blocks;
+        return sanitized.split(/\n{2,}/).map((paragraph) => paragraph.trim()).filter(Boolean);
     }
     return content.split(/\n{2,}/).map((paragraph) => paragraph.trim()).filter(Boolean);
 }
+
 
 function isHtml(value: string) {
     return /<\/?(p|h[1-6]|ul|ol|li|blockquote|figure|img|hr|strong|em|a|code|pre|table)[\s>]/i.test(value);
