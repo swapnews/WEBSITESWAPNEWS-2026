@@ -30,15 +30,28 @@ function formatRelativeDate(value: string) {
 }
 
 const topics = [
-    { name: "News", slug: "news", icon: Newspaper }, { name: "Finance", slug: "finance", icon: BriefcaseBusiness },
-    { name: "Hot", slug: "hot", icon: Flame }, { name: "Sport", slug: "sport", icon: Trophy },
-    { name: "Travel", slug: "travel", icon: Plane }, { name: "Food", slug: "food", icon: Utensils },
-    { name: "Health", slug: "health", icon: HeartPulse }, { name: "Lifestyle", slug: "lifestyle", icon: Sparkles },
-    { name: "Otomotif", slug: "otomotif", icon: Car }, { name: "Teknologi", slug: "teknologi", icon: Laptop },
-    { name: "Properti", slug: "properti", icon: House }, { name: "Hikmah", slug: "hikmah", icon: Building2 },
-    { name: "Edukasi", slug: "edukasi", icon: BookOpen }, { name: "Video", slug: "video", icon: Clapperboard },
-    { name: "MUSIK", slug: "musik", icon: Radio }, { name: "PSIKOLOGI", slug: "psikologi", icon: HeartPulse },
-    { name: "BALI", slug: "bali", icon: Plane }, { name: "GAMES", slug: "games", icon: Zap },
+    { name: "SwapNews", slug: "news", icon: Newspaper },
+    { name: "Nasional", slug: "nasional", icon: Building2 },
+    { name: "Hukum & Kriminal", slug: "hukum-kriminal", icon: Newspaper },
+    { name: "TNI-Polri", slug: "tni-polri", icon: Newspaper },
+    { name: "SwapFinance", slug: "finance", icon: BriefcaseBusiness },
+    { name: "Bisnis", slug: "bisnis", icon: BriefcaseBusiness },
+    { name: "Ekonomi Digital", slug: "ekonomi-digital", icon: Zap },
+    { name: "SwapTekno", slug: "tekno", icon: Laptop },
+    { name: "Gadget", slug: "gadget", icon: Laptop },
+    { name: "AI & Inovasi", slug: "ai-inovasi", icon: Sparkles },
+    { name: "SwapHot", slug: "hot", icon: Flame },
+    { name: "Musik", slug: "musik", icon: Radio },
+    { name: "SwapSport", slug: "sport", icon: Trophy },
+    { name: "Sepakbola", slug: "sepakbola", icon: Trophy },
+    { name: "SwapBali", slug: "bali", icon: Plane },
+    { name: "SwapDaerah", slug: "daerah", icon: Home },
+    { name: "SwapTravel", slug: "travel", icon: Plane },
+    { name: "SwapHealth", slug: "health", icon: HeartPulse },
+    { name: "SwapOto", slug: "otomotif", icon: Car },
+    { name: "Psikologi & Mental", slug: "psikologi", icon: HeartPulse },
+    { name: "Edukasi", slug: "edukasi", icon: BookOpen },
+    { name: "Lingkungan", slug: "lingkungan", icon: Building2 },
 ];
 
 
