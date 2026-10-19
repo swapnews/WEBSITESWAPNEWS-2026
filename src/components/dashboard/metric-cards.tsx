@@ -5,15 +5,29 @@ type MetricGridCardsProps = {
     mediaBytes: number;
     royaltyPoints?: number;
     seoScore?: number;
+    royaltyLabel?: string;
+    pointsDisplay?: string;
 };
 
-export function MetricGridCards({ totalViews, mediaBytes, royaltyPoints = 0, seoScore = 8.7 }: MetricGridCardsProps) {
+export function MetricGridCards({
+    totalViews,
+    mediaBytes,
+    royaltyPoints = 0,
+    seoScore = 8.7,
+    royaltyLabel = "ESTIMASI ROYALTI",
+    pointsDisplay,
+}: MetricGridCardsProps) {
     const storageMb = mediaBytes / (1024 * 1024);
     const storageLabel = storageMb >= 1024 ? `${(storageMb / 1024).toFixed(1)} GB` : `${storageMb.toFixed(1)} MB`;
 
     const cards = [
         { label: "TOTAL DIBACA", value: totalViews.toLocaleString("id-ID"), icon: Eye, color: "purple" },
-        { label: "ESTIMASI ROYALTI", value: `Rp ${royaltyPoints.toLocaleString("id-ID")}`, icon: Banknote, color: "pink" },
+        {
+            label: royaltyLabel,
+            value: pointsDisplay ?? `Rp ${royaltyPoints.toLocaleString("id-ID")}`,
+            icon: Banknote,
+            color: "pink",
+        },
         { label: "STORAGE WEBP", value: storageLabel, icon: Cloud, color: "orange" },
         { label: "SKOR SEO", value: seoScore.toFixed(1), icon: Star, color: "teal" },
     ];

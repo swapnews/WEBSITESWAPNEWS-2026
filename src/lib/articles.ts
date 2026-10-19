@@ -107,9 +107,9 @@ export const getCategories = cache(async (): Promise<Category[]> => {
     }));
 });
 
-export async function getArticlesForDashboard(profile: Profile, limit?: number): Promise<DashboardArticle[]> {
+export async function getArticlesForDashboard(profile: Profile, limit?: number, authorOnly = false): Promise<DashboardArticle[]> {
     const supabase = await createClient();
-    const canViewAll = isEditorialRole(profile.role as AppRole);
+    const canViewAll = !authorOnly && isEditorialRole(profile.role as AppRole);
 
     let query = supabase
         .from("articles")

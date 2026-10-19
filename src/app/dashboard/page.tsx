@@ -34,25 +34,35 @@ export default async function DashboardPage() {
     const supabase = await createClient();
     const canEdit = isEditorialRole(profile.role);
     const canAdmin = isAdminRole(profile.role);
+    const isWartawan = profile.role === "wartawan";
 
-    const [inReviewCount, revisionCount, publishedCount, mediaRows, dashboardArticles] = await Promise.all([
-        canAdmin
-            ? getCount(
-                supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "in_review") as unknown as Promise<CountResult>,
-            )
+    // Bagi wartawan: hitung hanya artikel milik mereka sendiri.
+    // Bagi admin: hitung global portal.
+    let inReviewQuery = supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "in_review");
+    let revisionQuery = supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "revision");
+    let publishedQuery = supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "published");
+
+    if (isWartawan) {
+        inReviewQuery = inReviewQuery.eq("author_id", profile.id);
+        revisionQuery = revisionQuery.eq("author_id", profile.id);
+        publishedQuery = publishedQuery.eq("author_id", profile.id);
+    }
+
+    const [inReviewCount, revisionCount, publishedCount, mediaRows, dashboardArticles, userPointBalance] = await Promise.all([
+        canAdmin || isWartawan
+            ? getCount(inReviewQuery as unknown as Promise<CountResult>)
             : Promise.resolve(0),
-        canAdmin
-            ? getCount(
-                supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "revision") as unknown as Promise<CountResult>,
-            )
+        canAdmin || isWartawan
+            ? getCount(revisionQuery as unknown as Promise<CountResult>)
             : Promise.resolve(0),
-        getCount(
-            supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "published") as unknown as Promise<CountResult>,
-        ),
+        getCount(publishedQuery as unknown as Promise<CountResult>),
         canEdit
-            ? supabase.from("media_assets").select("bytes")
+            ? (isWartawan
+                ? supabase.from("media_assets").select("bytes").eq("uploaded_by", profile.id)
+                : supabase.from("media_assets").select("bytes"))
             : Promise.resolve({ data: [] as { bytes: number | null }[], error: null }),
-        canEdit ? getArticlesForDashboard(profile, 100) : Promise.resolve([]),
+        canEdit ? getArticlesForDashboard(profile, 100, isWartawan) : Promise.resolve([]),
+        supabase.rpc("point_balance", { target_user: profile.id }),
     ]);
 
     if (mediaRows.error) {
@@ -80,7 +90,10 @@ export default async function DashboardPage() {
     const draftCount = dashboardArticles.filter((a) => a.status === "draft").length;
     const totalViews = publishedArticles.reduce((sum, a) => sum + (a.view_count || 0), 0);
     const mediaBytes = (mediaRows.data ?? []).reduce((sum, m) => sum + (m.bytes ?? 0), 0);
-    const royaltyPoints = totalViews * 2;
+
+    const points = Number(userPointBalance.data ?? 0);
+    // Nilai konversi resmi sistem SwapNews: 1 poin = Rp1.000
+    const pointValueRupiah = points * 1000;
 
     return (
         <DashboardLayout profile={profile}>
@@ -100,9 +113,43 @@ export default async function DashboardPage() {
                         revisionCount={revisionCount}
                     />
 
-                    <MetricGridCards totalViews={totalViews} mediaBytes={mediaBytes} royaltyPoints={royaltyPoints} seoScore={8.7} />
+                    <MetricGridCards
+                        totalViews={totalViews}
+                        mediaBytes={mediaBytes}
+                        royaltyPoints={pointValueRupiah}
+                        royaltyLabel={isWartawan ? `POIN ANDA (${points.toLocaleString("id-ID")})` : "ESTIMASI ROYALTI"}
+                        pointsDisplay={`Rp ${pointValueRupiah.toLocaleString("id-ID")}`}
+                        seoScore={8.7}
+                    />
 
-                    <CalloutBanner draftCount={inReviewCount || draftCount} />
+                    {isWartawan ? (
+                        <CalloutBanner
+                            eyebrow="RUANG KERJA WARTAWAN"
+                            title={
+                                inReviewCount > 0
+                                    ? `Ada ${inReviewCount} Berita Anda Sedang Dalam Peninjauan`
+                                    : revisionCount > 0
+                                        ? `Ada ${revisionCount} Berita Anda Memerlukan Revisi`
+                                        : "Tulis dan Terbitkan Berita Baru untuk Menambah Poin"
+                            }
+                            linkHref={
+                                revisionCount > 0
+                                    ? "/dashboard/articles?status=revision"
+                                    : inReviewCount > 0
+                                        ? "/dashboard/articles?status=in_review"
+                                        : "/dashboard/articles/new"
+                            }
+                            linkText={
+                                revisionCount > 0
+                                    ? "Perbaiki Berita"
+                                    : inReviewCount > 0
+                                        ? "Lihat Status"
+                                        : "+ Tulis Berita Baru"
+                            }
+                        />
+                    ) : (
+                        <CalloutBanner draftCount={inReviewCount || draftCount} />
+                    )}
                 </div>
             </div>
         </DashboardLayout>

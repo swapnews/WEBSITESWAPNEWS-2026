@@ -240,7 +240,47 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
 
                     <section className="quality-engine"><header><div><span>EDITORIAL QUALITY ENGINE • RULES 2026.1</span><h3>Scan standar berita</h3><p>EYD, struktur, jurnalistik, people-first, dan SEO.</p></div><div><button type="button" className="secondary-button" onClick={applySafeFix}><WandSparkles size={15} /> Fix Aman</button><button type="button" className="primary-button" onClick={runQualityScan}><ScanSearch size={15} /> Scan Artikel</button></div></header>{qualityScan && <div className="quality-result"><div className={`quality-score ${qualityScan.passed ? "passed" : "failed"}`}><strong>{qualityScan.score}</strong><span>/100</span><small>{qualityScan.passed ? "LAYAK" : "PERLU REVIEW"}</small></div><div className="quality-dimensions">{Object.entries(qualityScan.scores).map(([key, value]) => <div key={key}><span>{key}</span><b>{value}</b></div>)}</div><div className="quality-issues">{qualityScan.issues.length === 0 ? <p>Tidak ada masalah terdeteksi.</p> : qualityScan.issues.map(item => <article className={item.severity} key={item.id}><ShieldAlert /><div><b>{item.message}</b>{item.suggestion && <p>{item.suggestion}</p>}<small>{item.category} • {item.severity}</small></div></article>)}</div><footer>{qualityScan.stats.words} kata • {qualityScan.stats.paragraphs} paragraf • {qualityScan.stats.sentences} kalimat</footer></div>}</section>
 
-                    {isEditing && <section className="editorial-workflow-box"><div><span>EDITORIAL WORKFLOW</span><h3>Catatan dan penjadwalan</h3><p>Catatan tersimpan di riwayat internal redaksi.</p></div><label>Catatan editor<textarea name="editorial_note" rows={3} placeholder="Alasan revisi, fakta yang perlu dicek, atau keputusan editor..." /></label>{canReview && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}><div className="points-fixed-badge" style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(249, 115, 22, 0.08)", border: "1px solid rgba(249, 115, 22, 0.2)" }}><strong style={{ display: "block", color: "var(--dash-accent-strong, #ea580c)", fontSize: 13 }}>Hadiah Poin: 10 Poin</strong><small style={{ color: "#756b65", fontSize: 11 }}>Setiap artikel yang disetujui/diterbitkan otomatis mendapatkan 10 poin ke akun penulis.</small></div><label>Jadwal terbit<input name="scheduled_at" type="datetime-local" min={new Date().toISOString().slice(0, 16)} /></label></div>}</section>}
+                    {isEditing && (
+                        <section className="editorial-workflow-box">
+                            <header className="editorial-workflow-header">
+                                <div>
+                                    <span>EDITORIAL WORKFLOW</span>
+                                    <h3>Catatan dan Penjadwalan</h3>
+                                    <p>Catatan tersimpan di riwayat internal redaksi.</p>
+                                </div>
+                            </header>
+
+                            <div className="editorial-workflow-body">
+                                <div className="editorial-workflow-note">
+                                    <label htmlFor="editorial_note_input">Catatan Editor</label>
+                                    <textarea
+                                        id="editorial_note_input"
+                                        name="editorial_note"
+                                        rows={3}
+                                        placeholder="Alasan revisi, fakta yang perlu dicek, atau keputusan editor..."
+                                    />
+                                </div>
+
+                                {canReview && (
+                                    <div className="editorial-workflow-controls">
+                                        <div className="points-fixed-badge">
+                                            <strong>Hadiah Poin: 10 Poin</strong>
+                                            <small>Setiap artikel yang disetujui/diterbitkan otomatis menambahkan 10 poin ke akun penulis.</small>
+                                        </div>
+                                        <label>
+                                            Jadwal Terbit
+                                            <input
+                                                name="scheduled_at"
+                                                type="datetime-local"
+                                                min={new Date().toISOString().slice(0, 16)}
+                                            />
+                                        </label>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+                    )}
+
                 </div>
 
                 <div className="cms-actions">

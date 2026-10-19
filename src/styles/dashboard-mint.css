@@ -892,6 +892,48 @@ html[data-theme="light"] .dash-shell * {
     color: var(--dash-success);
 }
 
+.dash-shell .cms-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.dash-shell .cms-form-grid > .full,
+.dash-shell .cms-form-grid > .quality-engine,
+.dash-shell .cms-form-grid > .editorial-workflow-box {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+}
+
+.dash-shell .cms-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    padding: 16px 20px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+.dash-shell .cms-actions button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+    transition: all 160ms ease;
+}
+
+.dash-shell .cms-delete {
+    margin-top: 14px;
+}
+
 .dash-shell .status-badge.draft {
     background: #f4f4f5;
     color: #686167;
