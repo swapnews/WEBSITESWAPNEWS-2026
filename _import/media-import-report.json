@@ -3,14 +3,14 @@
   "limit": null,
   "staging_articles": 694,
   "local_originals": 110,
-  "unlinked_with_source": 98,
-  "selected": 98,
-  "local_sources": 0,
-  "remote_sources": 98,
-  "uploaded": 0,
+  "unlinked_with_source": 138,
+  "selected": 138,
+  "local_sources": 39,
+  "remote_sources": 99,
+  "uploaded": 39,
   "skipped": 0,
-  "reconciled": 1,
-  "linked": 1,
+  "reconciled": 0,
+  "linked": 39,
   "errors": [
     {
       "slug": "satgas-keimigrasian-bali-patroli-wna-keamanan-wisata",
@@ -21,6 +21,11 @@
       "slug": "f0-9f-9a-a8-terbongkar-wanita-27-tahun-dijadikan-psk-lewat-aplikasi-chat-polres-bangli-rin",
       "url": "http://swapnews.co.id/wp-content/uploads/2025/08/IMG20250815133609-768x432-1.jpg",
       "error": "Context Invalid encoding in context"
+    },
+    {
+      "slug": "polda-bali-gelar-apel-kesiapan-personel-amankan-fbi-naa-aspac-retrainer-conference-2025",
+      "url": "http://swapnews.co.id/wp-content/uploads/2025/08/IMG-20250819-WA0046.jpg",
+      "error": "Error in loading http://swapnews.co.id/wp-content/uploads/2025/08/IMG-20250819-WA0046.jpg - 403 Forbidden"
     },
     {
       "slug": "airbnb-unesco-ubah-wajah-bali-pariwisata-budaya-atau-komersialisasi-warisan",
@@ -486,6 +491,11 @@
       "slug": "ksop-cabut-sertifikat-speedboat-meledak-di-labuan-bajo",
       "url": "https://swapnews.co.id/wp-content/uploads/2025/12/KSOP-Labuan-Bajo-mencabut-sertifikat-keselamatan-speedboat-Lacoco-usai-insiden-ledakan-yang-melukai-awak-kapal-dan-mengangkut-wisatawan-China.jpeg",
       "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/KSOP-Labuan-Bajo-mencabut-sertifikat-keselamatan-speedboat-Lacoco-usai-insiden-ledakan-yang-melukai-awak-kapal-dan-mengangkut-wisatawan-China.jpeg - 403 Forbidden"
+    },
+    {
+      "slug": "gpt-5-2-diluncurkan-openai-klaim-tingkatkan-keandalan-ai-korporasi",
+      "url": "https://swapnews.co.id/wp-content/uploads/2025/12/OpenAI-meluncurkan-model-AI-terbaru-GPT-5.2-untuk-kebutuhan-korporasi.webp",
+      "error": "Error in loading https://swapnews.co.id/wp-content/uploads/2025/12/OpenAI-meluncurkan-model-AI-terbaru-GPT-5.2-untuk-kebutuhan-korporasi.webp - 403 Forbidden"
     },
     {
       "slug": "sengketa-hak-sewa-restorantanpa-konfirmasi-pihak-pertama-menyewakan-lahan-ke-pihak-ketiga",
