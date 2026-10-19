@@ -23,6 +23,10 @@
 # misc
 .DS_Store
 *.pem
+*.sql
+_import/
+QUICK-OG-TEST.md
+.vscode/
 
 # debug
 npm-debug.log*
