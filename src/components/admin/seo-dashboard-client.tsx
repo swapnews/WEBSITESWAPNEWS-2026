@@ -113,6 +113,8 @@ export function SeoDashboardClient() {
     const [schemaType, setSchemaType] = useState<keyof typeof schemaExamples>("NewsArticle");
     const [copied, setCopied] = useState(false);
 
+    const [now, setNow] = useState(0);
+
     const load = useCallback(async () => {
         setLoading(true); setError(""); setNotice("");
         try {
@@ -120,10 +122,29 @@ export function SeoDashboardClient() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || "Gagal memuat data SEO");
             setSettings(data.settings); setArticles(data.articles); setStats(data.stats);
+            setNow(Date.now());
         } catch (err) { setError(err instanceof Error ? err.message : "Gagal memuat data SEO"); }
         finally { setLoading(false); }
     }, []);
-    useEffect(() => { void load(); }, [load]);
+    useEffect(() => {
+        let mounted = true;
+        const fetchInitial = async () => {
+            try {
+                const response = await fetch("/api/admin/seo", { cache: "no-store" });
+                const data = await response.json();
+                if (!mounted) return;
+                if (!response.ok) throw new Error(data.error || "Gagal memuat data SEO");
+                setSettings(data.settings); setArticles(data.articles); setStats(data.stats);
+                setNow(Date.now());
+            } catch (err) {
+                if (mounted) setError(err instanceof Error ? err.message : "Gagal memuat data SEO");
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+        void fetchInitial();
+        return () => { mounted = false; };
+    }, []);
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
@@ -164,6 +185,12 @@ export function SeoDashboardClient() {
         ];
         return lines.join("\n");
     }, [settings.ai_crawler_policy]);
+
+    const recent48hArticles = useMemo(() => {
+        if (!now) return [];
+        const threshold = now - 48 * 60 * 60 * 1000;
+        return articles.filter((article) => article.status === "published" && article.published_at && new Date(article.published_at).getTime() >= threshold);
+    }, [articles, now]);
 
     if (loading && !stats) return <main className="mx-auto max-w-7xl px-6 py-10"><div className="animate-pulse rounded-3xl border border-orange-900/10 bg-white/70 p-6"><div className="h-8 w-64 rounded-lg bg-orange-200/40" /><div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">{[0, 1, 2, 3].map((i) => <div key={i} className="h-24 rounded-2xl bg-orange-100/40" />)}</div></div></main>;
 
@@ -271,25 +298,34 @@ export function SeoDashboardClient() {
                 <div className="mt-5 rounded-2xl bg-violet-50 px-4 py-3 text-[11px] font-semibold text-violet-700"><Link2 size={14} className="mr-1 inline" />JSON-LD di-render server dan karakter &lt; di-escape untuk mencegah XSS.</div>
             </div>
             <div className="rounded-3xl border border-orange-900/10 bg-stone-950 p-5 shadow-xl lg:col-span-3">
-                <div className="flex items-center justify-between"><span className="text-[11px] font-extrabold uppercase tracking-widest text-stone-400">&lt;script type="application/ld+json"&gt;</span>
+                <div className="flex items-center justify-between"><span className="text-[11px] font-extrabold uppercase tracking-widest text-stone-400">&lt;script type=&quot;application/ld+json&quot;&gt;</span>
                     <button onClick={() => void copySchema()} className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-white/20 transition hover:bg-white/20">{copied ? <CheckCircle2 size={14} className="text-emerald-400" /> : <Copy size={14} />} {copied ? "Tersalin" : "Salin"}</button></div>
                 <pre className="mt-4 overflow-x-auto whitespace-pre rounded-2xl bg-black/40 p-4 text-[12px] leading-relaxed text-emerald-300">{schemaJson}</pre>
             </div>
         </section>}
 
         {tab === "sitemap" && <section className="mt-6 grid gap-6 lg:grid-cols-2">
-            <div className="rounded-3xl border border-orange-900/10 bg-white/80 p-5 shadow-sm sm:p-6"><div className="flex items-center gap-2"><Network size={18} className="text-orange-600" /><h2 className="font-display text-xl font-black text-stone-900">Sitemap &amp; News</h2></div>
+            <div className="rounded-3xl border border-orange-900/10 bg-white/80 p-5 shadow-sm sm:p-6"><div className="flex items-center justify-between"><div className="flex items-center gap-2"><Network size={18} className="text-orange-600" /><h2 className="font-display text-xl font-black text-stone-900">Sitemap &amp; News</h2></div><button onClick={async () => {
+                try {
+                    const res = await fetch("/api/admin/indexnow", { method: "POST" });
+                    const d = await res.json();
+                    if (!res.ok) throw new Error(d.error || "Gagal kirim");
+                    setNotice(d.message || "Berhasil submit ke IndexNow!");
+                } catch (e) {
+                    setError(e instanceof Error ? e.message : "Gagal submit IndexNow");
+                }
+            }} className="inline-flex items-center gap-1.5 rounded-xl bg-orange-600 px-3 py-1.5 text-xs font-bold text-white shadow transition hover:bg-orange-700"><Sparkles size={14} /> Submit IndexNow</button></div>
                 <ul className="mt-4 space-y-3 text-sm font-semibold text-stone-700">
                     <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-500" /><a href="https://swapnews.co.id/sitemap.xml" target="_blank" rel="noreferrer" className="text-orange-600 underline-offset-2 hover:underline">/sitemap.xml</a> — semua URL canonical</li>
-                    <li className="flex items-center gap-2"><TriangleAlert size={16} className="text-amber-500" /><span>/sitemap-news.xml</span> — buat berisi artikel &lt;48 jam ({stats?.fresh_48h ?? 0} artikel)</li>
-                    <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-500" /><span>robots.txt memuat kedua sitemap</span></li>
+                    <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-500" /><a href="https://swapnews.co.id/sitemap-news.xml" target="_blank" rel="noreferrer" className="text-orange-600 underline-offset-2 hover:underline">/sitemap-news.xml</a> — artikel &lt;48 jam ({stats?.fresh_48h ?? 0} artikel)</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-500" /><span>robots.txt memuat kedua sitemap &amp; rule crawler</span></li>
                 </ul>
                 <div className="mt-5 rounded-2xl bg-stone-50 p-4"><div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-stone-500"><ClipboardIcon size={14} /> Preview robots.txt</div><pre className="mt-2 overflow-x-auto whitespace-pre text-[11px] leading-relaxed text-stone-700">{robotsPreview}</pre></div>
             </div>
             <div className="rounded-3xl border border-orange-900/10 bg-white/80 p-5 shadow-sm sm:p-6"><div className="flex items-center gap-2"><Newspaper size={18} className="text-orange-600" /><h2 className="font-display text-xl font-black text-stone-900">Artikel 48 Jam Terakhir</h2></div>
                 <p className="mt-1 text-xs font-semibold text-stone-500">Kandidat untuk news sitemap (Google News) — artikel yang diterbitkan dalam 48 jam terakhir.</p>
-                <ul className="mt-4 space-y-3">{articles.filter((article) => article.status === "published" && article.published_at && Date.now() - new Date(article.published_at).getTime() < 48 * 60 * 60 * 1000).slice(0, 20).map((article) => <li key={article.id} className="flex items-center justify-between gap-3 rounded-2xl border border-orange-900/5 bg-white px-3 py-2.5"><div className="min-w-0"><p className="truncate text-sm font-bold text-stone-800">{article.title}</p><p className="text-[11px] font-semibold text-stone-400">{article.published_at ? new Date(article.published_at).toLocaleString("id-ID") : ""}</p></div><a href={`https://swapnews.co.id/${article.slug}`} target="_blank" rel="noreferrer" className="shrink-0 text-orange-600 hover:opacity-70"><ExternalLink size={15} /></a></li>)}
-                    {!articles.filter((article) => article.status === "published" && article.published_at && Date.now() - new Date(article.published_at).getTime() < 48 * 60 * 60 * 1000).length && <div className="py-10 text-center text-sm font-semibold text-stone-400"><LayoutList size={20} className="mx-auto mb-2 opacity-40" /> Belum ada artikel yang terbit dalam 48 jam terakhir.</div>}</ul>
+                <ul className="mt-4 space-y-3">{recent48hArticles.slice(0, 20).map((article) => <li key={article.id} className="flex items-center justify-between gap-3 rounded-2xl border border-orange-900/5 bg-white px-3 py-2.5"><div className="min-w-0"><p className="truncate text-sm font-bold text-stone-800">{article.title}</p><p className="text-[11px] font-semibold text-stone-400">{article.published_at ? new Date(article.published_at).toLocaleString("id-ID") : ""}</p></div><a href={`https://swapnews.co.id/${article.slug}`} target="_blank" rel="noreferrer" className="shrink-0 text-orange-600 hover:opacity-70"><ExternalLink size={15} /></a></li>)}
+                    {!recent48hArticles.length && <div className="py-10 text-center text-sm font-semibold text-stone-400"><LayoutList size={20} className="mx-auto mb-2 opacity-40" /> Belum ada artikel yang terbit dalam 48 jam terakhir.</div>}</ul>
             </div>
         </section>}
     </main>;

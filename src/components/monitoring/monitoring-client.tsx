@@ -24,7 +24,28 @@ export function MonitoringClient() {
         } catch (err) { setError(err instanceof Error ? err.message : "Health check gagal"); }
         finally { setLoading(false); }
     }, []);
-    useEffect(() => { void refresh(); const timer = setInterval(() => void refresh(), 30000); return () => clearInterval(timer); }, [refresh]);
+    useEffect(() => {
+        let mounted = true;
+        const check = async () => {
+            try {
+                const response = await fetch("/api/system/health", { cache: "no-store" });
+                const data = await response.json();
+                if (!mounted) return;
+                if (!response.ok) throw new Error(data.error || "Health check gagal");
+                setHealth(data);
+            } catch (err) {
+                if (mounted) setError(err instanceof Error ? err.message : "Health check gagal");
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+        void check();
+        const timer = setInterval(() => void check(), 30000);
+        return () => {
+            mounted = false;
+            clearInterval(timer);
+        };
+    }, []);
 
     const statusLabel = (status: Status) => status === "green" ? "ONLINE" : status === "yellow" ? "WARNING" : "ERROR";
     const StatusIcon = ({ status }: { status: Status }) => status === "green" ? <CheckCircle2 /> : status === "yellow" ? <TriangleAlert /> : <XCircle />;

@@ -6,7 +6,8 @@ import { ArrowUpRight, Clock3, Home, Mail, ShieldCheck } from "lucide-react";
 import { createPublicClient } from "@/lib/supabase/public";
 import { PublicPageHeader } from "@/components/public-page-header";
 import { extractFirstImageFromHtml, resolveSeoImage } from "@/lib/seo/metadata";
-export const revalidate = 3600;
+// Halaman informasi statis: cache 24 jam untuk zero unnecessary rebuilds
+export const revalidate = 86400;
 type RecordPage = { title: string; slug: string; excerpt: string | null; content: string; seo_title: string | null; meta_description: string | null; tags: string[] | null; published_at: string | null; updated_at: string; featured_media: { secure_url: string; alt_text: string } | { secure_url: string; alt_text: string }[] | null };
 const pageLinks = [["About Us", "about-us"], ["Karir", "karir"], ["Pasang Iklan", "pasang-iklan"], ["Bantuan", "bantuan"], ["Kebijakan Privasi", "kebijakan-privasi"], ["Syarat & Ketentuan", "syarat-dan-ketentuan"], ["Pedoman Siber", "pedoman-siber"], ["Panduan Komunitas", "panduan-komunitas"], ["Disclaimer", "disclaimer"]];
 const legal = new Set(["kebijakan-privasi", "syarat-dan-ketentuan", "pedoman-siber", "panduan-komunitas", "disclaimer"]);

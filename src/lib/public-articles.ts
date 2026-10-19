@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 import { getActiveAdSlots } from "@/lib/ads/data";
@@ -358,7 +359,7 @@ function normalizeArticle(
     // isi HTML penuh, yang memaksa kita mengunduh seluruh badan artikel.
     const excerptSource = row.excerpt?.trim() || row.meta_description?.trim() || row.content || row.title;
     const rawMedia = row.featured_media_id ? mediaMap.get(row.featured_media_id) ?? null : null;
-    
+
     let featuredMedia: PublicMedia | null = null;
     if (rawMedia) {
         featuredMedia = {
@@ -487,7 +488,7 @@ export function getFallbackArticles() {
     return fallbackArticles;
 }
 
-export const getPublicHomeData = cache(async (): Promise<PublicHomeData> => {
+const fetchPublicHomeData = async (): Promise<PublicHomeData> => {
     const [articles, ads] = await Promise.all([
         queryPublishedArticles(HOME_ARTICLE_LIMIT),
         getActiveAdSlots(),
@@ -530,9 +531,17 @@ export const getPublicHomeData = cache(async (): Promise<PublicHomeData> => {
         reels, homepageSections, breakingNews, ads,
         isFallback: articles.length === 0,
     };
-});
+};
 
-export const getPublicArticleBySlug = cache(async (slug: string) => {
+export const getPublicHomeData = cache(
+    unstable_cache(
+        fetchPublicHomeData,
+        ["public-home-data"],
+        { revalidate: 3600, tags: ["home-data", "articles"] }
+    )
+);
+
+const fetchPublicArticleBySlug = async (slug: string) => {
     try {
         const supabase = createPublicClient();
         // Halaman artikel tunggal: satu baris, jadi `content` aman diambil.
@@ -566,6 +575,14 @@ export const getPublicArticleBySlug = cache(async (slug: string) => {
         console.error("Failed to load article by slug", error);
         return null;
     }
+};
+
+export const getPublicArticleBySlug = cache(async (slug: string) => {
+    return unstable_cache(
+        () => fetchPublicArticleBySlug(slug),
+        [`public-article-${slug}`],
+        { revalidate: 86400, tags: [`article-${slug}`, "articles"] }
+    )();
 });
 
 export async function queryPublishedSitemapArticles() {
@@ -610,7 +627,7 @@ export type PublicChannelData = {
     trending: PublicArticle[];
 };
 
-export const getPublicChannelData = cache(async (slug: string): Promise<PublicChannelData | null> => {
+const fetchPublicChannelData = async (slug: string): Promise<PublicChannelData | null> => {
     try {
         const safeSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "");
         const supabase = createPublicClient();
@@ -638,6 +655,14 @@ export const getPublicChannelData = cache(async (slug: string): Promise<PublicCh
         console.error("Failed to load channel", error);
         return null;
     }
+};
+
+export const getPublicChannelData = cache(async (slug: string): Promise<PublicChannelData | null> => {
+    return unstable_cache(
+        () => fetchPublicChannelData(slug),
+        [`public-channel-${slug}`],
+        { revalidate: 7200, tags: [`channel-${slug}`, "articles"] }
+    )();
 });
 
 export async function getRelatedPublicArticles(article: PublicArticle, limit = 3) {

@@ -145,6 +145,13 @@ export function buildSiteMetadata(): Metadata {
             apple: "/apple-touch-icon.png",
         },
         manifest: "/manifest.webmanifest",
+        verification: {
+            google: "google-site-verification-swapnews",
+            yandex: "yandex-verification-swapnews",
+            other: {
+                "msvalidate.01": "bing-site-verification-swapnews",
+            },
+        },
         openGraph: {
             type: "website",
             siteName: "SwapNews",

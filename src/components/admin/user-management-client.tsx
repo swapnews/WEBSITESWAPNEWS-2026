@@ -10,7 +10,19 @@ const emptyForm: FormState = { full_name: "", email: "", password: "", role: "vi
 export function UserManagementClient() {
     const [users, setUsers] = useState<UserRow[]>([]); const [form, setForm] = useState<FormState>(emptyForm); const [open, setOpen] = useState(false); const [loading, setLoading] = useState(true); const [message, setMessage] = useState("");
     const load = useCallback(async () => { setLoading(true); const response = await fetch("/api/admin/users", { cache: "no-store" }); const data = await response.json(); if (response.ok) setUsers(data.users ?? []); else setMessage(data.error || "Gagal memuat akun"); setLoading(false); }, []);
-    useEffect(() => { void load(); }, [load]);
+    useEffect(() => {
+        let mounted = true;
+        const fetchInitial = async () => {
+            const response = await fetch("/api/admin/users", { cache: "no-store" });
+            const data = await response.json();
+            if (!mounted) return;
+            if (response.ok) setUsers(data.users ?? []);
+            else setMessage(data.error || "Gagal memuat akun");
+            setLoading(false);
+        };
+        void fetchInitial();
+        return () => { mounted = false; };
+    }, []);
     function edit(user: UserRow) { setForm({ id: user.id, full_name: user.full_name || "", email: user.email, password: "", role: user.role }); setOpen(true); }
     async function save(event: React.FormEvent) { event.preventDefault(); setMessage(""); const response = await fetch("/api/admin/users", { method: form.id ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) }); const data = await response.json(); if (!response.ok) return setMessage(data.error || "Gagal menyimpan akun"); setMessage(form.id ? "Akun berhasil diperbarui" : "Akun berhasil dibuat"); setOpen(false); setForm(emptyForm); void load(); }
     async function remove(id: string) { if (!confirm("Hapus akun ini permanen? Semua data Auth terkait ikut terhapus.")) return; const response = await fetch(`/api/admin/users?id=${encodeURIComponent(id)}`, { method: "DELETE" }); const data = await response.json(); setMessage(response.ok ? "Akun berhasil dihapus" : data.error || "Gagal menghapus akun"); if (response.ok) void load(); }

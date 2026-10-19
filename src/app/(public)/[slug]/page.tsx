@@ -26,9 +26,10 @@ import { resolveSeoImage } from "@/lib/seo/metadata";
 import { PublicSiteHeader } from "@/components/public-site-header";
 import ArticleViewCounter from "@/components/article-view-counter";
 
-// ISR: artikel jarang berubah setelah terbit, jadi jendela cache lebih panjang
-// dari homepage. Pembaruan editorial tetap instan lewat revalidatePath.
-export const revalidate = 300;
+// ISR: Artikel jarang berubah setelah terbit. Cache 24 jam (86400s) mencegah
+// ribuan background ISR writes ke Vercel cache storage.
+// Pembaruan editorial tetap instan saat diedit lewat revalidatePath(`/${slug}`).
+export const revalidate = 86400;
 
 // Slug di luar daftar prebuild tetap dilayani (dirender saat diminta, lalu di-cache).
 export const dynamicParams = true;
@@ -109,21 +110,55 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 function jsonLd(article: PublicArticle, imageUrl: string) {
+    const canonical = `https://swapnews.co.id/${article.slug}`;
     return {
         "@context": "https://schema.org",
-        "@type": "NewsArticle",
-        headline: article.title,
-        description: article.meta_description || article.excerpt,
-        keywords: article.tags.join(", "),
-        image: [imageUrl],
-        datePublished: article.published_at,
-        dateModified: article.updated_at,
-        author: { "@type": "Person", name: article.author_name },
-        publisher: { "@type": "NewsMediaOrganization", name: "SwapNews", logo: { "@type": "ImageObject", url: "https://swapnews.co.id/swapnews-logo.png" } },
-        articleSection: article.category_name,
-        isAccessibleForFree: !article.is_exclusive,
-        mainEntityOfPage: `https://swapnews.co.id/${article.slug}`,
-        inLanguage: "id-ID",
+        "@graph": [
+            {
+                "@type": "NewsArticle",
+                "@id": `${canonical}#article`,
+                headline: article.title,
+                description: article.meta_description || article.excerpt,
+                keywords: article.tags.join(", "),
+                image: [imageUrl],
+                datePublished: article.published_at,
+                dateModified: article.updated_at,
+                author: { "@type": "Person", name: article.author_name },
+                publisher: {
+                    "@type": "NewsMediaOrganization",
+                    name: "SwapNews",
+                    logo: { "@type": "ImageObject", url: "https://swapnews.co.id/swapnews-logo.png" },
+                },
+                articleSection: article.category_name,
+                isAccessibleForFree: !article.is_exclusive,
+                mainEntityOfPage: canonical,
+                inLanguage: "id-ID",
+            },
+            {
+                "@type": "BreadcrumbList",
+                "@id": `${canonical}#breadcrumb`,
+                itemListElement: [
+                    {
+                        "@type": "ListItem",
+                        position: 1,
+                        name: "Beranda",
+                        item: "https://swapnews.co.id",
+                    },
+                    {
+                        "@type": "ListItem",
+                        position: 2,
+                        name: article.category_name,
+                        item: `https://swapnews.co.id/kanal/${article.category_name.toLowerCase().replace(/\s+/g, "-")}`,
+                    },
+                    {
+                        "@type": "ListItem",
+                        position: 3,
+                        name: article.title,
+                        item: canonical,
+                    },
+                ],
+            },
+        ],
     };
 }
 

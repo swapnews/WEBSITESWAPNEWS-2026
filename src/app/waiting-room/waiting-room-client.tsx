@@ -58,7 +58,7 @@ export function WaitingRoomClient({ nextPath }: WaitingRoomClientProps) {
     }, [nextPath]);
 
     useEffect(() => {
-        let controller = new AbortController();
+        const controller = new AbortController();
         let intervalId: number | null = null;
 
         const schedulePoll = () => {

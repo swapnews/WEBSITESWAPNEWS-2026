@@ -193,7 +193,7 @@ export default async function MerchandiseDashboard({ searchParams }: Props) {
                                 {!products?.length ? (
                                     <tr>
                                         <td colSpan={8} style={{ textAlign: "center", padding: 36, color: "#64748b" }}>
-                                            Belum ada produk. Klik "+ Tambah Produk Baru" untuk menambahkan.
+                                            Belum ada produk. Klik &quot;+ Tambah Produk Baru&quot; untuk menambahkan.
                                         </td>
                                     </tr>
                                 ) : (
@@ -660,7 +660,7 @@ export default async function MerchandiseDashboard({ searchParams }: Props) {
                                 style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", color: "#000000", fontSize: 13 }}
                             />
                             <small style={{ color: "#64748b", fontSize: 11 }}>
-                                Digunakan untuk badge "Gratis Ongkir Min. Belanja Rp..." pada kartu Shopee. Isi 0 untuk menonaktifkan.
+                                Digunakan untuk badge &quot;Gratis Ongkir Min. Belanja Rp...&quot; pada kartu Shopee. Isi 0 untuk menonaktifkan.
                             </small>
                         </label>
 

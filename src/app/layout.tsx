@@ -35,10 +35,51 @@ export const viewport: Viewport = {
 
 const organizationJsonLd = {
   "@context": "https://schema.org",
-  "@type": "NewsMediaOrganization",
-  name: "SwapNews",
-  url: "https://swapnews.co.id",
-  logo: "https://swapnews.co.id/swapnews-logo.png",
+  "@graph": [
+    {
+      "@type": "NewsMediaOrganization",
+      "@id": "https://swapnews.co.id/#organization",
+      name: "SwapNews",
+      alternateName: "SwapNews Indonesia",
+      url: "https://swapnews.co.id",
+      logo: {
+        "@type": "ImageObject",
+        "@id": "https://swapnews.co.id/#logo",
+        url: "https://swapnews.co.id/swapnews-logo.png",
+        caption: "SwapNews — Suara Wawasan Aktual Publik",
+      },
+      image: "https://swapnews.co.id/swapnews-logo.png",
+      sameAs: [
+        "https://twitter.com/swapnewsid",
+        "https://facebook.com/swapnewsid",
+        "https://instagram.com/swapnews.co.id",
+      ],
+      publishingPrinciples: "https://swapnews.co.id/page/kebijakan-redaksi",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Jakarta",
+        addressRegion: "DKI Jakarta",
+        addressCountry: "ID",
+      },
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "editorial",
+        email: "redaksi@swapnews.co.id",
+        availableLanguage: ["Indonesian", "English"],
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://swapnews.co.id/#website",
+      url: "https://swapnews.co.id",
+      name: "SwapNews",
+      description: "Portal berita Super PWA: kabar terbaru, trending, dan perspektif baru setiap hari.",
+      publisher: {
+        "@id": "https://swapnews.co.id/#organization",
+      },
+      inLanguage: "id-ID",
+    },
+  ],
 };
 
 // Skrip inline yang dijalankan sebelum paint untuk mencegah kedip

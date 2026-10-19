@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
@@ -149,10 +149,15 @@ export async function createArticleAction(formData: FormData) {
 
     revalidatePath("/dashboard/articles");
     if (directPublish) {
+        revalidateTag("home-data", "max");
+        revalidateTag("articles", "max");
         revalidatePath("/");
         revalidatePath(`/${slug}`);
         revalidatePath("/sitemap.xml");
-        if (categorySlug) revalidatePath(`/kanal/${categorySlug}`);
+        if (categorySlug) {
+            revalidateTag(`channel-${categorySlug}`, "max");
+            revalidatePath(`/kanal/${categorySlug}`);
+        }
         redirect(`/dashboard/articles?success=${encodeURIComponent(`Artikel “${title}” berhasil diterbitkan`)}`);
     }
     redirect(`/dashboard/articles/${data.id}?success=${encodeURIComponent("Draft artikel berhasil dibuat")}`);
@@ -326,11 +331,20 @@ export async function updateArticleAction(formData: FormData) {
     revalidatePath("/dashboard/articles");
     revalidatePath(`/dashboard/articles/${id}`);
     if (status === "published" || existing.status === "published") {
+        revalidateTag("home-data", "max");
+        revalidateTag("articles", "max");
+        revalidateTag(`article-${existing.slug}`, "max");
         revalidatePath("/");
         revalidatePath(`/${existing.slug}`);
         revalidatePath("/sitemap.xml");
-        if (slug !== existing.slug) revalidatePath(`/${slug}`);
-        if (categorySlug) revalidatePath(`/kanal/${categorySlug}`);
+        if (slug !== existing.slug) {
+            revalidateTag(`article-${slug}`, "max");
+            revalidatePath(`/${slug}`);
+        }
+        if (categorySlug) {
+            revalidateTag(`channel-${categorySlug}`, "max");
+            revalidatePath(`/kanal/${categorySlug}`);
+        }
     }
     if (action === "publish_direct") {
         redirect(`/dashboard/articles?success=${encodeURIComponent(`Artikel “${title}” berhasil diterbitkan`)}`);
