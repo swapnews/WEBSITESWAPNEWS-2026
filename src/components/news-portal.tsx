@@ -6,8 +6,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     Bell, Bookmark, BookOpen, BriefcaseBusiness, Building2, Car, ChevronLeft, ChevronRight,
-    CircleUserRound, Clapperboard, Flame, HeartPulse, Home, House, Laptop, Moon, Newspaper,
-    Plane, Radio, Search, Sparkles, Sun, Trophy, Utensils, Zap, X, ArrowUp, Rows3, Mail,
+    Flame, HeartPulse, Home, House, Laptop, LogIn, Moon, Newspaper,
+    Plane, Radio, Search, Sparkles, Sun, Trophy, ArrowUp, Rows3, Mail, X, Zap,
 } from "lucide-react";
 
 import type { PublicArticle, PublicHomeData } from "@/lib/public-articles";
@@ -64,8 +64,6 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
     const [feedAnimating, setFeedAnimating] = useState(false);
     const [activeSlide, setActiveSlide] = useState(0);
     const [compact, setCompact] = useState(false);
-    const [savedOpen, setSavedOpen] = useState(false);
-    const [savedSlugs, setSavedSlugs] = useState<string[]>([]);
     const [lastRead, setLastRead] = useState<string | null>(null);
     const [scrolled, setScrolled] = useState(false);
     const carouselRef = useRef<HTMLDivElement>(null);
@@ -86,7 +84,6 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
         const timer = window.setTimeout(() => {
             setDark(chosen);
             setCompact(localStorage.getItem("swapnews-density") === "compact");
-            setSavedSlugs(JSON.parse(localStorage.getItem("swapnews-bookmarks") || "[]"));
             setLastRead(localStorage.getItem("swapnews-last-read"));
         }, 0);
         return () => window.clearTimeout(timer);
@@ -134,7 +131,6 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
 
     const homepageModules = mergeHomepageModules(data.homepageSections);
 
-    const savedArticles = useMemo(() => data.articles.filter(item => savedSlugs.includes(item.slug)), [data.articles, savedSlugs]);
     const continueArticle = useMemo(() => data.articles.find(item => item.slug === lastRead), [data.articles, lastRead]);
     const ad = (key: string) => data.ads.find((slot) => slot.slot_key === key);
     const toggleDensity = () => { const next = !compact; setCompact(next); localStorage.setItem("swapnews-density", next ? "compact" : "comfortable"); };
@@ -210,32 +206,32 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
                 {homepageModules.filter(module => module.is_enabled).map(module => {
                     if (isAdModule(module)) return <div key={module.section_key} data-home-module={module.section_key}><AdSlotFrame slot={{ name: module.title, is_active: true, content_type: "html", html_content: module.settings?.html_content ?? "", youtube_url: null, desktop_width: 970, desktop_height: module.settings?.desktop_height ?? 250, mobile_width: 320, mobile_height: module.settings?.mobile_height ?? 250 }} /></div>;
                     if (module.section_key === "topics") return <div key={module.section_key} data-home-module={module.section_key} className={`composed-topics topics-${module.style_variant}`}>
-                <section className="topic-grid" aria-label="Pilihan kanal">
-                    {topics.map(({ name, icon: Icon }, index) => (
-                        <button
-                            id={`topic-${name.toLowerCase().replaceAll(" ", "-")}`}
-                            key={name}
-                            className={active === name ? "active" : ""}
-                            style={{ "--topic-index": index } as React.CSSProperties}
-                            onClick={() => setActive(name)}
-                        ><Icon /><span>{name}</span></button>
-                    ))}
-                </section>
+                        <section className="topic-grid" aria-label="Pilihan kanal">
+                            {topics.map(({ name, icon: Icon }, index) => (
+                                <button
+                                    id={`topic-${name.toLowerCase().replaceAll(" ", "-")}`}
+                                    key={name}
+                                    className={active === name ? "active" : ""}
+                                    style={{ "--topic-index": index } as React.CSSProperties}
+                                    onClick={() => setActive(name)}
+                                ><Icon /><span>{name}</span></button>
+                            ))}
+                        </section>
 
-                <section className="topic-filter" aria-labelledby="topic-title">
-                    <div className="news-section-head"><h2 id="topic-title">{module.title}</h2><button>Lihat semua</button></div>
-                    <div className="topic-chips">
-                        {filters.map(topic => <button key={topic} className={active === topic ? "active" : ""} onClick={() => selectTopic(topic)} aria-pressed={active === topic}>{topic}</button>)}
-                    </div>
-                </section>
-                <AdSlotFrame slot={ad("home_after_topics_leaderboard")} />
+                        <section className="topic-filter" aria-labelledby="topic-title">
+                            <div className="news-section-head"><h2 id="topic-title">{module.title}</h2><button>Lihat semua</button></div>
+                            <div className="topic-chips">
+                                {filters.map(topic => <button key={topic} className={active === topic ? "active" : ""} onClick={() => selectTopic(topic)} aria-pressed={active === topic}>{topic}</button>)}
+                            </div>
+                        </section>
+                        <AdSlotFrame slot={ad("home_after_topics_leaderboard")} />
 
-                <section id="topic-feed" className={`topic-news-feed ${feedAnimating ? "is-changing" : ""}`} aria-live="polite" aria-labelledby="topic-feed-title">
-                    <header><div><span>{active === "Trending" ? "PALING DICARI • PALING DIBACA" : "UPDATE REDAKSI"}</span><h2 id="topic-feed-title">{active === "Semua" ? "Berita Terbaru" : active}</h2><p>{active === "Trending" ? "Urutan berdasarkan jumlah pembaca tertinggi." : active === "Semua" ? "Semua berita terbaru dari seluruh kanal SwapNews." : `Berita dan artikel terbaru dalam kategori ${active}.`}</p></div><b>{topicArticles.length} artikel</b></header>
-                    {pagedTopicArticles.length ? <div className="topic-news-grid">{pagedTopicArticles.map((item, index) => <Link href={`/${item.slug}`} key={item.id} className={index === 0 ? "topic-news-card featured" : "topic-news-card"}><div><Image src={articleImage(item, index)} alt={item.featured_media?.alt_text || item.title} fill sizes={index === 0 ? "640px" : "320px"} /><span className="news-image-shade" /><small>{item.category_name}</small></div><section><h3>{item.title}</h3><p>{item.excerpt}</p><footer><span>{formatRelativeDate(item.published_at)} · {item.reading_time_minutes} menit</span>{active === "Trending" && <b>{item.view_count.toLocaleString("id-ID")} dibaca</b>}</footer></section></Link>)}</div> : <div className="topic-feed-empty"><h3>Belum ada berita {active}</h3><p>Redaksi sedang menyiapkan artikel terbaik.</p></div>}
-                    {topicPageCount > 1 && <nav className="topic-pagination" aria-label="Halaman berita"><button onClick={() => selectTopicPage(Math.max(1, topicPage - 1))} disabled={topicPage === 1} aria-label="Halaman sebelumnya"><ChevronLeft /></button>{Array.from({ length: topicPageCount }, (_, i) => i + 1).map(page => <button key={page} className={page === topicPage ? "active" : ""} aria-current={page === topicPage ? "page" : undefined} onClick={() => selectTopicPage(page)}>{page}</button>)}<button onClick={() => selectTopicPage(Math.min(topicPageCount, topicPage + 1))} disabled={topicPage === topicPageCount} aria-label="Halaman berikutnya"><ChevronRight /></button></nav>}
-                </section>
-                <AdSlotFrame slot={ad("home_midfeed_billboard")} />
+                        <section id="topic-feed" className={`topic-news-feed ${feedAnimating ? "is-changing" : ""}`} aria-live="polite" aria-labelledby="topic-feed-title">
+                            <header><div><span>{active === "Trending" ? "PALING DICARI • PALING DIBACA" : "UPDATE REDAKSI"}</span><h2 id="topic-feed-title">{active === "Semua" ? "Berita Terbaru" : active}</h2><p>{active === "Trending" ? "Urutan berdasarkan jumlah pembaca tertinggi." : active === "Semua" ? "Semua berita terbaru dari seluruh kanal SwapNews." : `Berita dan artikel terbaru dalam kategori ${active}.`}</p></div><b>{topicArticles.length} artikel</b></header>
+                            {pagedTopicArticles.length ? <div className="topic-news-grid">{pagedTopicArticles.map((item, index) => <Link href={`/${item.slug}`} key={item.id} className={index === 0 ? "topic-news-card featured" : "topic-news-card"}><div><Image src={articleImage(item, index)} alt={item.featured_media?.alt_text || item.title} fill sizes={index === 0 ? "640px" : "320px"} /><span className="news-image-shade" /><small>{item.category_name}</small></div><section><h3>{item.title}</h3><p>{item.excerpt}</p><footer><span>{formatRelativeDate(item.published_at)} · {item.reading_time_minutes} menit</span>{active === "Trending" && <b>{item.view_count.toLocaleString("id-ID")} dibaca</b>}</footer></section></Link>)}</div> : <div className="topic-feed-empty"><h3>Belum ada berita {active}</h3><p>Redaksi sedang menyiapkan artikel terbaik.</p></div>}
+                            {topicPageCount > 1 && <nav className="topic-pagination" aria-label="Halaman berita"><button onClick={() => selectTopicPage(Math.max(1, topicPage - 1))} disabled={topicPage === 1} aria-label="Halaman sebelumnya"><ChevronLeft /></button>{Array.from({ length: topicPageCount }, (_, i) => i + 1).map(page => <button key={page} className={page === topicPage ? "active" : ""} aria-current={page === topicPage ? "page" : undefined} onClick={() => selectTopicPage(page)}>{page}</button>)}<button onClick={() => selectTopicPage(Math.min(topicPageCount, topicPage + 1))} disabled={topicPage === topicPageCount} aria-label="Halaman berikutnya"><ChevronRight /></button></nav>}
+                        </section>
+                        <AdSlotFrame slot={ad("home_midfeed_billboard")} />
 
                     </div>;
                     if (module.section_key === "reels") return <div key={module.section_key} data-home-module={module.section_key}><InstagramReels reels={data.reels} title={module.title} /></div>;
@@ -244,14 +240,11 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
                 <section className="newsletter-glass"><div><span>THE DAILY SIGNAL</span><h2>Berita penting. Tanpa kebisingan.</h2><p>Ringkasan editorial SwapNews langsung ke inbox.</p></div><form onSubmit={(event) => event.preventDefault()}><Mail /><input type="email" aria-label="Email newsletter" placeholder="nama@email.com" required /><button>Berlangganan</button></form></section>
             </main>
             <button className="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Kembali ke atas"><ArrowUp /></button>
-            {savedOpen && <aside className="saved-drawer" aria-label="Berita tersimpan"><header><div><span>KOLEKSI</span><h2>Tersimpan</h2></div><button onClick={() => setSavedOpen(false)} aria-label="Tutup"><X /></button></header>{savedArticles.length ? savedArticles.map(item => <Link href={`/${item.slug}`} key={item.id}><Image src={articleImage(item)} alt="" width={70} height={54} /><strong>{item.title}</strong></Link>) : <p>Belum ada berita tersimpan.</p>}</aside>}
-
             <nav className="news-bottom-nav" aria-label="Navigasi utama">
-                <Link className="active" href="/"><Home /><span>Beranda</span></Link>
-                <Link id="explore" href="/cari"><Radio /><span>Eksplor</span></Link>
-                <button id="create-news" className="create-button" aria-label="Buat berita"><Zap /></button>
-                <button id="saved-news" onClick={() => setSavedOpen(true)}><Bookmark /><span>Tersimpan</span></button>
-                <button id="profile"><CircleUserRound /><span>Profil</span></button>
+                <Link className="active" href="/"><House /><span>Beranda</span></Link>
+                <button id="nav-trending" onClick={() => document.querySelector('.trending-stage')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><Flame /><span>Trending</span></button>
+                <button id="nav-terbaru" onClick={() => document.getElementById('topic-feed')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><Newspaper /><span>Terbaru</span></button>
+                <Link id="nav-masuk" href="/login"><LogIn /><span>Masuk</span></Link>
             </nav>
         </div>
     );
