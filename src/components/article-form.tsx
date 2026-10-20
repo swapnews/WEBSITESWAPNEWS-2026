@@ -3,8 +3,9 @@
 import { useCallback, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
+import Link from "next/link";
 import {
-    Save, Send, CheckCircle2, Clock3, XCircle, Trash2, LoaderCircle,
+    Save, Send, CheckCircle2, Clock3, Trash2, LoaderCircle,
     ScanSearch, WandSparkles, ShieldAlert,
 } from "lucide-react";
 
@@ -264,8 +265,8 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
                                 {canReview && (
                                     <div className="editorial-workflow-controls">
                                         <div className="points-fixed-badge">
-                                            <strong>Hadiah Poin: 10 Poin</strong>
-                                            <small>Setiap artikel yang disetujui/diterbitkan otomatis menambahkan 10 poin ke akun penulis.</small>
+                                            <strong>Review independen: 10 poin</strong>
+                                            <small>Terbit sendiri tidak memberi poin. Hanya persetujuan reviewer berbeda memberi 10 poin, maksimal sekali per artikel.</small>
                                         </div>
                                         <label>
                                             Jadwal Terbit
@@ -297,10 +298,10 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
                             )}
                             {canPublishDirect && article?.status !== "published" ? (
                                 <FormSubmitButton name={isEditing ? "action" : "status"} value="publish_direct" className="primary-button direct-publish-button" disabled={slugInvalid || !categoryId} pendingLabel="Menerbitkan…">
-                                    <CheckCircle2 size={16} /> Terbitkan Langsung (10 Poin)
+                                    <CheckCircle2 size={16} /> Terbitkan Langsung (0 Poin)
                                 </FormSubmitButton>
                             ) : null}
-                            {!canPublishDirect && (!article || ["draft", "revision", "rejected"].includes(article.status)) ? (
+                            {(!article || ["draft", "revision", "rejected"].includes(article.status)) ? (
                                 <FormSubmitButton name={isEditing ? "action" : "status"} value={isEditing ? "submit_review" : "in_review"} className="primary-button" disabled={slugInvalid || !categoryId} pendingLabel="Mengirim…">
                                     <Send size={16} /> Kirim untuk Review
                                 </FormSubmitButton>
@@ -310,10 +311,8 @@ export function ArticleForm({ article, categories, canEdit = true, canReview = f
 
                     {canReview && isEditing ? (
                         <>
-                            {article.status === "in_review" ? <><FormSubmitButton name="action" value="revision" className="secondary-button" pendingLabel="Memproses…"><Clock3 size={16} /> Minta Revisi</FormSubmitButton><FormSubmitButton name="action" value="reject" className="secondary-button danger" pendingLabel="Menolak…"><XCircle size={16} /> Tolak</FormSubmitButton></> : null}
-                            {article.status !== "published" ? <FormSubmitButton name="action" value="publish" className="primary-button" disabled={!categoryId} pendingLabel="Menerbitkan…"><CheckCircle2 size={16} /> Terbitkan & Beri 10 Poin</FormSubmitButton> : null}
+                            <Link id="editor-open-independent-review" className="primary-button" href={`/dashboard/wartawan/workspace/${article.id}`}>Baca & review</Link>
                             {article.status !== "published" ? <FormSubmitButton name="action" value="schedule" className="secondary-button" disabled={!categoryId} pendingLabel="Menjadwalkan…"><Clock3 size={16} /> Jadwalkan</FormSubmitButton> : null}
-                            {article.status === "published" ? <FormSubmitButton name="action" value="revision" className="secondary-button" pendingLabel="Memproses…"><XCircle size={16} /> Turunkan ke Revisi</FormSubmitButton> : null}
                             {article.status === "published" ? <FormSubmitButton name="action" value="archive" className="secondary-button" pendingLabel="Mengarsipkan…">Arsipkan</FormSubmitButton> : null}
                         </>
                     ) : null}

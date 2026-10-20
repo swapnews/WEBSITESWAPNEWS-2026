@@ -9,7 +9,6 @@ import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { isAdminRole } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { approveWartawanAction, rejectWartawanAction } from "@/lib/wartawan/actions";
-import { markArticleReviewedAction } from "@/lib/wartawan/review-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +44,7 @@ export default async function WartawanDashboardPage({ searchParams }: WartawanDa
     // Badge counts use head:true, so Postgres returns a number and zero rows.
     const [{ count: pendingCount }, { count: postReviewCount }] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("wartawan_status", "pending"),
-        supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "published").is("reviewed_by", null),
+        supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "published").is("independent_review_id", null),
     ]);
 
     // Only the active tab loads rows. Previously every tab was fetched on every
@@ -167,12 +166,7 @@ export default async function WartawanDashboardPage({ searchParams }: WartawanDa
                                             <div className="user-actions">
                                                 <Link className="secondary-button compact-button" href={`/dashboard/articles/${item.id}`}><PencilLine size={14} /> Edit</Link>
                                                 <Link className="secondary-button compact-button" href={`/${item.slug}`} target="_blank" rel="noopener noreferrer"><Eye size={14} /> Lihat</Link>
-                                                {isSuperAdmin ? (
-                                                    <form action={markArticleReviewedAction}>
-                                                        <input type="hidden" name="id" value={item.id} />
-                                                        <button type="submit" className="primary-button compact-button"><CheckCircle2 size={14} /> Sudah Direview</button>
-                                                    </form>
-                                                ) : null}
+                                                <Link id={`admin-review-${item.id}`} className="primary-button compact-button" href={`/dashboard/wartawan/workspace/${item.id}`}><CheckCircle2 size={14} /> Baca & review</Link>
                                             </div>
                                         </td>
                                     </tr>

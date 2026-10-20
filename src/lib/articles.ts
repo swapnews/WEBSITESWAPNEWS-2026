@@ -3,7 +3,7 @@ import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/auth/get-profile";
 import type { AppRole } from "@/lib/auth/roles";
-import { isEditorialRole } from "@/lib/auth/roles";
+import { isAdminRole, isEditorialRole } from "@/lib/auth/roles";
 
 export type ArticleStatus = "draft" | "in_review" | "revision" | "scheduled" | "published" | "rejected" | "archived";
 
@@ -107,25 +107,40 @@ export const getCategories = cache(async (): Promise<Category[]> => {
     }));
 });
 
-export async function getArticlesForDashboard(profile: Profile, limit?: number, authorOnly = false): Promise<DashboardArticle[]> {
+export type DashboardArticleFilters = {
+    status?: ArticleStatus;
+    category?: number;
+    author?: string;
+    search?: string;
+    before?: { updatedAt: string; id: string };
+};
+
+export async function getArticlesForDashboard(profile: Profile, limit = 51, authorOnly = false, filters: DashboardArticleFilters = {}): Promise<DashboardArticle[]> {
     const supabase = await createClient();
-    const canViewAll = !authorOnly && isEditorialRole(profile.role as AppRole);
+    // Wartawan always sees only their own articles — defense-in-depth.
+    // Admin/SuperAdmin can see all unless authorOnly is explicitly requested.
+    const isWartawan = profile.role === "wartawan";
+    const canViewAll = !isWartawan && !authorOnly && isAdminRole(profile.role as AppRole);
 
     let query = supabase
         .from("articles")
         .select(
             "id,slug,title,excerpt,status,category_id,author_id,featured_media_id,published_at,scheduled_at,view_count,created_at,updated_at",
         )
-        .order("updated_at", { ascending: false });
+        .order("updated_at", { ascending: false }).order("id", { ascending: false })
+        .limit(Math.min(Math.max(limit, 1), 101));
 
-    if (!canViewAll) {
-        query = query.eq("author_id", profile.id);
+    // Wartawan: always filter by own author_id, no exceptions.
+    if (isWartawan) query = query.eq("author_id", profile.id);
+    else if (!canViewAll) query = query.eq("author_id", profile.id);
+    else if (filters.author) query = query.eq("author_id", filters.author);
+    if (filters.status) query = query.eq("status", filters.status);
+    if (filters.category) query = query.eq("category_id", filters.category);
+    // Only text goes into ilike; no untrusted PostgREST boolean expression.
+    if (filters.search) query = query.ilike("title", `%${filters.search.replace(/[%_\\]/g, "\\$&")}%`);
+    if (filters.before) {
+        query = query.or(`updated_at.lt.${filters.before.updatedAt},and(updated_at.eq.${filters.before.updatedAt},id.lt.${filters.before.id})`);
     }
-
-    if (limit) {
-        query = query.limit(limit);
-    }
-
     const { data, error } = await query;
     if (error) {
         console.error("getArticlesForDashboard failed", { code: error.code, message: error.message, details: error.details });
@@ -284,7 +299,7 @@ export async function getArticlesAwaitingPostReview(limit = 30): Promise<PostRev
         .from("articles")
         .select("id,slug,title,published_at,author_id")
         .eq("status", "published")
-        .is("reviewed_by", null)
+        .is("independent_review_id", null)
         .order("published_at", { ascending: false })
         .limit(limit);
 

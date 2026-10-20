@@ -68,12 +68,185 @@
     margin: 20px 0;
 }
 
-.wartawan-workspace .wartawan-metrics article {
+.wartawan-workspace .review-metric {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid #dddbd4;
     border-radius: 18px;
+    background: #fffcf8;
+    color: #34494c;
+    text-decoration: none;
+    transition: transform 180ms ease;
+}
+
+.review-metric strong {
+    font-size: 28px;
+    font-variant-numeric: tabular-nums;
+}
+
+.review-metric small {
+    font-size: 12px;
+}
+
+.wartawan-workspace .review-metric.active {
+    border-color: #a94b17;
+    background: #fff0e4;
+    color: #803b16;
+}
+
+.review-metric:hover {
+    transform: translateY(-2px);
+}
+
+.wartawan-workspace :is(a, button, select, textarea, input):focus-visible {
+    outline: 3px solid #aa501c;
+    outline-offset: 3px;
 }
 
 .wartawan-workspace .wartawan-metrics svg {
-    color: #b45116;
+    color: #a94b17;
+}
+
+.review-help {
+    color: #536569;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.review-detail-heading {
+    margin: 28px 0;
+    overflow-wrap: anywhere;
+}
+
+.review-detail-heading h1 {
+    font-size: clamp(24px, 3vw, 36px);
+    line-height: 1.25;
+    margin: 12px 0;
+}
+
+.review-detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+    gap: 24px;
+    align-items: start;
+}
+
+.review-reading-pane,
+.review-decision-pane {
+    min-width: 0;
+    padding: 22px;
+    background: #fffcf8;
+    border: 1px solid #dddbd4;
+    border-radius: 20px;
+}
+
+.review-reading-pane h2,
+.review-decision-pane h2 {
+    font-size: 18px;
+    margin: 0 0 16px;
+}
+
+.review-reading-pane iframe {
+    width: 100%;
+    min-height: 72dvh;
+    border: 0;
+    border-radius: 12px;
+    background: #fffcf8;
+}
+
+.review-decision-pane {
+    position: sticky;
+    top: 24px;
+}
+
+.independent-review-form {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.independent-review-form :is(textarea, select) {
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #b8c1bd;
+    border-radius: 10px;
+    background: #f7f5ef;
+    color: #243b40;
+    font: inherit;
+}
+
+.independent-review-form select,
+.independent-review-form button {
+    min-height: 44px;
+}
+
+.independent-review-form p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #536569;
+}
+
+.independent-review-form button:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
+.review-confirm {
+    display: flex;
+    gap: 10px;
+    align-items: start;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.review-confirm input {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: #a94b17;
+}
+
+.wartawan-review-card .secondary-button {
+    margin-top: 14px;
+    min-height: 44px;
+}
+
+.wartawan-review-card {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+    .review-detail-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .review-decision-pane {
+        position: static;
+    }
+
+    .review-reading-pane,
+    .review-decision-pane {
+        padding: 16px;
+    }
+
+    .wartawan-workspace .review-metric {
+        padding: 15px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .review-metric {
+        transition: none;
+    }
+
+    .review-metric:hover {
+        transform: none;
+    }
 }
 
 .wartawan-workspace .wartawan-empty {

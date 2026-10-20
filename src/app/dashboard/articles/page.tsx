@@ -5,6 +5,7 @@ import { FilePlus2, Search } from "lucide-react";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { isEditorialRole, isAdminRole } from "@/lib/auth/roles";
 import { getApprovedWartawan, getArticlesForDashboard, getCategories, type ArticleStatus } from "@/lib/articles";
+import { reviewCursor, UUID_PATTERN } from "@/lib/editorial-review";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { ArticlesTableClient } from "./articles-table-client";
 
@@ -50,43 +51,35 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
     if (!isEditorialRole(profile.role)) redirect("/dashboard");
 
     const params = await searchParams;
-    const statusFilter = getParam(params, "status") as ArticleStatus | null;
-    const search = getParam(params, "search") ?? "";
+    const requestedStatus = getParam(params, "status");
+    const statusFilter = requestedStatus && Object.hasOwn(STATUS_LABELS, requestedStatus) ? requestedStatus as ArticleStatus : undefined;
+    const search = (getParam(params, "search") ?? "").slice(0, 120);
     const categoryFilter = getParam(params, "category") ?? "";
-    const authorFilter = getParam(params, "author") ?? "";
+    const categoryId = Number(categoryFilter);
+    const isAdmin = isAdminRole(profile.role);
+    const authorFilter = isAdmin ? getParam(params, "author") ?? "" : "";
     const error = getParam(params, "error");
     const success = getParam(params, "success");
-    const isAdmin = isAdminRole(profile.role);
     const isSuperAdmin = profile.role === "super_admin";
-
-    const [articles, categories, wartawan] = await Promise.all([
-        getArticlesForDashboard(profile),
+    const cursor = reviewCursor(getParam(params, "before"), getParam(params, "before_id"));
+    const [result, categories, wartawan] = await Promise.all([
+        getArticlesForDashboard(profile, 51, !isAdmin, {
+            status: statusFilter, search,
+            category: Number.isSafeInteger(categoryId) && categoryId > 0 ? categoryId : undefined,
+            author: UUID_PATTERN.test(authorFilter) ? authorFilter : undefined,
+            before: cursor ? { updatedAt: cursor.date, id: cursor.id } : undefined,
+        }).then(articles => ({ articles, loadError: "" })).catch(() => ({ articles: [], loadError: "Daftar artikel gagal dimuat. Muat ulang untuk mencoba lagi." })),
         getCategories(),
         isAdmin ? getApprovedWartawan() : Promise.resolve([]),
     ]);
-
-    const filtered = articles
-        .filter((article) => {
-            if (statusFilter && article.status !== statusFilter) return false;
-            if (categoryFilter && String(article.category_id) !== categoryFilter) return false;
-            if (authorFilter && article.author_id !== authorFilter) return false;
-            if (search) {
-                const haystack = `${article.title} ${article.excerpt ?? ""} ${article.author_name ?? ""}`.toLowerCase();
-                if (!haystack.includes(search.toLowerCase())) return false;
-            }
-            return true;
-        })
-        .map((article) => ({
-            id: article.id,
-            slug: article.slug,
-            title: article.title,
-            status: article.status,
-            category_id: article.category_id,
-            author_id: article.author_id,
-            updated_at: article.updated_at,
-            author_name: article.author_name,
-            category_name: article.category_name,
-        }));
+    const filtered = result.articles.slice(0, 50);
+    const last = filtered.at(-1);
+    const nextParams = new URLSearchParams();
+    if (statusFilter) nextParams.set("status", statusFilter);
+    if (search) nextParams.set("search", search);
+    if (categoryFilter) nextParams.set("category", categoryFilter);
+    if (authorFilter) nextParams.set("author", authorFilter);
+    if (last) { nextParams.set("before", last.updated_at); nextParams.set("before_id", last.id); }
 
     const canDelete = isAdmin;
 
@@ -95,8 +88,9 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
             <section className="dashboard-hero clay-card">
                 <div>
                     <span className="eyebrow">Daftar Konten</span>
-                    <h1>Manajemen Artikel Redaksi</h1>
-                    <p>Filter status, cari artikel, hapus masal dengan checklist, dan kontrol workflow editorial.</p>
+                    <h1>{isAdmin ? "Manajemen Artikel Redaksi" : "Berita saya"}</h1>
+                    <p>{isAdmin ? "Kelola artikel seluruh redaksi dengan filter penulis, status, dan kategori." : "Hanya berita yang Anda tulis. Review berita penulis lain tersedia di ruang kerja editorial."}</p>
+                    {!isAdmin && <Link id="my-articles-review-queue" href="/dashboard/wartawan/workspace" className="secondary-button">Antrean review</Link>}
                 </div>
 
                 <Link href="/dashboard/articles/new" className="primary-button">
@@ -108,6 +102,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
             {error ? <div className="auth-alert error" style={{ margin: "0 0 16px" }}>{error}</div> : null}
             {success ? <div className="auth-alert success" style={{ margin: "0 0 16px" }}>{success}</div> : null}
 
+            {result.loadError && <div role="alert" className="auth-alert error">{result.loadError} <Link href="/dashboard/articles">Coba lagi</Link></div>}
             <section className="dashboard-panel clay-card">
                 <form method="get" className="cms-filter">
                     <div className="cms-filter-row">
@@ -147,7 +142,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
 
                         <label className="cms-search">
                             Pencarian
-                            <input name="search" type="search" placeholder="Judul, ringkasan, atau penulis..." defaultValue={search} />
+                            <input name="search" type="search" placeholder="Cari judul berita..." defaultValue={search} />
                         </label>
 
                         <button type="submit" className="secondary-button">
@@ -166,6 +161,10 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
                     statusLabels={STATUS_LABELS}
                     statusColors={STATUS_COLORS}
                 />
+                <nav aria-label="Halaman artikel" className="wartawan-hero-actions">
+                    {cursor && <Link id="articles-first-page" href="/dashboard/articles" className="secondary-button">Halaman pertama</Link>}
+                    {result.articles.length > 50 && <Link id="articles-next-page" href={`/dashboard/articles?${nextParams}`} className="secondary-button">Berikutnya</Link>}
+                </nav>
             </section>
         </DashboardLayout>
     );
