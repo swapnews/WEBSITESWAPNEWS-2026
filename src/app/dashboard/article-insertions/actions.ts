@@ -28,6 +28,7 @@ export async function saveArticleInsertionsAction(form: FormData) {
     };
     const { error } = await supabase.from("article_insertion_settings").upsert(payload);
     if (error) redirect(`/dashboard/article-insertions?error=${encodeURIComponent(error.message)}`);
-    revalidatePath("/", "layout");
+    revalidatePath("/dashboard/article-insertions");
+    revalidatePath("/");
     redirect("/dashboard/article-insertions?success=Pengaturan tersimpan");
 }

@@ -25,7 +25,7 @@ export async function signInAction(formData: FormData) {
         redirect(`/panelswap?error=${encodeURIComponent(error.message)}`);
     }
 
-    revalidatePath("/", "layout");
+    revalidatePath("/dashboard");
     redirect("/dashboard");
 }
 
@@ -52,7 +52,7 @@ export async function signUpAction(formData: FormData) {
         redirect(`/panelswap?mode=register&error=${encodeURIComponent(error.message)}`);
     }
 
-    revalidatePath("/", "layout");
+    revalidatePath("/panelswap");
     redirect("/panelswap?message=Periksa%20email%20untuk%20verifikasi%20akun");
 }
 
@@ -104,13 +104,14 @@ export async function signUpWartawanAction(formData: FormData) {
         }).eq("id", authData.user.id);
     }
 
-    revalidatePath("/", "layout");
+    revalidatePath("/panelswap");
     redirect("/panelswap?message=Pendaftaran%20Wartawan%20berhasil.%20Akun%20Anda%20sedang%20dalam%20proses%20verifikasi%20Admin%20Redaksi.");
 }
 
 export async function signOutAction() {
     const supabase = await createClient();
     await supabase.auth.signOut();
-    revalidatePath("/", "layout");
+    revalidatePath("/");
+    revalidatePath("/panelswap");
     redirect("/");
 }

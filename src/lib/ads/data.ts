@@ -26,7 +26,7 @@ const queryActiveAdSlots = unstable_cache(async (): Promise<AdSlot[]> => {
     }
 
     return sortCanonicalSlots((data ?? []) as AdSlot[]);
-}, ["active-ad-slots"], { tags: ["public-ads"], revalidate: 60 });
+}, ["active-ad-slots"], { tags: ["public-ads"], revalidate: 86400 });
 
 export const getActiveAdSlots = cache(queryActiveAdSlots);
 

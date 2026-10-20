@@ -7,7 +7,7 @@ import { renewWaitingRoomSession } from "@/lib/waiting-room/service";
 import { createAdmissionToken, verifyAdmissionToken } from "@/lib/waiting-room/token";
 import { WAITING_ROOM_ADMISSION_COOKIE, WAITING_ROOM_ID_COOKIE } from "@/lib/waiting-room/types";
 
-const PRIVATE_PREFIXES = ["/dashboard", "/panelswap", "/profile", "/member", "/artikel"];
+const PRIVATE_PREFIXES = ["/dashboard", "/panelswap", "/profile", "/member"];
 const CRAWLER_USER_AGENT = /bot|crawler|spider|facebookexternalhit|facebot|whatsapp|twitterbot|linkedinbot|telegrambot|slackbot|discordbot/i;
 const QUEUE_BYPASS_PREFIXES = [
     ...PRIVATE_PREFIXES,

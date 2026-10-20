@@ -1,8 +1,8 @@
 import { type NextRequest } from "next/server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 1800;
 
 const NEWS_WINDOW_MS = 48 * 60 * 60 * 1000;
 
@@ -16,7 +16,7 @@ function escapeXml(value: string): string {
 }
 
 export async function GET(_request: NextRequest) {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data: articles, error } = await supabase
         .from("articles")
         .select("slug,title,published_at,tags")

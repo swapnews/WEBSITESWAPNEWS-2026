@@ -55,7 +55,7 @@ export async function updateAdSlotAction(
 
     updateTag("public-ads");
     revalidatePath("/dashboard/ads");
-    revalidatePath("/", "layout");
+    revalidatePath("/");
 
     return { status: "success", message: "Slot iklan berhasil diperbarui.", slotKey };
 }
