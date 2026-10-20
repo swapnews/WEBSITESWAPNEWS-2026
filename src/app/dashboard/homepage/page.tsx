@@ -1,15 +1,19 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LayoutTemplate, Radio, Trash2 } from "lucide-react";
+import { ArrowUpRight, Code2, LayoutTemplate, Radio, Trash2 } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { HomepageModuleCard } from "@/components/dashboard/homepage-module-card";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { createClient } from "@/lib/supabase/server";
-import { deleteBreakingNewsAction, saveBreakingNewsAction, saveHomepageSectionAction } from "@/lib/content-management/actions";
+import { deleteBreakingNewsAction, saveBreakingNewsAction } from "@/lib/content-management/actions";
+import { isAdModule, mergeHomepageModules, type HomepageModule } from "@/lib/homepage-modules";
+import "@/styles/homepage-composer.css";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Homepage Control Center" };
+export const metadata = { title: "Homepage Control Center", description: "Atur 10 modul homepage, iklan HTML, dan breaking news SwapNews." };
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 const param = (p: Record<string, string | string[] | undefined>, k: string) => Array.isArray(p[k]) ? p[k]?.[0] : p[k];
-const localDate = (value?: string | null) => value ? new Date(value).toISOString().slice(0, 16) : "";
+const localDate = (value?: string | null) => value ? new Date(value).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" }) : "";
 
 export default async function HomepageDashboard({ searchParams }: Props) {
     const profile = await getCurrentProfile();
@@ -17,24 +21,22 @@ export default async function HomepageDashboard({ searchParams }: Props) {
     if (profile.role !== "super_admin") redirect("/dashboard");
     const params = await searchParams;
     const supabase = await createClient();
-    const [{ data: sections = [], error: sectionError }, { data: breaking = [], error: breakingError }] = await Promise.all([
-        supabase.from("homepage_sections").select("id,section_key,title,is_enabled,sort_order,style_variant,category_slug").order("sort_order"),
-        supabase.from("breaking_news").select("id,headline,target_url,priority,starts_at,ends_at,is_active").order("priority", { ascending: false }),
+    const [{ data: rows, error: sectionError }, { data: breaking, error: breakingError }] = await Promise.all([
+        supabase.from("homepage_sections").select("id,section_key,title,is_enabled,sort_order,style_variant,category_slug,settings").order("sort_order").limit(10),
+        supabase.from("breaking_news").select("id,headline,target_url,priority,starts_at,ends_at,is_active").order("priority", { ascending: false }).limit(30),
     ]);
+    const sections = mergeHomepageModules((rows ?? []) as HomepageModule[]);
     return <DashboardLayout profile={profile}>
-        <section className="dashboard-hero clay-card"><div><span className="eyebrow">Super Admin • Live Composition</span><h1>Homepage Control Center</h1><p>Atur modul, urutan, gaya visual, sumber kanal, dan breaking news dari satu pusat kendali.</p></div><LayoutTemplate size={42} /></section>
-        {(param(params, "error") || sectionError || breakingError) && <p className="cms-alert error">{param(params, "error") || sectionError?.message || breakingError?.message}</p>}
-        {param(params, "success") && <p className="cms-alert success">{param(params, "success")}</p>}
-        <section className="dashboard-panel clay-card home-control-panel"><div className="control-heading"><div><span className="eyebrow">Page Composer</span><h2>Susunan Homepage</h2></div><strong>{sections?.filter(s => s.is_enabled).length ?? 0} MODUL AKTIF</strong></div>
-            <div className="home-module-grid">{sections?.map((section, index) => <form action={saveHomepageSectionAction} className={`home-module-card ${section.is_enabled ? "enabled" : "disabled"}`} key={section.id}>
-                <input type="hidden" name="id" value={section.id} /><div className="module-index"><b>{String(index + 1).padStart(2, "0")}</b><span>{section.section_key}</span></div>
-                <label>Judul Modul<input name="title" required defaultValue={section.title} /></label><div className="module-fields"><label>Urutan<input name="sort_order" type="number" defaultValue={section.sort_order} /></label><label>Gaya<select name="style_variant" defaultValue={section.style_variant}><option value="default">Default</option><option value="compact">Compact</option><option value="carousel">Carousel</option><option value="arena">Arena</option><option value="scoreboard">Scoreboard</option><option value="mosaic">Mosaic</option><option value="editorial">Editorial</option></select></label></div>
-                <label>Sumber Kanal<input name="category_slug" defaultValue={section.category_slug ?? ""} placeholder="games, sport, bali..." /></label><label className="checkbox module-toggle"><input name="is_enabled" type="checkbox" defaultChecked={section.is_enabled} /><span>Tampilkan di homepage</span></label><button className="primary-button">Simpan Modul</button>
-            </form>)}</div>
-        </section>
-        <section className="dashboard-panel clay-card breaking-manager"><div className="control-heading"><div><span className="eyebrow">Live Desk</span><h2>Breaking News</h2></div><Radio /></div>
-            <form action={saveBreakingNewsAction} className="breaking-form"><label className="wide">Headline<input name="headline" required maxLength={180} placeholder="Headline penting..." /></label><label>Link<input name="target_url" defaultValue="/" /></label><label>Prioritas<input name="priority" type="number" defaultValue={10} /></label><label>Mulai<input name="starts_at" type="datetime-local" required /></label><label>Selesai<input name="ends_at" type="datetime-local" /></label><label className="checkbox"><input name="is_active" type="checkbox" defaultChecked /><span>Aktif</span></label><button className="primary-button">Jadwalkan Breaking</button></form>
-            <div className="breaking-list">{breaking?.map(item => <article key={item.id}><div><span className={`status-badge ${item.is_active ? "published" : "draft"}`}>{item.is_active ? "Aktif" : "Nonaktif"}</span><strong>{item.headline}</strong><small>{localDate(item.starts_at)} — {localDate(item.ends_at) || "tanpa batas"}</small></div><form action={deleteBreakingNewsAction}><input type="hidden" name="id" value={item.id} /><button className="icon-link danger"><Trash2 size={15} /></button></form></article>)}</div>
-        </section>
+        <div className="homepage-composer">
+            <section className="composer-hero"><div><span className="eyebrow">SUPER ADMIN / PAGE COMPOSER</span><h1>Homepage Control</h1><p>Susun alur berita. Sisipkan iklan. Kendalikan tampilan beranda dari satu tempat.</p><Link id="composer-open-homepage" href="/" target="_blank" className="secondary-button">Lihat homepage <ArrowUpRight size={16} /></Link></div><div className="composer-hero-icon" aria-hidden="true"><LayoutTemplate size={46} /><Code2 size={24} /></div></section>
+            <div className="composer-stats"><article><LayoutTemplate size={20} /><strong>10</strong><span>Modul tersedia</span></article><article><span className="composer-live-dot" /><strong>{sections.filter(s => s.is_enabled).length}</strong><span>Modul aktif</span></article><article><Code2 size={20} /><strong>03 / 07</strong><span>Posisi awal iklan HTML</span></article></div>
+            {(param(params, "error") || sectionError || breakingError) && <p className="composer-feedback is-error" role="alert">{sectionError ? "Konfigurasi belum dapat dibaca. Periksa tabel homepage_sections; penyimpanan dinonaktifkan." : param(params, "error") || breakingError?.message}</p>}
+            {param(params, "success") && <p className="composer-feedback" role="status">{param(params, "success")}</p>}
+            <section aria-labelledby="composer-title"><header className="composer-heading"><div><span className="eyebrow">SUSUNAN BERANDA</span><h2 id="composer-title">Sepuluh modul. Satu alur cerita.</h2><p>Urutan kecil tampil lebih awal. Simpan per modul; perubahan langsung memperbarui homepage.</p></div><span className="composer-badge">{sections.filter(isAdModule).length} SLOT IKLAN</span></header><nav className="composer-outline" aria-label="Lompat ke modul">{sections.map((module, index) => <a id={`jump-${module.section_key}`} href={`#module-${module.section_key}`} key={module.section_key} className={isAdModule(module) ? "is-ad" : ""}><b>{String(index + 1).padStart(2, "0")}</b>{module.title}</a>)}</nav><div className="composer-grid">{sections.map((module, index) => <HomepageModuleCard key={module.section_key} module={module} index={index} disabled={Boolean(sectionError)} />)}</div></section>
+            <section className="composer-breaking" aria-labelledby="breaking-title"><header className="composer-heading"><div><span className="eyebrow">LIVE DESK</span><h2 id="breaking-title">Breaking News</h2><p>Jadwalkan headline penting. Waktu mengikuti zona perangkat.</p></div><Radio size={24} /></header>
+                <form action={saveBreakingNewsAction} className="composer-breaking-form"><label className="wide" htmlFor="breaking-headline">Headline<input id="breaking-headline" name="headline" required minLength={5} maxLength={180} placeholder="Tulis headline penting..." /></label><label htmlFor="breaking-url">Link tujuan<input id="breaking-url" name="target_url" defaultValue="/" required /></label><label htmlFor="breaking-priority">Prioritas<input id="breaking-priority" name="priority" type="number" defaultValue={10} /></label><label htmlFor="breaking-start">Mulai<input id="breaking-start" name="starts_at" type="datetime-local" required /></label><label htmlFor="breaking-end">Selesai (opsional)<input id="breaking-end" name="ends_at" type="datetime-local" /></label><label className="composer-checkbox" htmlFor="breaking-active"><input id="breaking-active" name="is_active" type="checkbox" defaultChecked />Aktif</label><button id="breaking-save" className="primary-button">Jadwalkan breaking</button></form>
+                <div className="composer-breaking-list">{breaking?.length ? breaking.map(item => <article key={item.id}><div><span className="composer-badge">{item.is_active ? "Aktif" : "Nonaktif"}</span><strong>{item.headline}</strong><small>{localDate(item.starts_at)} — {localDate(item.ends_at) || "tanpa batas"}</small></div><form action={deleteBreakingNewsAction}><input type="hidden" name="id" value={item.id} /><button id={`delete-breaking-${item.id}`} className="icon-link danger" aria-label={`Hapus breaking: ${item.headline}`}><Trash2 size={17} /></button></form></article>) : <p className="composer-empty">Belum ada breaking news. Headline terjadwal akan muncul di sini.</p>}</div>
+            </section>
+        </div>
     </DashboardLayout>;
 }

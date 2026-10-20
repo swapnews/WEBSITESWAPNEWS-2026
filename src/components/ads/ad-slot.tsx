@@ -36,11 +36,12 @@ function mayShowAds() {
 }
 
 function htmlDocument(content: string) {
-    const safeContent = content.replace(/<\/style/gi, "<\\/style");
-    return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${HTML_CSP}"><base target="_blank"><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}body{display:grid;place-items:center;font-family:Arial,sans-serif}img,video,svg{max-width:100%;max-height:100%;object-fit:contain}a{display:inline-flex;max-width:100%;max-height:100%}</style></head><body>${safeContent}</body></html>`;
+    return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${HTML_CSP}"><base target="_blank"><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}body{display:grid;place-items:center;font-family:Arial,sans-serif}img,video,svg{max-width:100%;max-height:100%;object-fit:contain}a{display:inline-flex;max-width:100%;max-height:100%}</style></head><body>${content}</body></html>`;
 }
 
-export function AdSlotFrame({ slot, preview = false }: { slot?: AdSlot | null; preview?: boolean }) {
+type AdCreative = Pick<AdSlot, "name" | "is_active" | "content_type" | "html_content" | "youtube_url" | "desktop_width" | "desktop_height" | "mobile_width" | "mobile_height">;
+
+export function AdSlotFrame({ slot, preview = false }: { slot?: AdCreative | null; preview?: boolean }) {
     const [eligible, setEligible] = useState(preview ? true : adsAllowed);
 
     useEffect(() => {

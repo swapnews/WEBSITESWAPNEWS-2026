@@ -1,7 +1,10 @@
 "use client";
 
-import { Bookmark, Check, Copy, Minus, Plus, Share2, Volume2, VolumeX } from "lucide-react";
+import { Bookmark, Check, Copy, Minus, Plus, Share2, Volume2, Pause, RotateCcw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { ArticleSpeechQueue, INITIAL_SPEECH_STATE } from "@/lib/article-speech-queue";
+import { extractArticleSpeechText } from "@/lib/speech-text";
+import "@/styles/article-speech.css";
 
 const FONT_SCALE_KEY = "swapnews-article-scale";
 const MIN_SCALE = 0.88;
@@ -14,74 +17,6 @@ function applyScale(scale: number) {
     target.style.setProperty("--article-scale", String(scale));
 }
 
-function extractFullArticleSpeechText(fallbackLead?: string): string {
-    const copyElement = document.getElementById("article-copy");
-    if (!copyElement) {
-        return fallbackLead || "";
-    }
-
-    const clone = copyElement.cloneNode(true) as HTMLElement;
-    // Bersihkan elemen iklan, produk inline, baca juga, script, audio, dan tombol
-    clone.querySelectorAll("script,style,aside,button,nav,iframe,svg,noscript,.ad-slot,.article-inline-read,.article-inline-product").forEach((node) => node.remove());
-
-    // Tangani tabel: ubah sel menjadi teks kalimat terstruktur agar dibaca alami
-    clone.querySelectorAll("table").forEach((table) => {
-        const rows = Array.from(table.querySelectorAll("tr"));
-        const tableLines: string[] = [];
-        rows.forEach((tr) => {
-            const cells = Array.from(tr.querySelectorAll("th, td")).map((c) => (c.textContent || "").trim()).filter(Boolean);
-            if (cells.length) {
-                tableLines.push(cells.join(", "));
-            }
-        });
-        const tableText = tableLines.join(". ");
-        const placeholder = document.createTextNode(tableText ? ` ${tableText}. ` : "");
-        table.parentNode?.replaceChild(placeholder, table);
-    });
-
-    const raw = clone.innerText || clone.textContent || "";
-    const cleanText = raw
-        .replace(/\r\n|\r|\n/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-    return cleanText;
-}
-
-function chunkText(text: string, maxLength = 160): string[] {
-    // Potong berdasarkan tanda baca kalimat utama (. ! ? … ; : dan koma panjang)
-    const sentences = text.match(/[^.!?…;]+[.!?…;]*/g) ?? [];
-    const chunks: string[] = [];
-    let current = "";
-
-    for (const sentence of sentences) {
-        const clean = sentence.trim();
-        if (!clean) continue;
-
-        if (clean.length > maxLength) {
-            // Jika satu kalimat sangat panjang, potong berdasarkan koma atau kata
-            const clauses = clean.match(/[^,]+,*/g) ?? [clean];
-            for (const clause of clauses) {
-                const subClean = clause.trim();
-                if (!subClean) continue;
-                if ((current + " " + subClean).length > maxLength && current) {
-                    chunks.push(current.trim());
-                    current = subClean;
-                } else {
-                    current = `${current} ${subClean}`.trim();
-                }
-            }
-        } else if ((current + " " + clean).length > maxLength && current) {
-            chunks.push(current.trim());
-            current = clean;
-        } else {
-            current = `${current} ${clean}`.trim();
-        }
-    }
-    if (current.trim()) chunks.push(current.trim());
-    return chunks.filter((c) => c.length > 0);
-}
-
 export default function ArticleActions({ articleId, slug, title, excerpt, copyMessage }: { articleId: string; slug: string; title: string; excerpt: string; copyMessage: string }) {
     const [saved, setSaved] = useState(false);
     const [scale, setScale] = useState(() => {
@@ -89,10 +24,9 @@ export default function ArticleActions({ articleId, slug, title, excerpt, copyMe
         const stored = Number.parseFloat(window.localStorage.getItem(FONT_SCALE_KEY) || "1");
         return Number.isNaN(stored) ? 1 : Math.min(MAX_SCALE, Math.max(MIN_SCALE, stored));
     });
-    const [speaking, setSpeaking] = useState(false);
+    const [speech, setSpeech] = useState(INITIAL_SPEECH_STATE);
+    const queueRef = useRef<ArticleSpeechQueue | null>(null);
     const [copied, setCopied] = useState(false);
-    const speakingRef = useRef(false);
-    const keepAliveRef = useRef<number | null>(null);
 
     useEffect(() => {
         const savedSlugs: string[] = JSON.parse(localStorage.getItem("swapnews-bookmarks") || "[]");
@@ -118,18 +52,27 @@ export default function ArticleActions({ articleId, slug, title, excerpt, copyMe
     }, [scale]);
 
     useEffect(() => {
-        const stopKeepAlive = () => {
-            if (keepAliveRef.current !== null) {
-                window.clearInterval(keepAliveRef.current);
-                keepAliveRef.current = null;
-            }
-        };
+        if (!("speechSynthesis" in window)) return;
+        const queue = new ArticleSpeechQueue({
+            synth: window.speechSynthesis,
+            utterance: (text) => new SpeechSynthesisUtterance(text),
+            later: (callback, delay) => setTimeout(callback, delay),
+            clear: (timer) => clearTimeout(timer),
+            now: () => performance.now(),
+            hidden: () => document.hidden,
+        }, setSpeech);
+        queueRef.current = queue;
+        const onVisibility = () => queue.visibilityChanged();
+        const onPageHide = () => queue.pause();
+        document.addEventListener("visibilitychange", onVisibility);
+        window.addEventListener("pagehide", onPageHide);
         return () => {
-            speakingRef.current = false;
-            stopKeepAlive();
-            if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+            document.removeEventListener("visibilitychange", onVisibility);
+            window.removeEventListener("pagehide", onPageHide);
+            queue.dispose();
+            queueRef.current = null;
         };
-    }, []);
+    }, [slug]);
 
     const changeScale = (delta: number) => setScale((value) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, Number((value + delta).toFixed(2)))));
 
@@ -159,124 +102,43 @@ export default function ArticleActions({ articleId, slug, title, excerpt, copyMe
         window.setTimeout(() => setCopied(false), 1800);
     };
 
-    const pickVoice = (): SpeechSynthesisVoice | undefined => {
-        const voices = window.speechSynthesis.getVoices();
-        return (
-            voices.find((voice) => voice.lang === "id-ID" && /google/i.test(voice.name)) ||
-            voices.find((voice) => voice.lang === "id-ID") ||
-            voices.find((voice) => voice.lang.toLowerCase().startsWith("id")) ||
-            voices.find((voice) => /indones/i.test(voice.name))
-        );
-    };
-
-    const stopSpeech = () => {
-        speakingRef.current = false;
-        if (keepAliveRef.current !== null) {
-            window.clearInterval(keepAliveRef.current);
-            keepAliveRef.current = null;
-        }
-        window.speechSynthesis.cancel();
-        setSpeaking(false);
-    };
-
-    const toggleSpeech = () => {
-        if (!("speechSynthesis" in window)) return;
-        const synth = window.speechSynthesis;
-
-        if (speaking) {
-            stopSpeech();
+    const startSpeech = () => {
+        const queue = queueRef.current;
+        if (!queue) {
+            setSpeech({ ...INITIAL_SPEECH_STATE, status: "error", error: "Browser ini belum mendukung pembacaan suara. Gunakan Chrome, Edge, atau Safari terbaru." });
             return;
         }
-
-        const bodyContent = extractFullArticleSpeechText(excerpt);
-        // Susun teks runtut: Judul -> Ringkasan -> Isi Lengkap Berita
-        const speechSegments: string[] = [];
-        if (title) speechSegments.push(title);
-        if (excerpt && !bodyContent.startsWith(excerpt)) speechSegments.push(excerpt);
-        if (bodyContent) speechSegments.push(bodyContent);
-
-        const fullNarrative = speechSegments.join(". ");
-        const chunks = chunkText(fullNarrative);
-        if (!chunks.length) return;
-
-        const start = () => {
-            synth.cancel();
-            speakingRef.current = true;
-            setSpeaking(true);
-            const voice = pickVoice();
-
-            // Workaround Chrome/Safari timeout issue: restart/ping synthesis loop berkala
-            if (keepAliveRef.current !== null) window.clearInterval(keepAliveRef.current);
-            keepAliveRef.current = window.setInterval(() => {
-                if (!speakingRef.current || synth.paused || !synth.speaking) {
-                    if (keepAliveRef.current !== null) {
-                        window.clearInterval(keepAliveRef.current);
-                        keepAliveRef.current = null;
-                    }
-                    return;
-                }
-                synth.pause();
-                synth.resume();
-            }, 10000);
-
-            let currentChunkIndex = 0;
-
-            const speakNext = () => {
-                if (!speakingRef.current || currentChunkIndex >= chunks.length) {
-                    if (currentChunkIndex >= chunks.length) stopSpeech();
-                    return;
-                }
-
-                const chunkTextToSpeak = chunks[currentChunkIndex];
-                const utterance = new SpeechSynthesisUtterance(chunkTextToSpeak);
-                utterance.lang = "id-ID";
-                utterance.rate = 0.98;
-                if (voice) utterance.voice = voice;
-
-                utterance.onend = () => {
-                    currentChunkIndex++;
-                    speakNext();
-                };
-
-                utterance.onerror = (event) => {
-                    if (event.error === "interrupted" || event.error === "canceled") return;
-                    currentChunkIndex++;
-                    speakNext();
-                };
-
-                synth.speak(utterance);
-            };
-
-            speakNext();
-        };
-
-        if (synth.getVoices().length > 0) {
-            start();
-        } else {
-            const onVoicesChanged = () => {
-                synth.removeEventListener("voiceschanged", onVoicesChanged);
-                start();
-            };
-            synth.addEventListener("voiceschanged", onVoicesChanged);
-            window.setTimeout(() => {
-                synth.removeEventListener("voiceschanged", onVoicesChanged);
-                if (speakingRef.current || synth.speaking) return;
-                start();
-            }, 600);
-        }
+        const body = extractArticleSpeechText(document.getElementById("article-copy"), excerpt);
+        const parts = [title];
+        if (excerpt && !body.startsWith(excerpt)) parts.push(excerpt);
+        if (body) parts.push(body);
+        queue.start(parts.filter(Boolean).join(". "));
     };
+    const toggleSpeech = () => {
+        if (speech.status === "playing") queueRef.current?.pause();
+        else if ((speech.status === "paused" || speech.status === "error") && speech.total > 0) queueRef.current?.resume();
+        else startSpeech();
+    };
+    const speaking = speech.status === "playing";
+    const speechLabel = speaking ? "Jeda" : speech.status === "paused" ? "Lanjutkan" : speech.status === "error" ? "Coba lagi" : speech.status === "complete" ? "Putar ulang" : "Dengarkan";
 
     return (
+        <div className="article-tools">
         <div className="public-article-actions" aria-label="Aksi artikel">
             <button id="article-share" onClick={() => void share()}><Share2 /> Bagikan</button>
             <button id="article-copy-link" onClick={() => void copy()}>{copied ? <Check /> : <Copy />} {copied ? "Tersalin" : "Salin"}</button>
             <button id="article-bookmark" className={saved ? "active" : ""} onClick={toggleSave}><Bookmark fill={saved ? "currentColor" : "none"} /> {saved ? "Tersimpan" : "Simpan"}</button>
-            <button id="article-tts" className={speaking ? "active" : ""} onClick={toggleSpeech}>{speaking ? <VolumeX /> : <Volume2 />} {speaking ? "Berhenti" : "Dengarkan"}</button>
+            <button id="article-tts" className={speaking ? "active" : ""} onClick={toggleSpeech} aria-pressed={speaking} aria-controls="article-speech-status">{speaking ? <Pause /> : <Volume2 />} {speechLabel}</button>
             <span className="font-controls" aria-label="Ukuran teks">
                 <button id="article-font-decrease" aria-label="Perkecil teks" onClick={() => changeScale(-0.08)}><Minus /></button>
                 <b>Aa</b>
                 <button id="article-font-increase" aria-label="Perbesar teks" onClick={() => changeScale(0.08)}><Plus /></button>
             </span>
+        </div>
+        <div id="article-speech-status" className="article-speech-status">
+            {speech.total > 0 && <div className="article-speech-progress"><progress aria-label="Progres pembacaan artikel" max={speech.total} value={speech.completed} /><span>{speech.status === "complete" ? "Pembacaan selesai" : `${speech.completed} / ${speech.total} bagian selesai`}</span>{speech.status !== "complete" && <button id="article-tts-restart" type="button" onClick={startSpeech}><RotateCcw size={13} />Mulai ulang</button>}</div>}
+            <p role="status" aria-live="polite">{speech.error || (speech.status === "paused" ? "Dijeda. Lanjutkan dari bagian terakhir; bagian itu akan dibaca ulang agar tidak terlewat." : speech.status === "complete" ? "Seluruh teks artikel sudah dibacakan." : speaking ? "Membaca artikel. Biarkan halaman tetap terbuka." : "")}</p>
+        </div>
         </div>
     );
 }

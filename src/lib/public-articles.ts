@@ -5,6 +5,7 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { getActiveAdSlots } from "@/lib/ads/data";
 import type { AdSlot } from "@/lib/ads/types";
 import { createPublicClient } from "@/lib/supabase/public";
+import { mergeHomepageModules, type HomepageModule } from "@/lib/homepage-modules";
 
 /** Klien read-only tanpa cookie. Semua fungsi di file ini hanya membaca data
  *  publik, sehingga tidak boleh menyentuh cookies() — kalau menyentuh, seluruh
@@ -47,7 +48,7 @@ export type PublicSection = {
 };
 
 export type SocialReel = { id: string; instagram_url: string; embed_url: string; title: string; caption: string | null };
-export type HomepageSection = { section_key: string; title: string; is_enabled: boolean; sort_order: number; style_variant: string; category_slug: string | null };
+export type HomepageSection = HomepageModule;
 export type BreakingNews = { id: string; headline: string; target_url: string; priority: number };
 
 export type PublicHomeData = {
@@ -501,24 +502,17 @@ const fetchPublicHomeData = async (): Promise<PublicHomeData> => {
     const gameSlugs = ["games", "game-news", "esports", "mobile-games", "pc-games", "console-games", "review-games", "tips-trik-games", "komunitas-gaming"];
     const sportSlugs = ["sport", "sepak-bola", "liga-indonesia", "liga-inggris", "liga-italia", "liga-spanyol", "motogp", "f1", "basket", "sport-lain"];
     let reels: SocialReel[] = [];
-    let homepageSections: HomepageSection[] = [
-        { section_key: "topics", title: "Pilihan Kanal", is_enabled: true, sort_order: 10, style_variant: "compact", category_slug: null },
-        { section_key: "reels", title: "Reels Pilihan", is_enabled: true, sort_order: 20, style_variant: "carousel", category_slug: null },
-        { section_key: "games", title: "Games Arena", is_enabled: true, sort_order: 30, style_variant: "arena", category_slug: "games" },
-        { section_key: "sports", title: "Sports Focus", is_enabled: true, sort_order: 40, style_variant: "scoreboard", category_slug: "sport" },
-        { section_key: "bali", title: "Bali Kini", is_enabled: true, sort_order: 50, style_variant: "mosaic", category_slug: "bali" },
-        { section_key: "latest", title: "Berita Terkini", is_enabled: true, sort_order: 60, style_variant: "editorial", category_slug: null },
-    ];
+    let homepageSections: HomepageSection[] = mergeHomepageModules([]);
     let breakingNews: BreakingNews[] = [];
     try {
         const supabase = createPublicClient();
         const [reelResult, sectionResult, breakingResult] = await Promise.all([
             supabase.from("social_reels").select("id,instagram_url,embed_url,title,caption").eq("is_active", true).order("sort_order").limit(10),
-            supabase.from("homepage_sections").select("section_key,title,is_enabled,sort_order,style_variant,category_slug").order("sort_order"),
+            supabase.from("homepage_sections").select("section_key,title,is_enabled,sort_order,style_variant,category_slug,settings").order("sort_order").limit(10),
             supabase.from("breaking_news").select("id,headline,target_url,priority").eq("is_active", true).lte("starts_at", new Date().toISOString()).order("priority", { ascending: false }).limit(5),
         ]);
         if (!reelResult.error) reels = (reelResult.data ?? []) as SocialReel[];
-        if (!sectionResult.error && sectionResult.data?.length) homepageSections = sectionResult.data as HomepageSection[];
+        if (!sectionResult.error) homepageSections = mergeHomepageModules((sectionResult.data ?? []) as HomepageSection[]);
         if (!breakingResult.error) breakingNews = (breakingResult.data ?? []) as BreakingNews[];
     } catch {
         // New control tables may not be migrated yet. Defaults keep homepage available.

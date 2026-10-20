@@ -1,10 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { createClient } from "@/lib/supabase/server";
+import { HOMEPAGE_MODULES, isAdModule, mergeHomepageModules, moduleStyles, type HomepageModule } from "@/lib/homepage-modules";
 
 function value(formData: FormData, key: string) {
     const item = formData.get(key);
@@ -148,23 +149,51 @@ export async function deleteReelAction(formData: FormData) {
     redirect("/dashboard/reels?success=Reel%20dihapus");
 }
 
-export async function saveHomepageSectionAction(formData: FormData) {
+export type HomepageSaveState = { success?: string; error?: string };
+
+export async function saveHomepageSectionAction(_state: HomepageSaveState, formData: FormData): Promise<HomepageSaveState> {
     await requireSuperAdmin("/dashboard/homepage");
-    const id = value(formData, "id");
-    if (!id) redirect("/dashboard/homepage?error=Modul%20tidak%20valid");
-    const payload = {
-        title: value(formData, "title"),
-        is_enabled: formData.get("is_enabled") === "on",
-        sort_order: Number(value(formData, "sort_order")) || 0,
-        style_variant: value(formData, "style_variant") || "default",
-        category_slug: value(formData, "category_slug") || null,
-    };
+    const key = value(formData, "section_key");
+    const defaults = HOMEPAGE_MODULES.find((module) => module.section_key === key);
+    if (!defaults) return { error: "Modul tidak valid." };
+    const title = value(formData, "title");
+    const order = Number(value(formData, "sort_order"));
+    const style = value(formData, "style_variant") || defaults.style_variant;
+    const category = value(formData, "category_slug");
+    const enabled = formData.get("is_enabled") === "on";
+    if (!title || title.length > 100 || !Number.isInteger(order) || order < 1 || order > 1000) return { error: "Isi judul (maks. 100 karakter) dan urutan 1–1000." };
+    if (!isAdModule(defaults) && (!moduleStyles(key).includes(style) || (category && !/^[a-z0-9-]{1,90}$/.test(category)))) return { error: "Gaya atau slug kanal tidak valid." };
+    const html = value(formData, "html_content");
+    const desktopHeight = Number(value(formData, "desktop_height") || 250);
+    const mobileHeight = Number(value(formData, "mobile_height") || 250);
+    if (isAdModule(defaults) && (html.length > 50000 || (enabled && !html))) return { error: "HTML maksimal 50.000 karakter dan wajib diisi sebelum iklan diaktifkan." };
+    if (isAdModule(defaults) && ![desktopHeight, mobileHeight].every((height) => Number.isInteger(height) && height >= 90 && height <= 600)) return { error: "Tinggi iklan harus 90–600 piksel." };
     const supabase = await createClient();
-    const { error } = await supabase.from("homepage_sections").update(payload).eq("id", id);
-    if (error) redirect(`/dashboard/homepage?error=${encodeURIComponent(error.message)}`);
+    const existing = await supabase.from("homepage_sections").select("section_key,title,is_enabled,sort_order,style_variant,category_slug,settings").limit(10);
+    if (existing.error) return { error: "Konfigurasi belum dapat dibaca. Periksa koneksi atau tabel homepage_sections." };
+    const rows = (existing.data ?? []) as HomepageModule[];
+    const merged = mergeHomepageModules(rows);
+    // Insert missing slots only; saved values are never replaced with defaults.
+    const { error: seedError } = await supabase.from("homepage_sections").upsert(merged, { onConflict: "section_key", ignoreDuplicates: true });
+    if (seedError) return { error: "Modul baru belum dapat disiapkan. Periksa izin Super Admin." };
+    const changedOrders = rows.filter((row) => merged.find((module) => module.section_key === row.section_key)?.sort_order !== row.sort_order);
+    const orderResults = await Promise.all(changedOrders.map((row) => supabase.from("homepage_sections")
+        .update({ sort_order: merged.find((module) => module.section_key === row.section_key)!.sort_order })
+        .eq("section_key", row.section_key).eq("sort_order", row.sort_order)));
+    if (orderResults.some((result) => result.error)) return { error: "Urutan modul belum tersimpan. Coba simpan kembali." };
+    const current = rows.find((row) => row.section_key === key);
+    const settings = isAdModule(defaults)
+        ? { ...current?.settings, module_type: "ads", html_content: html, desktop_height: desktopHeight, mobile_height: mobileHeight }
+        : { ...current?.settings, module_type: "content" };
+    const { data, error } = await supabase.from("homepage_sections").update({
+        title, is_enabled: enabled, sort_order: order, style_variant: style,
+        category_slug: isAdModule(defaults) ? null : category || null, settings,
+    }).eq("section_key", key).select("id").single();
+    if (error || !data) return { error: "Modul belum tersimpan. Periksa izin dan coba kembali." };
+    updateTag("home-data");
     revalidatePath("/dashboard/homepage");
     revalidatePath("/");
-    redirect("/dashboard/homepage?success=Modul%20homepage%20diperbarui");
+    return { success: `${title} tersimpan. Homepage sudah diperbarui.` };
 }
 
 export async function saveBreakingNewsAction(formData: FormData) {

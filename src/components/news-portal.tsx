@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import "@/styles/homepage-modules.css";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -12,7 +13,8 @@ import {
 import type { PublicArticle, PublicHomeData } from "@/lib/public-articles";
 import { AdSlotFrame } from "@/components/ads/ad-slot";
 import { InstagramReels } from "@/components/instagram-reels";
-import { BaliLiveHub } from "@/components/bali-live-hub";
+import { HomepageStoryModule } from "@/components/homepage-story-module";
+import { isAdModule, mergeHomepageModules } from "@/lib/homepage-modules";
 
 function articleImage(article: PublicArticle, index = 0) {
     return article.featured_media?.secure_url || "/og-default.jpg";
@@ -130,10 +132,8 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
         return data.sections.filter((section) => section.title === active);
     }, [active, data.sections, data.trending]);
 
-    const moduleEnabled = (key: string) => data.homepageSections.find((section) => section.section_key === key)?.is_enabled ?? true;
+    const homepageModules = mergeHomepageModules(data.homepageSections);
 
-    const psychologySection = data.sections.find(section => section.slug.toLowerCase().includes("psikologi") || section.title.toLowerCase().includes("psikologi"));
-    const psychologyStories = psychologySection ? [psychologySection.lead, ...psychologySection.items] : [];
     const savedArticles = useMemo(() => data.articles.filter(item => savedSlugs.includes(item.slug)), [data.articles, savedSlugs]);
     const continueArticle = useMemo(() => data.articles.find(item => item.slug === lastRead), [data.articles, lastRead]);
     const ad = (key: string) => data.ads.find((slot) => slot.slot_key === key);
@@ -207,7 +207,10 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
                 {continueArticle && <Link href={`/${continueArticle.slug}`} className="continue-reading"><span><BookOpen /> LANJUTKAN MEMBACA</span><strong>{continueArticle.title}</strong><ChevronRight /></Link>}
                 {data.breakingNews.length > 0 ? <div className="live-breaking-rail"><strong>BREAKING</strong><div>{data.breakingNews.map((item) => <Link href={item.target_url} key={item.id}>{item.headline}</Link>)}</div><span>LIVE</span></div> : trendingSlides[0] && <Link href={`/${trendingSlides[0].slug}`} className="desktop-breaking"><strong>BREAKING</strong><span>{trendingSlides[0].title}</span><small>{formatRelativeDate(trendingSlides[0].published_at)}</small></Link>}
 
-                {moduleEnabled("topics") && <section className="topic-grid" aria-label="Pilihan kanal">
+                {homepageModules.filter(module => module.is_enabled).map(module => {
+                    if (isAdModule(module)) return <div key={module.section_key} data-home-module={module.section_key}><AdSlotFrame slot={{ name: module.title, is_active: true, content_type: "html", html_content: module.settings?.html_content ?? "", youtube_url: null, desktop_width: 970, desktop_height: module.settings?.desktop_height ?? 250, mobile_width: 320, mobile_height: module.settings?.mobile_height ?? 250 }} /></div>;
+                    if (module.section_key === "topics") return <div key={module.section_key} data-home-module={module.section_key} className={`composed-topics topics-${module.style_variant}`}>
+                <section className="topic-grid" aria-label="Pilihan kanal">
                     {topics.map(({ name, icon: Icon }, index) => (
                         <button
                             id={`topic-${name.toLowerCase().replaceAll(" ", "-")}`}
@@ -217,14 +220,14 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
                             onClick={() => setActive(name)}
                         ><Icon /><span>{name}</span></button>
                     ))}
-                </section>}
+                </section>
 
-                {moduleEnabled("topics") && <section className="topic-filter" aria-labelledby="topic-title">
-                    <div className="news-section-head"><h2 id="topic-title">Topik-Topik</h2><button>Lihat semua</button></div>
+                <section className="topic-filter" aria-labelledby="topic-title">
+                    <div className="news-section-head"><h2 id="topic-title">{module.title}</h2><button>Lihat semua</button></div>
                     <div className="topic-chips">
                         {filters.map(topic => <button key={topic} className={active === topic ? "active" : ""} onClick={() => selectTopic(topic)} aria-pressed={active === topic}>{topic}</button>)}
                     </div>
-                </section>}
+                </section>
                 <AdSlotFrame slot={ad("home_after_topics_leaderboard")} />
 
                 <section id="topic-feed" className={`topic-news-feed ${feedAnimating ? "is-changing" : ""}`} aria-live="polite" aria-labelledby="topic-feed-title">
@@ -234,51 +237,10 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
                 </section>
                 <AdSlotFrame slot={ad("home_midfeed_billboard")} />
 
-                {moduleEnabled("reels") && <InstagramReels reels={data.reels} />}
-
-                {moduleEnabled("games") && data.games.length > 0 && <section className="editorial-feed games-feed" aria-labelledby="games-feed-title">
-                    <header><span>PLAY • COMPETE • DISCOVER</span><h2 id="games-feed-title">Games Arena</h2><p>Game, esports, dan kultur pemain Indonesia.</p></header>
-                    <div className="games-grid">{data.games.slice(0, 6).map((item, index) => <Link href={`/${item.slug}`} className={index === 0 ? "games-lead" : `games-card games-card-${index + 1}`} key={item.id}><div><Image src={articleImage(item, index)} alt={item.featured_media?.alt_text || item.title} fill sizes={index === 0 ? "520px" : "320px"} /><span className="news-image-shade" /></div><small>{item.category_name} · {String(index + 1).padStart(2, "0")}</small><h3>{item.title}</h3></Link>)}</div>
-                </section>}
-
-                {moduleEnabled("sports") && data.sports.length > 0 && <section className="editorial-feed sports-feed" aria-labelledby="sports-feed-title">
-                    <header><span>LIVE SCOREBOARD</span><h2 id="sports-feed-title">Sports Focus</h2><p>Momentum, rivalitas, dan kemenangan.</p></header>
-                    <div className="sports-slider">{data.sports.map((item, index) => <Link href={`/${item.slug}`} className={index === 0 ? "sports-slide sports-slide-lead" : "sports-slide"} key={item.id}><div className="sports-thumb"><Image src={articleImage(item, index + 1)} alt={item.featured_media?.alt_text || item.title} fill sizes={index === 0 ? "460px" : "320px"} /></div><span>{String(index + 1).padStart(2, "0")}</span><div className="sports-slide-copy"><small>{item.category_name}</small><h3>{item.title}</h3><em>{formatRelativeDate(item.published_at)}</em></div></Link>)}</div>
-                </section>}
-
-                {moduleEnabled("bali") && <><section className="editorial-feed bali-feed" aria-labelledby="bali-feed-title">
-                    <header><span>ISLAND STORIES</span><h2 id="bali-feed-title">Bali Kini</h2><p>Budaya hidup, destinasi, dan suara lokal.</p></header>
-                    <div className="bali-mosaic">{data.bali.map((item, index) => <Link href={`/${item.slug}`} className={`bali-card bali-${index + 1}`} key={item.id}><Image src={articleImage(item, index + 1)} alt={item.featured_media?.alt_text || item.title} fill sizes="500px" /><span className="news-image-shade" /><div><small>{item.category_name}</small><h3>{item.title}</h3></div></Link>)}</div>
-                </section><BaliLiveHub articles={data.bali} /></>}
-
-                {psychologySection && <section className="psychology-showcase" aria-labelledby="psychology-title">
-                    <header><div><span>MIND • LIFE • WELLBEING</span><h2 id="psychology-title">Ruang <em>Psikologi</em></h2><p>Memahami diri, relasi, dan kesehatan mental melalui perspektif tepercaya.</p></div><Link href={`/kanal/${psychologySection.slug}`}>Lihat semua <ChevronRight /></Link></header>
-                    <div className="psychology-layout">
-                        <div className="psychology-main">
-                            <Link href={`/${psychologySection.lead.slug}`} className="psychology-lead"><div><Image src={articleImage(psychologySection.lead)} alt={psychologySection.lead.featured_media?.alt_text || psychologySection.lead.title} fill sizes="680px" /><span className="news-image-shade" /><b>PSIKOLOGI</b></div><section><h3>{psychologySection.lead.title}</h3><p>{psychologySection.lead.excerpt}</p><small>{formatRelativeDate(psychologySection.lead.published_at)} · {psychologySection.lead.reading_time_minutes} menit baca</small></section></Link>
-                            <div className="psychology-grid">{psychologySection.items.slice(0, 3).map((item, index) => <Link href={`/${item.slug}`} key={item.id}><div><Image src={articleImage(item, index + 1)} alt={item.featured_media?.alt_text || item.title} fill sizes="240px" /></div><h3>{item.title}</h3><small>{formatRelativeDate(item.published_at)}</small></Link>)}</div>
-                        </div>
-                        <aside className="psychology-recent"><span>RECENT STORIES</span><h3>Terbaru di Psikologi</h3>{psychologyStories.slice(0, 4).map((item, index) => <Link href={`/${item.slug}`} key={item.id}><b>{String(index + 1).padStart(2, "0")}</b><Image src={articleImage(item, index + 2)} alt="" width={76} height={58} /><div><strong>{item.title}</strong><small>{formatRelativeDate(item.published_at)}</small></div></Link>)}</aside>
-                    </div>
-                </section>}
-
-                {moduleEnabled("latest") && visibleSections.map((section, sectionIndex) => (
-                    <section className="news-section" key={section.slug} aria-labelledby={`section-${sectionIndex}`}>
-                        <div className="news-section-head"><h2 id={`section-${sectionIndex}`}>{section.title}</h2><button>Lihat semua</button></div>
-                        <div className="news-block">
-                            <Link href={`/${section.lead.slug}`} className="lead-story">
-                                <div className="lead-image"><Image src={articleImage(section.lead, sectionIndex)} alt={section.lead.featured_media?.alt_text || section.lead.title} fill sizes="240px" /><div className="news-image-shade" />{sectionIndex === 0 && <span className="news-badge">TERBARU</span>}</div>
-                                <h3>{section.lead.title}</h3><small>{formatRelativeDate(section.lead.published_at)}</small>
-                            </Link>
-                            <div className="mini-list">
-                                {section.items.map((item, i) => <Link href={`/${item.slug}`} key={item.id} className="mini-story">
-                                    <Image src={articleImage(item, i + sectionIndex + 1)} alt={item.featured_media?.alt_text || item.title} width={72} height={52} />
-                                    <span><strong>{item.title}</strong><small>{formatRelativeDate(item.published_at)}</small></span><Bookmark />
-                                </Link>)}
-                            </div>
-                        </div>
-                    </section>
-                ))}
+                    </div>;
+                    if (module.section_key === "reels") return <div key={module.section_key} data-home-module={module.section_key}><InstagramReels reels={data.reels} title={module.title} /></div>;
+                    return <div key={module.section_key} data-home-module={module.section_key}><HomepageStoryModule module={module} data={data} visibleSections={visibleSections} /></div>;
+                })}
                 <section className="newsletter-glass"><div><span>THE DAILY SIGNAL</span><h2>Berita penting. Tanpa kebisingan.</h2><p>Ringkasan editorial SwapNews langsung ke inbox.</p></div><form onSubmit={(event) => event.preventDefault()}><Mail /><input type="email" aria-label="Email newsletter" placeholder="nama@email.com" required /><button>Berlangganan</button></form></section>
             </main>
             <button className="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Kembali ke atas"><ArrowUp /></button>

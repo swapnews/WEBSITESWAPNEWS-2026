@@ -1,0 +1,43 @@
+.article-speech-status:has(p:empty):not(:has(progress)) {
+    display: none;
+}
+
+.article-speech-status {
+    padding: 10px 0 2px;
+    color: var(--muted, #667482);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.article-speech-status p {
+    margin: 6px 0;
+    font-size: 11px;
+}
+
+.article-speech-progress {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.article-speech-progress progress {
+    width: 110px;
+    height: 5px;
+    accent-color: #d56824;
+}
+
+.article-speech-progress button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 36px;
+    padding: 6px 10px;
+    border: 1px solid var(--line, #dce3e7);
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font-size: 10px;
+    cursor: pointer;
+}
+
