@@ -1,16 +1,22 @@
 /* Homepage 2026 wide experience */
 @media(min-width:760px) {
 
-    .news-header {
+    .news-app {
+        --news-content-max: 1680px;
+        --news-page-gutter: clamp(20px, 2.4vw, 48px);
+    }
+
+    .news-app .news-header {
         width: 100%;
         max-width: none;
         min-height: 56px;
         margin: 0;
-        padding: 6px max(22px, calc((100vw - 1880px)/2 + 22px));
+        padding: 6px max(var(--news-page-gutter), calc((100% - var(--news-content-max)) / 2));
     }
 
-    .news-main {
-        width: min(calc(100% - clamp(24px, 2.2vw, 44px)), 1880px)
+    .news-app .news-main {
+        width: min(calc(100% - 2 * var(--news-page-gutter)), var(--news-content-max));
+        min-width: 0;
     }
 
     .news-logo img {
@@ -19,17 +25,17 @@
         object-fit: contain
     }
 
-    .desktop-channel-nav,
-    .desktop-ticker {
+    .news-app .desktop-channel-nav,
+    .news-app .desktop-ticker {
         width: 100%;
         max-width: none;
         margin: 0;
         border-radius: 0;
-        padding-inline: max(20px, calc((100vw - 1880px)/2 + 22px))
+        padding-inline: max(var(--news-page-gutter), calc((100% - var(--news-content-max)) / 2));
     }
 
-    .desktop-utility {
-        padding-inline: max(24px, calc((100% - 1880px)/2))
+    .news-app .desktop-utility {
+        padding-inline: max(var(--news-page-gutter), calc((100% - var(--news-content-max)) / 2));
     }
 
     .news-header {
@@ -41,7 +47,7 @@
     }
 
     .desktop-newsroom-grid {
-        grid-template-columns: minmax(210px, 270px) minmax(620px, 1.65fr) minmax(230px, 290px);
+        grid-template-columns: minmax(210px, 270px) minmax(0, 1.65fr) minmax(230px, 290px);
         gap: clamp(12px, 1.2vw, 22px)
     }
 

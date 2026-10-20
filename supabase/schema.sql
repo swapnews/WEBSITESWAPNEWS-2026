@@ -256,8 +256,9 @@ using (auth.uid() = id or public.is_admin());
 
 create policy "Users can update own profile basics"
 on public.profiles for update
-using (auth.uid() = id)
-with check (auth.uid() = id and role = (select role from public.profiles where id = auth.uid()));
+to authenticated
+using ((select auth.uid()) = id)
+with check ((select auth.uid()) = id and role = (select public.current_role()));
 
 create policy "Super admins can manage profiles"
 on public.profiles for all

@@ -1,10 +1,9 @@
 import { v2 as cloudinary } from "cloudinary";
 
-const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-const apiKey = process.env.CLOUDINARY_API_KEY;
-const apiSecret = process.env.CLOUDINARY_API_SECRET;
-
 export function getCloudinaryConfig() {
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+    const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
+    const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
     if (!cloudName || !apiKey || !apiSecret) {
         throw new Error(
             "Missing Cloudinary configuration. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.",
@@ -39,21 +38,7 @@ export function buildImageUrl(
         format?: string;
     },
 ) {
-    const config = getCloudinaryConfig();
-    const format = options?.format || "webp";
-    const quality = options?.quality || "60"; // 40% compression (60% quality)
-
-    const transformationParts = [
-        options?.width ? `w_${options.width}` : null,
-        options?.height ? `h_${options.height}` : null,
-        options?.crop ? `c_${options.crop}` : "c_limit",
-        `q_${quality}`,
-        `f_${format}`,
-    ].filter(Boolean);
-
-    const transformation = transformationParts.join(",");
-
-    // Handle if publicId is already a full URL or data URL
+    // Handle existing URLs before requiring server-side credentials.
     if (!publicId || publicId.startsWith("http://") || publicId.startsWith("https://") || publicId.startsWith("data:")) {
         return publicId || "";
     }

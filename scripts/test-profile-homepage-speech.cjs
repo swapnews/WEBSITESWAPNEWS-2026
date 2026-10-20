@@ -11,6 +11,8 @@ Module._extensions['.ts'] = (module, filename) => module._compile(ts.transpileMo
 const { chunkSpeechText } = require('../src/lib/speech-text.ts');
 const { ArticleSpeechQueue } = require('../src/lib/article-speech-queue.ts');
 const { HOMEPAGE_MODULES, mergeHomepageModules, isAdModule } = require('../src/lib/homepage-modules.ts');
+const { cloudinaryUploadError } = require('../src/lib/cloudinary-errors.ts');
+const { profileSaveError } = require('../src/lib/profile-errors.ts');
 
 function harness() {
     let now = 0, nextId = 0, hidden = false;
@@ -102,7 +104,7 @@ test('custom saved order and HTML remain authoritative', () => {
 // Load route against isolated auth, DB, Cloudinary, and Next adapters.
 function avatarRoute({ loggedIn = true, dbFails = false, uploadFails = false } = {}) {
     const calls = { uploads: 0, destroys: 0, updates: 0, paths: [] };
-    const cloud = { uploader: { upload_stream(options, done) { calls.uploads++; return { end() { if (uploadFails) done(new Error('mock Cloudinary failure')); else done(null, { public_id: 'test/foto', secure_url: 'https://res.cloudinary.com/test/image/upload/foto.webp' }); } }; }, async destroy() { calls.destroys++; } } };
+    const cloud = { uploader: { upload_stream(options, done) { calls.uploads++; return { on() { }, end() { if (uploadFails) done(new Error('mock Cloudinary failure')); else done(null, { public_id: 'test/foto', secure_url: 'https://res.cloudinary.com/test/image/upload/foto.webp' }); } }; }, async destroy() { calls.destroys++; } } };
     const db = {
         from() {
             return {
@@ -128,7 +130,7 @@ function avatarRoute({ loggedIn = true, dbFails = false, uploadFails = false } =
             };
         },
     };
-    const stubs = { 'next/cache': { revalidatePath: p => calls.paths.push(p) }, 'next/server': { NextResponse: { json: (data, options) => Response.json(data, options) } }, '@/lib/auth/get-profile': { getCurrentProfile: async () => loggedIn ? { id: 'own-user' } : null }, '@/lib/cloudinary': { getCloudinaryClient: () => cloud }, '@/lib/supabase/server': { createClient: async () => db } };
+    const stubs = { 'next/cache': { revalidatePath: p => calls.paths.push(p) }, 'next/server': { NextResponse: { json: (data, options) => Response.json(data, options) } }, '@/lib/auth/get-profile': { getCurrentProfile: async () => loggedIn ? { id: 'own-user' } : null }, '@/lib/cloudinary': { getCloudinaryClient: () => cloud }, '@/lib/cloudinary-errors': { cloudinaryUploadError }, '@/lib/profile-errors': { profileSaveError }, '@/lib/supabase/server': { createClient: async () => db } };
     const filename = path.resolve(__dirname, '../src/app/api/profiles/avatar/route.ts');
     const loaded = new Module(filename);
     loaded.filename = filename;
@@ -158,4 +160,55 @@ test('avatar Cloudinary failure never writes fallback data URL', async () => {
 });
 test('avatar DB failure cleans up new asset and reports error', async () => {
     const h = avatarRoute({ dbFails: true }); assert.equal((await h.post(photoRequest())).status, 500); assert.equal(h.calls.destroys, 1); assert.equal(h.calls.paths.length, 0);
+});
+
+test('Cloudinary failures classified without leaking provider text', () => {
+    const cases = [
+        [{ http_code: 401, message: 'Invalid Signature SECRET' }, 'PHOTO_CLOUD_AUTH', 503],
+        [{ http_code: 403 }, 'PHOTO_CLOUD_FORBIDDEN', 503],
+        [{ http_code: 429 }, 'PHOTO_CLOUD_LIMIT', 503],
+        [{ http_code: 400, message: 'credit limit exceeded' }, 'PHOTO_CLOUD_LIMIT', 503],
+        [{ code: 'ETIMEDOUT' }, 'PHOTO_CLOUD_CONNECTION', 504],
+        [{ http_code: 400 }, 'PHOTO_CLOUD_REJECTED', 502],
+        [null, 'PHOTO_CLOUD_UNAVAILABLE', 502],
+    ];
+    for (const [error, code, status] of cases) {
+        const result = cloudinaryUploadError(error);
+        assert.equal(result.code, code); assert.equal(result.status, status);
+        assert.ok(!result.message.includes('SECRET'));
+    }
+});
+
+test('profile errors are actionable without SQL details', () => {
+    assert.match(profileSaveError({ code: '42P17', message: 'SQL secret' }), /PROFILE_RLS_RECURSION/);
+    assert.match(profileSaveError({ code: '23505' }), /Username/);
+    assert.match(profileSaveError({ code: '42501' }), /PROFILE_FORBIDDEN/);
+    assert.ok(!profileSaveError({ message: 'private database name' }).includes('private database name'));
+    assert.match(profileSaveError(null), /belum tersimpan/);
+});
+
+test('profile migration keeps RLS and own-user/role checks without self-query in policy', () => {
+    const sql = fs.readFileSync(path.resolve(__dirname, '../supabase/migrations/028_fix_profile_update_rls.sql'), 'utf8');
+    const policy = sql.slice(sql.indexOf('create policy'));
+    assert.match(sql, /security definer/i);
+    assert.match(policy, /to authenticated/i);
+    assert.match(policy, /auth\.uid\(\)\) = id/);
+    assert.match(policy, /role = \(select public\.current_role\(\)\)/);
+    assert.doesNotMatch(policy, /from public\.profiles/i);
+    assert.doesNotMatch(sql, /disable row level security/i);
+});
+
+test('Cloudinary config trims env and does not require credentials for existing URLs', () => {
+    const { getCloudinaryConfig, buildImageUrl } = require('../src/lib/cloudinary.ts');
+    const names = ['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET'];
+    const saved = names.map(name => process.env[name]);
+    try {
+        names.forEach(name => { process.env[name] = '  test  '; });
+        assert.deepEqual(getCloudinaryConfig(), { cloudName: 'test', apiKey: 'test', apiSecret: 'test' });
+        names.forEach(name => delete process.env[name]);
+        assert.throws(getCloudinaryConfig, /Missing Cloudinary configuration/);
+        assert.equal(buildImageUrl('https://example.com/image.webp'), 'https://example.com/image.webp');
+    } finally {
+        names.forEach((name, index) => { if (saved[index] === undefined) delete process.env[name]; else process.env[name] = saved[index]; });
+    }
 });

@@ -3,9 +3,12 @@ import { revalidatePath } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentProfile } from "@/lib/auth/get-profile";
 import { getCloudinaryClient } from "@/lib/cloudinary";
+import { cloudinaryUploadError } from "@/lib/cloudinary-errors";
+import { profileSaveError } from "@/lib/profile-errors";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 const MAX_BYTES = 3 * 1024 * 1024;
 
 function isImage(buffer: Buffer, mime: string) {
@@ -42,7 +45,7 @@ export async function POST(request: NextRequest) {
     try {
         cloudinary = getCloudinaryClient();
     } catch {
-        return NextResponse.json({ error: "Penyimpanan foto belum dikonfigurasi. Hubungi admin." }, { status: 503 });
+        return NextResponse.json({ error: "Penyimpanan foto belum dikonfigurasi. Hubungi admin (PHOTO_CLOUD_CONFIG).", code: "PHOTO_CLOUD_CONFIG" }, { status: 503 });
     }
     let uploaded: { public_id: string; secure_url: string };
     try {
@@ -58,17 +61,21 @@ export async function POST(request: NextRequest) {
                 if (error || !result) reject(error ?? new Error("Upload failed"));
                 else resolve({ public_id: result.public_id, secure_url: result.secure_url });
             });
+            stream.on("error", reject);
             stream.end(buffer);
         });
-    } catch {
-        return NextResponse.json({ error: "Cloudinary belum dapat menerima foto. Coba lagi atau hubungi admin jika berulang." }, { status: 502 });
+    } catch (error) {
+        const failure = cloudinaryUploadError(error);
+        const reference = randomUUID();
+        console.error("[avatar-upload]", { code: failure.code, reference });
+        return NextResponse.json({ error: `${failure.message} (${failure.code}; referensi ${reference})`, code: failure.code, reference }, { status: failure.status });
     }
     const supabase = await createClient();
     const { data, error } = await supabase.from("profiles")
         .update({ avatar_url: uploaded.secure_url }).eq("id", profile.id).select("id,avatar_url").single();
     if (error || !data?.avatar_url) {
-        await cloudinary.uploader.destroy(uploaded.public_id).catch(() => undefined);
-        return NextResponse.json({ error: "Foto belum tersimpan di profil. Coba lagi; jika tetap gagal, minta admin memeriksa izin profil." }, { status: 500 });
+        await cloudinary.uploader.destroy(uploaded.public_id).catch(() => console.error("[avatar-upload]", { code: "PHOTO_CLEANUP_FAILED" }));
+        return NextResponse.json({ error: `Foto belum tersimpan. ${profileSaveError(error)}` }, { status: 500 });
     }
     revalidatePath("/profile");
     revalidatePath("/dashboard/wartawan/workspace");

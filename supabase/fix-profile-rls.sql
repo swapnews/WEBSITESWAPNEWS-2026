@@ -17,3 +17,11 @@ $$;
 revoke all on function public.current_role() from public;
 grant execute on function public.current_role() to authenticated;
 grant execute on function public.current_role() to anon;
+
+-- The helper alone is insufficient: replace the recursive UPDATE check too.
+drop policy if exists "Users can update own profile basics" on public.profiles;
+create policy "Users can update own profile basics"
+on public.profiles for update
+to authenticated
+using ((select auth.uid()) = id)
+with check ((select auth.uid()) = id and role = (select public.current_role()));

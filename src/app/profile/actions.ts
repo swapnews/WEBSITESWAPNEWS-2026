@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { profileSaveError } from "@/lib/profile-errors";
 
 function text(formData: FormData, key: string, max = 255) {
     const value = formData.get(key);
@@ -58,7 +59,7 @@ export async function updateProfileAction(formData: FormData) {
         profileRedirect("error", "Pilihan jenis kelamin tidak valid.", "profile");
     }
 
-    const { error } = await supabase.from("profiles").update({
+    const { data, error } = await supabase.from("profiles").update({
         full_name: fullName,
         username: username || null,
         whatsapp: whatsapp || null,
@@ -72,9 +73,9 @@ export async function updateProfileAction(formData: FormData) {
         province: text(formData, "province", 80) || null,
         postal_code: text(formData, "postal_code", 10) || null,
         press_card_number: text(formData, "press_card_number", 80) || null,
-    }).eq("id", user.id);
+    }).eq("id", user.id).select("id").single();
 
-    if (error) profileRedirect("error", `Profil gagal disimpan: ${error.message}`, "profile");
+    if (error || !data) profileRedirect("error", profileSaveError(error), "profile");
     await supabase.auth.updateUser({ data: { full_name: fullName } });
     refreshProfileViews();
     profileRedirect("success", "Profil berhasil diperbarui.", "profile");
