@@ -212,9 +212,9 @@ export default async function ArticlePage({ params }: Props) {
 
     return (
         <div className="public-article-shell article-2026-shell news-app">
-            <ArticleExperience slug={article.slug} headings={headingLabels} />
+            <ArticleExperience slug={article.slug} title={article.title} headings={headingLabels} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(article, ogImageUrl)) }} />
-            <PublicSiteHeader backHref="/" categoryName={article.category_name} tickerText={tickerText} headerAd={locked ? null : ad("global_header_leaderboard")} />
+            <PublicSiteHeader backHref="/" categoryName={article.category_name} tickerText={tickerText} headerAd={locked ? null : ad("global_header_leaderboard")} showBottomNav={false} />
 
             <main className="public-article-layout">
                 <article className="public-article">

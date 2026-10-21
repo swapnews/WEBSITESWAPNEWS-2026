@@ -49,11 +49,13 @@ export function PublicSiteHeader({
     categoryName,
     tickerText,
     headerAd,
+    showBottomNav = true,
 }: {
     backHref?: string;
     categoryName?: string;
     tickerText?: string;
     headerAd?: AdSlot | null;
+    showBottomNav?: boolean;
 }) {
     const [dark, setDark] = useState(true);
     const [compact, setCompact] = useState(false);
@@ -140,13 +142,17 @@ export function PublicSiteHeader({
 
             {categoryName ? <div className="article-kicker"><span>{categoryName}</span></div> : null}
 
-            <nav className="news-bottom-nav" aria-label="Navigasi utama">
-                <Link className="active" href="/"><Home /><span>Beranda</span></Link>
-                <Link id="explore" href="/cari"><Radio /><span>Eksplor</span></Link>
-                <Link id="create-news" className="create-button" href="/member/kirim-berita" aria-label="Buat berita"><Zap /></Link>
-                <button id="saved-news" onClick={openSaved}><Bookmark /><span>Tersimpan</span></button>
-                <Link id="profile" href="/member"><CircleUserRound /><span>Profil</span></Link>
-            </nav>
+            {showBottomNav && (
+                <nav className="news-bottom-nav" aria-label="Navigasi utama">
+                    <Link className="active" href="/"><Home /><span>Beranda</span></Link>
+                    <button id="nav-trending-header" onClick={() => {
+                        const target = document.querySelector(".channel-trending") ?? document.querySelector(".trending-stage");
+                        target?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}><Radio /><span>Trending</span></button>
+                    <Link id="nav-kanal-header" href="/#topic-feed"><Rows3 /><span>Kanal</span></Link>
+                    <Link id="nav-login-header" href="/login"><CircleUserRound /><span>Masuk</span></Link>
+                </nav>
+            )}
 
             {savedOpen && (
                 <aside className="saved-drawer" aria-label="Berita tersimpan">

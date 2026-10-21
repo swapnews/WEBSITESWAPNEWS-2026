@@ -26,9 +26,10 @@
     transform: translateY(-50%)
 }
 
-.article-experience-dock button {
+.article-experience-dock .dock-btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     width: 44px;
     height: 44px;
@@ -40,24 +41,33 @@
     color: var(--news-text);
     box-shadow: 0 10px 28px rgba(0, 0, 0, .12);
     backdrop-filter: blur(20px);
-    transition: .25s
+    transition: .2s ease;
+    text-decoration: none;
+    cursor: pointer;
 }
 
-.article-experience-dock button:hover,
-.article-experience-dock button.active {
+.article-experience-dock .dock-btn:hover,
+.article-experience-dock .dock-btn.active {
     width: 130px;
     background: var(--news-accent);
-    color: white
+    color: white;
+}
+
+.article-experience-dock .dock-btn.shared {
+    background: #16a34a;
+    color: white;
 }
 
 .article-experience-dock svg {
-    flex: 0 0 19px
+    flex: 0 0 19px;
+    width: 19px;
+    height: 19px;
 }
 
 .article-experience-dock span {
     white-space: nowrap;
     font-size: 10px;
-    font-weight: 900
+    font-weight: 900;
 }
 
 .article-toc {
@@ -260,24 +270,56 @@
     .article-experience-dock {
         left: 50%;
         top: auto;
-        bottom: 82px;
+        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
         display: flex;
+        align-items: center;
+        gap: 6px;
         transform: translateX(-50%);
-        padding: 6px;
+        padding: 4px 8px;
         border: 1px solid var(--news-line);
-        border-radius: 18px;
-        background: color-mix(in srgb, var(--news-bg) 86%, transparent);
-        backdrop-filter: blur(20px)
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--news-surface) 92%, transparent);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+        backdrop-filter: blur(24px) saturate(180%);
+        z-index: 120;
     }
 
-    .article-experience-dock button,
-    .article-experience-dock button:hover,
-    .article-experience-dock button.active {
-        width: 44px
+    .article-experience-dock .dock-btn,
+    .article-experience-dock .dock-btn:hover,
+    .article-experience-dock .dock-btn.active {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        padding: 0;
+        border-radius: 999px;
+        box-shadow: none;
+        border: none;
+        background: transparent;
+        color: var(--news-text);
+    }
+
+    .article-experience-dock .dock-btn:active {
+        transform: scale(0.88);
+    }
+
+    .article-experience-dock .dock-btn.active {
+        background: var(--news-accent);
+        color: #fff;
+    }
+
+    .article-experience-dock .dock-btn.shared {
+        background: #16a34a;
+        color: #fff;
+    }
+
+    .article-experience-dock .dock-btn svg {
+        width: 17px;
+        height: 17px;
+        flex: 0 0 17px;
     }
 
     .article-experience-dock span {
-        display: none
+        display: none !important;
     }
 
     .article-2026-shell .public-article-layout {
