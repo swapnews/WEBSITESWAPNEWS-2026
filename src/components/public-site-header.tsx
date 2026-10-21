@@ -61,6 +61,7 @@ export function PublicSiteHeader({
     const [compact, setCompact] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [savedOpen, setSavedOpen] = useState(false);
+    const [notifOpen, setNotifOpen] = useState(false);
     const [savedArticles, setSavedArticles] = useState<{ slug: string; title: string; image: string }[]>([]);
 
     useEffect(() => {
@@ -120,7 +121,15 @@ export function PublicSiteHeader({
                 <div className="news-actions">
                     <Link id="news-search" href="/cari" aria-label="Cari berita" className="news-icon-link"><Search /></Link>
                     <button id="density-switch" onClick={toggleDensity} aria-label="Ubah kepadatan tampilan"><Rows3 /></button>
-                    <button id="news-notifications" className="has-alert" aria-label="Notifikasi"><Bell /></button>
+                    <button
+                        id="news-notifications"
+                        className="has-alert"
+                        onClick={() => setNotifOpen(!notifOpen)}
+                        aria-label="Buka notifikasi redaksi"
+                        aria-expanded={notifOpen}
+                    >
+                        <Bell />
+                    </button>
                     <button id="theme-switch" className="theme-switch" onClick={switchTheme} aria-label={`Aktifkan mode ${dark ? "terang" : "gelap"}`} aria-pressed={dark}>
                         <span className={!dark ? "selected" : ""}><Sun /></span><span className={dark ? "selected" : ""}><Moon /></span>
                     </button>
@@ -137,7 +146,7 @@ export function PublicSiteHeader({
 
             <div className="desktop-ticker">
                 <strong>TRENDING</strong>
-                <span>{tickerText || "Berita bergerak. Cerita tetap hidup.   •   SwapNews — Suara Wawasan Aktual Publik"}</span>
+                <span>{tickerText || "Berita bergerak. Cerita tetap hidup.   •   SwapNews: Suara Wawasan Aktual Publik"}</span>
             </div>
 
             {categoryName ? <div className="article-kicker"><span>{categoryName}</span></div> : null}
@@ -152,6 +161,27 @@ export function PublicSiteHeader({
                     <Link id="nav-kanal-header" href="/#topic-feed"><Rows3 /><span>Kanal</span></Link>
                     <Link id="nav-login-header" href="/login"><CircleUserRound /><span>Masuk</span></Link>
                 </nav>
+            )}
+
+            {notifOpen && (
+                <aside className="saved-drawer" aria-label="Notifikasi redaksi">
+                    <header>
+                        <div><span>INFORMASI</span><h2>Notifikasi</h2></div>
+                        <button onClick={() => setNotifOpen(false)} aria-label="Tutup"><X /></button>
+                    </header>
+                    <div className="notif-feed">
+                        <article className="notif-item">
+                            <small>SISTEM REDAKSI</small>
+                            <strong>SwapNews Versi 2026 Aktif</strong>
+                            <p>Pemantauan berita terkini, editorial terverifikasi, dan navigasi cepat siap digunakan.</p>
+                        </article>
+                        <article className="notif-item">
+                            <small>EDITORIAL</small>
+                            <strong>Liputan Khusus Pilkada & Ekonomi</strong>
+                            <p>Ikuti perkembangan analisis mendalam di rubrik Nasional dan Bisnis.</p>
+                        </article>
+                    </div>
+                </aside>
             )}
 
             {savedOpen && (

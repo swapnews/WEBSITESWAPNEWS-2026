@@ -66,6 +66,8 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
     const [compact, setCompact] = useState(false);
     const [lastRead, setLastRead] = useState<string | null>(null);
     const [scrolled, setScrolled] = useState(false);
+    const [notifOpen, setNotifOpen] = useState(false);
+    const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
     const carouselRef = useRef<HTMLDivElement>(null);
     const trendingSlides = useMemo(() => data.trending.slice(0, 10), [data.trending]);
 
@@ -149,7 +151,15 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
                 <div className="news-actions">
                     <Link id="news-search" href="/cari" aria-label="Cari berita" className="news-icon-link"><Search /></Link>
                     <button id="density-switch" onClick={toggleDensity} aria-label="Ubah kepadatan tampilan"><Rows3 /></button>
-                    <button id="news-notifications" className="has-alert" aria-label="Notifikasi"><Bell /></button>
+                    <button
+                        id="news-notifications"
+                        className="has-alert"
+                        onClick={() => setNotifOpen(!notifOpen)}
+                        aria-label="Notifikasi redaksi"
+                        aria-expanded={notifOpen}
+                    >
+                        <Bell />
+                    </button>
                     <button id="theme-switch" className="theme-switch" onClick={switchTheme} aria-label={`Aktifkan mode ${dark ? "terang" : "gelap"}`} aria-pressed={dark}>
                         <span className={!dark ? "selected" : ""}><Sun /></span><span className={dark ? "selected" : ""}><Moon /></span>
                     </button>
@@ -237,7 +247,28 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
                     if (module.section_key === "reels") return <div key={module.section_key} data-home-module={module.section_key}><InstagramReels reels={data.reels} title={module.title} /></div>;
                     return <div key={module.section_key} data-home-module={module.section_key}><HomepageStoryModule module={module} data={data} visibleSections={visibleSections} /></div>;
                 })}
-                <section className="newsletter-glass"><div><span>THE DAILY SIGNAL</span><h2>Berita penting. Tanpa kebisingan.</h2><p>Ringkasan editorial SwapNews langsung ke inbox.</p></div><form onSubmit={(event) => event.preventDefault()}><Mail /><input type="email" aria-label="Email newsletter" placeholder="nama@email.com" required /><button>Berlangganan</button></form></section>
+                <section className="newsletter-glass">
+                    <div>
+                        <span>THE DAILY SIGNAL</span>
+                        <h2>Berita penting. Tanpa kebisingan.</h2>
+                        <p>Ringkasan editorial SwapNews langsung ke inbox Anda setiap pagi.</p>
+                    </div>
+                    {newsletterSubscribed ? (
+                        <div className="newsletter-success">
+                            <strong>Terima kasih!</strong>
+                            <p>Anda telah terdaftar di Daily Signal SwapNews.</p>
+                        </div>
+                    ) : (
+                        <form onSubmit={(event) => {
+                            event.preventDefault();
+                            setNewsletterSubscribed(true);
+                        }}>
+                            <Mail />
+                            <input type="email" aria-label="Email newsletter" placeholder="nama@email.com" required />
+                            <button type="submit">Berlangganan</button>
+                        </form>
+                    )}
+                </section>
             </main>
             <button className="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Kembali ke atas"><ArrowUp /></button>
             <nav className="news-bottom-nav" aria-label="Navigasi utama">
@@ -246,6 +277,27 @@ export default function NewsPortal({ data }: { data: PublicHomeData }) {
                 <button id="nav-terbaru" onClick={() => document.getElementById('topic-feed')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><Newspaper /><span>Terbaru</span></button>
                 <Link id="nav-masuk" href="/login"><LogIn /><span>Masuk</span></Link>
             </nav>
+
+            {notifOpen && (
+                <aside className="saved-drawer" aria-label="Notifikasi redaksi">
+                    <header>
+                        <div><span>INFORMASI</span><h2>Notifikasi</h2></div>
+                        <button onClick={() => setNotifOpen(false)} aria-label="Tutup"><X /></button>
+                    </header>
+                    <div className="notif-feed">
+                        <article className="notif-item">
+                            <small>SISTEM REDAKSI</small>
+                            <strong>SwapNews Versi 2026 Aktif</strong>
+                            <p>Pemantauan berita terkini, editorial terverifikasi, dan navigasi cepat siap digunakan.</p>
+                        </article>
+                        <article className="notif-item">
+                            <small>EDITORIAL</small>
+                            <strong>Liputan Khusus Pilkada & Ekonomi</strong>
+                            <p>Ikuti perkembangan analisis mendalam di rubrik Nasional dan Bisnis.</p>
+                        </article>
+                    </div>
+                </aside>
+            )}
         </div>
     );
 }
